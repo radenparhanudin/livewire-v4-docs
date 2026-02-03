@@ -1,14 +1,14 @@
-Livewire allows you to include component-specific styles directly in your single-file and multi-file components. These styles are automatically scoped to your component, preventing them from leaking into other parts of your application.
+Livewire memungkinkan Anda untuk menyertakan **styles** khusus **component** secara langsung di dalam **single-file** dan **multi-file components** Anda. **Styles** ini secara otomatis di-**scoped** ke **component** Anda, mencegahnya bocor ke bagian lain dari aplikasi Anda.
 
-This approach mirrors how `<script>` tags work in Livewire components, giving you a cohesive way to keep your component's PHP, HTML, JavaScript, and CSS all in one place.
+Pendekatan ini mencerminkan cara kerja tag `<script>` di **Livewire components**, memberi Anda cara yang kohesif untuk menjaga PHP, HTML, JavaScript, dan CSS milik **component** Anda tetap di satu tempat.
 
 ## Scoped styles
 
-By default, styles defined in your component are scoped to that component only. This means your CSS selectors will only affect elements within your component, even if those same selectors exist elsewhere on the page.
+Secara **default**, **styles** yang didefinisikan di dalam **component** Anda di-**scoped** hanya untuk **component** tersebut. Ini berarti **CSS selectors** Anda hanya akan memengaruhi elemen-elemen di dalam **component** Anda, meskipun **selectors** yang sama ada di tempat lain di halaman tersebut.
 
 ### Single-file components
 
-Add a `<style>` tag at the root level of your single-file component:
+Tambahkan tag `<style>` pada tingkat akar (**root level**) dari **single-file component** Anda:
 
 ```blade
 <?php
@@ -43,22 +43,25 @@ new class extends Component {
     border-radius: 0.25rem;
 }
 </style>
+
 ```
 
-The `.title` and `.btn` styles will only apply to elements within this component, not to any other elements on the page with the same classes.
+**Styles** `.title` dan `.btn` hanya akan diterapkan pada elemen di dalam **component** ini, bukan pada elemen lain di halaman dengan **classes** yang sama.
 
 ### Multi-file components
 
-For multi-file components, create a CSS file with the same name as your component:
+Untuk **multi-file components**, buatlah file CSS dengan nama yang sama dengan **component** Anda:
 
 ```
 resources/views/components/counter/
 ├── counter.php
 ├── counter.blade.php
 └── counter.css          # Scoped styles
+
 ```
 
 `counter.css`
+
 ```css
 .title {
     color: blue;
@@ -71,27 +74,29 @@ resources/views/components/counter/
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
 }
+
 ```
 
 ## How scoping works
 
-Livewire automatically wraps your styles in a selector that targets your component's root element. Behind the scenes, your CSS is transformed using CSS nesting:
+Livewire secara otomatis membungkus **styles** Anda dalam sebuah **selector** yang menargetkan **root element** dari **component** Anda. Di balik layar, CSS Anda ditransformasi menggunakan **CSS nesting**:
 
 ```css
-/* What you write */
+/* Apa yang Anda tulis */
 .btn { background: blue; }
 
-/* What gets served */
+/* Apa yang disajikan ke browser */
 [wire\:name="counter"] {
     .btn { background: blue; }
 }
+
 ```
 
-This uses the `wire:name` attribute that Livewire adds to every component's root element, ensuring styles only apply within that component.
+Ini menggunakan atribut `wire:name` yang ditambahkan Livewire ke setiap **root element** milik **component**, memastikan **styles** hanya berlaku di dalam **component** tersebut.
 
 ### Targeting the component root
 
-You can use the `&` selector to target the component's root element itself:
+Anda dapat menggunakan **selector** `&` untuk menargetkan **root element** dari **component** itu sendiri:
 
 ```blade
 <style>
@@ -104,13 +109,14 @@ You can use the `&` selector to target the component's root element itself:
     margin-top: 0;
 }
 </style>
+
 ```
 
-This will add a border and padding to the component's outermost element.
+Ini akan menambahkan **border** dan **padding** pada elemen paling luar dari **component**.
 
 ## Global styles
 
-Sometimes you need styles that apply globally rather than being scoped to a single component. Add the `global` attribute to your style tag:
+Terkadang Anda membutuhkan **styles** yang berlaku secara **global** daripada di-**scoped** ke satu **component**. Tambahkan atribut `global` pada tag **style** Anda:
 
 ### Single-file components
 
@@ -125,11 +131,12 @@ body {
     line-height: 1.6;
 }
 </style>
+
 ```
 
 ### Multi-file components
 
-Create a file with `.global.css` extension:
+Buat file dengan ekstensi `.global.css`:
 
 ```
 resources/views/components/counter/
@@ -137,11 +144,12 @@ resources/views/components/counter/
 ├── counter.blade.php
 ├── counter.css           # Scoped styles
 └── counter.global.css    # Global styles
+
 ```
 
 ## Combining scoped and global styles
 
-You can use both scoped and global styles in the same component:
+Anda dapat menggunakan baik **scoped** maupun **global styles** di dalam **component** yang sama:
 
 ```blade
 <?php
@@ -169,40 +177,45 @@ new class extends Component {
     place-items: center;
 }
 </style>
+
 ```
 
 ## Style deduplication
 
-Livewire automatically deduplicates styles when multiple instances of the same component appear on a page. The styles are only loaded once, regardless of how many component instances exist.
+Livewire secara otomatis melakukan **deduplicate** pada **styles** ketika beberapa **instances** dari **component** yang sama muncul di sebuah halaman. **Styles** tersebut hanya dimuat satu kali, tidak peduli berapa banyak **component instances** yang ada.
 
 ## When to use component styles
 
-**Use scoped styles when:**
-- Styling is specific to a single component
-- You want to avoid CSS class name collisions
-- You're building reusable, self-contained components
+**Gunakan scoped styles saat:**
 
-**Use global styles when:**
-- You need to style elements outside your component
-- You're defining utility classes used across multiple components
-- You're overriding third-party library styles
+* **Styling** bersifat spesifik untuk satu **component**.
+* Anda ingin menghindari tabrakan nama (**collisions**) **CSS class**.
+* Anda sedang membangun **components** yang dapat digunakan kembali (**reusable**) dan mandiri (**self-contained**).
 
-**Use `@assets` for external stylesheets:**
-- When loading CSS from a CDN
-- When including third-party library styles
+**Gunakan global styles saat:**
+
+* Anda perlu memberikan **style** pada elemen di luar **component** Anda.
+* Anda mendefinisikan **utility classes** yang digunakan di banyak **components**.
+* Anda menimpa (**overriding**) **styles** dari **third-party library**.
+
+**Gunakan @assets untuk external stylesheets:**
+
+* Saat memuat CSS dari CDN.
+* Saat menyertakan **styles** dari **third-party library**.
 
 ```blade
 @assets
 <link rel="stylesheet" href="https://cdn.example.com/library.css">
 @endassets
+
 ```
 
 ## Browser support
 
-Scoped styles use [CSS nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting), which is supported in all modern browsers (Chrome 120+, Firefox 117+, Safari 17.2+). For older browser support, consider using a CSS preprocessor or the `@assets` directive with pre-compiled stylesheets.
+**Scoped styles** menggunakan [CSS nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting), yang didukung di semua browser modern (Chrome 120+, Firefox 117+, Safari 17.2+). Untuk dukungan browser yang lebih lama, pertimbangkan untuk menggunakan **CSS preprocessor** atau direktif `@assets` dengan **pre-compiled stylesheets**.
 
 ## See also
 
-- **[JavaScript](/docs/4.x/javascript)** - Using JavaScript in components
-- **[Components](/docs/4.x/components)** - Component formats and organization
-- **[Alpine](/docs/4.x/alpine)** - Client-side interactivity with Alpine.js
+* **[JavaScript](https://www.google.com/search?q=/docs/4.x/javascript)** — Menggunakan **JavaScript** di dalam **components**
+* **[Components](https://www.google.com/search?q=/docs/4.x/components)** — Format dan organisasi **component**
+* **[Alpine](https://www.google.com/search?q=/docs/4.x/alpine)** — Interaktivitas **client-side** dengan **Alpine.js**
