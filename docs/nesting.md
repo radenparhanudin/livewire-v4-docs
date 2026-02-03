@@ -1,17 +1,16 @@
+Livewire memungkinkan Anda untuk menyarangkan (**nest**) tambahan **Livewire components** di dalam sebuah **parent component**. Fitur ini sangat kuat, karena memungkinkan Anda untuk menggunakan kembali dan mengenkapsulasi perilaku di dalam **Livewire components** yang dibagikan ke seluruh aplikasi Anda.
 
-Livewire allows you to nest additional Livewire components inside of a parent component. This feature is immensely powerful, as it allows you to re-use and encapsulate behavior within Livewire components that are shared across your application.
+> [!warning] Anda mungkin tidak membutuhkan sebuah Livewire component
+> Sebelum Anda mengekstrak sebagian dari **template** Anda ke dalam sebuah **nested Livewire component**, tanyakan pada diri sendiri: Apakah konten di dalam **component** ini harus "live"? Jika tidak, kami merekomendasikan Anda untuk membuat sebuah [Blade component](https://laravel.com/docs/blade#components) biasa sebagai gantinya. Hanya buat sebuah **Livewire component** jika **component** tersebut mendapat manfaat dari sifat dinamis Livewire atau jika ada manfaat performa langsung.
 
-> [!warning] You might not need a Livewire component
-> Before you extract a portion of your template into a nested Livewire component, ask yourself: Does this content in this component need to be "live"? If not, we recommend that you create a simple [Blade component](https://laravel.com/docs/blade#components) instead. Only create a Livewire component if the component benefits from Livewire's dynamic nature or if there is a direct performance benefit.
+> [!tip] Pertimbangkan islands untuk pembaruan yang terisolasi
+> Jika Anda ingin mengisolasi perenderan ulang (**re-rendering**) ke wilayah tertentu dari **component** Anda tanpa beban biaya pembuatan **child components** terpisah, pertimbangkan untuk menggunakan [islands](https://www.google.com/search?q=/docs/4.x/islands) sebagai gantinya. **Islands** memungkinkan Anda membuat wilayah yang diperbarui secara independen dalam satu **component** tanpa mengelola **props**, **events**, atau komunikasi **child component**.
 
-> [!tip] Consider islands for isolated updates
-> If you want to isolate re-rendering to specific regions of your component without the overhead of creating separate child components, consider using [islands](/docs/4.x/islands) instead. Islands let you create independently-updating regions within a single component without managing props, events, or child component communication.
-
-Consult our [in-depth, technical examination of Livewire component nesting](/docs/4.x/understanding-nesting) for more information on the performance, usage implications, and constraints of nested Livewire components.
+Konsultasikan [pemeriksaan teknis mendalam kami tentang Livewire component nesting](https://www.google.com/search?q=/docs/4.x/understanding-nesting) untuk informasi lebih lanjut tentang performa, implikasi penggunaan, dan batasan dari **nested Livewire components**.
 
 ## Nesting a component
 
-To nest a Livewire component within a parent component, simply include it in the parent component's Blade view. Below is an example of a `dashboard` parent component that contains a nested `todos` component:
+Untuk menyarangkan sebuah **Livewire component** di dalam sebuah **parent component**, cukup masukkan ke dalam **Blade view** dari **parent component**. Di bawah ini adalah contoh dari **parent component** `dashboard` yang berisi sebuah **nested component** `todos`:
 
 ```php
 <?php // resources/views/components/⚡dashboard.blade.php
@@ -26,19 +25,19 @@ new class extends Component {
 <div>
     <h1>Dashboard</h1>
 
-    <livewire:todos /> <!-- [tl! highlight] -->
-</div>
+    <livewire:todos /> </div>
+
 ```
 
-On this page's initial render, the `dashboard` component will encounter `<livewire:todos />` and render it in place. On a subsequent network request to `dashboard`, the nested `todos` component will skip rendering because it is now its own independent component on the page. For more information on the technical concepts behind nesting and rendering, consult our documentation on why [nested components are independent](/docs/4.x/understanding-nesting#every-component-is-an-island).
+Pada perenderan awal halaman ini, **component** `dashboard` akan menemukan `<livewire:todos />` dan merendernya di tempat. Pada **network request** berikutnya ke `dashboard`, **nested component** `todos` akan melewati perenderan karena sekarang ia adalah **independent component**-nya sendiri di halaman tersebut. Untuk informasi lebih lanjut tentang konsep teknis di balik **nesting** dan **rendering**, konsultasikan dokumentasi kami tentang mengapa [nested components are independent](https://www.google.com/search?q=/docs/4.x/understanding-nesting%23every-component-is-an-island).
 
-For more information about the syntax for rendering components, consult our documentation on [Rendering Components](/docs/4.x/components#rendering-components).
+Untuk informasi lebih lanjut tentang sintaks untuk merender **components**, konsultasikan dokumentasi kami tentang [Rendering Components](https://www.google.com/search?q=/docs/4.x/components%23rendering-components).
 
 ## Passing props to children
 
-Passing data from a parent component to a child component is straightforward. In fact, it's very much like passing props to a typical [Blade component](https://laravel.com/docs/blade#components).
+Meneruskan data dari sebuah **parent component** ke sebuah **child component** sangatlah mudah. Faktanya, ini sangat mirip dengan meneruskan **props** ke sebuah [Blade component](https://laravel.com/docs/blade#components) tipikal.
 
-For example, let's check out a `todos` component that passes a collection of `$todos` to a child component called `todo-count`:
+Sebagai contoh, mari kita periksa sebuah **component** `todos` yang meneruskan sebuah koleksi `$todos` ke sebuah **child component** bernama `todo-count`:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -59,13 +58,13 @@ new class extends Component {
 <div>
     <livewire:todo-count :todos="$this->todos" />
 
-    <!-- ... -->
-</div>
+    </div>
+
 ```
 
-As you can see, we are passing `$this->todos` into `todo-count` with the syntax: `:todos="$this->todos"`.
+Seperti yang Anda lihat, kita meneruskan `$this->todos` ke dalam `todo-count` dengan sintaks: `:todos="$this->todos"`.
 
-Now that `$todos` has been passed to the child component, you can receive that data through the child component's `mount()` method:
+Sekarang setelah `$todos` diteruskan ke **child component**, Anda dapat menerima data tersebut melalui metode `mount()` dari **child component**:
 
 ```php
 <?php // resources/views/components/⚡todo-count.blade.php
@@ -93,51 +92,55 @@ new class extends Component {
 <div>
     Count: {{ $this->count }}
 </div>
+
 ```
 
-> [!tip] Omit `mount()` as a shorter alternative
-> If the `mount()` method in above example feels like redundant boilerplate code to you, it can be omitted as long as the property and parameter names match:
+> [!tip] Abaikan `mount()` sebagai alternatif yang lebih singkat
+> Jika metode `mount()` pada contoh di atas terasa seperti kode **boilerplate** yang berlebihan bagi Anda, metode tersebut dapat diabaikan selama nama properti dan nama parameter cocok:
 > ```php
 > public $todos; // [tl! highlight]
+> 
 > ```
+> 
+> 
 
 ### Passing static props
 
-In the previous example, we passed props to our child component using Livewire's dynamic prop syntax, which supports PHP expressions like so:
+Pada contoh sebelumnya, kita meneruskan **props** ke **child component** menggunakan sintaks **dynamic prop** Livewire, yang mendukung ekspresi PHP seperti berikut:
 
 ```blade
 <livewire:todo-count :todos="$todos" />
+
 ```
 
-However, sometimes you may want to pass a component a simple static value such as a string. In these cases, you may omit the colon from the beginning of the statement:
+Namun, terkadang Anda mungkin ingin meneruskan nilai statis sederhana seperti sebuah **string** ke sebuah **component**. Dalam kasus ini, Anda dapat mengabaikan titik dua dari awal pernyataan:
 
 ```blade
 <livewire:todo-count :todos="$todos" label="Todo Count:" />
+
 ```
 
-Boolean values may be provided to components by only specifying the key. For example, to pass an `$inline` variable with a value of `true` to a component, we may simply place `inline` on the component tag:
+Nilai **Boolean** dapat diberikan ke **components** hanya dengan menentukan kuncinya. Misalnya, untuk meneruskan variabel `$inline` dengan nilai `true` ke sebuah **component**, kita cukup menempatkan `inline` pada tag **component**:
 
 ```blade
 <livewire:todo-count :todos="$todos" inline />
+
 ```
 
 ### Shortened attribute syntax
 
-When passing PHP variables into a component, the variable name and the prop name are often the same. To avoid writing the name twice, Livewire allows you to simply prefix the variable with a colon:
+Saat meneruskan variabel PHP ke dalam sebuah **component**, nama variabel dan nama **prop** seringkali sama. Untuk menghindari penulisan nama dua kali, Livewire memungkinkan Anda untuk cukup mengawali variabel dengan titik dua:
 
 ```blade
-<livewire:todo-count :todos="$todos" /> <!-- [tl! remove] -->
-
-<livewire:todo-count :$todos /> <!-- [tl! add] -->
-```
+<livewire:todo-count :todos="$todos" /> <livewire:todo-count :$todos /> ```
 
 ## Rendering children in a loop
 
-When rendering a child component within a loop, you should include a unique `key` value for each iteration.
+Saat merender sebuah **child component** di dalam sebuah loop, Anda harus menyertakan nilai `key` yang unik untuk setiap iterasi.
 
-Component keys are how Livewire tracks each component on subsequent renders, particularly if a component has already been rendered or if multiple components have been re-arranged on the page.
+**Component keys** adalah cara Livewire melacak setiap **component** pada perenderan berikutnya, terutama jika sebuah **component** telah dirender atau jika beberapa **components** telah diatur ulang pada halaman.
 
-You can specify the component's key by specifying a `:key` prop on the child component:
+Anda dapat menentukan **key** dari **component** dengan menentukan sebuah **prop** `:key` pada **child component**:
 
 ```blade
 <div>
@@ -147,22 +150,23 @@ You can specify the component's key by specifying a `:key` prop on the child com
         <livewire:todo-item :$todo :wire:key="$todo->id" />
     @endforeach
 </div>
+
 ```
 
-As you can see, each child component will have a unique key set to the ID of each `$todo`. This ensures the key will be unique and tracked if the todos are re-ordered.
+Seperti yang Anda lihat, setiap **child component** akan memiliki **key** unik yang diatur ke ID dari setiap `$todo`. Ini memastikan **key** akan unik dan dilacak jika **todos** diurutkan ulang.
 
-> [!warning] Keys aren't optional
-> If you have used frontend frameworks like Vue or Alpine, you are familiar with adding a key to a nested element in a loop. However, in those frameworks, a key isn't _mandatory_, meaning the items will render, but a re-order might not be tracked properly. However, Livewire relies more heavily on keys and will behave incorrectly without them.
+> [!warning] Keys tidak bersifat opsional
+> Jika Anda pernah menggunakan **frontend frameworks** seperti Vue atau Alpine, Anda sudah familiar dengan menambahkan **key** ke elemen yang bersarang dalam loop. Namun, dalam framework tersebut, sebuah **key** bukanlah *mandatory*, artinya item akan tetap dirender, tetapi urutan ulang mungkin tidak dilacak dengan benar. Namun, Livewire lebih sangat bergantung pada **keys** dan akan berperilaku tidak benar tanpanya.
 
 ## Reactive props
 
-Developers new to Livewire expect that props are "reactive" by default. In other words, they expect that when a parent changes the value of a prop being passed into a child component, the child component will automatically be updated. However, by default, Livewire props are not reactive.
+Pengembang yang baru mengenal Livewire mengharapkan bahwa **props** bersifat "reactive" secara **default**. Dengan kata lain, mereka mengharapkan ketika **parent** mengubah nilai **prop** yang diteruskan ke **child component**, maka **child component** tersebut akan diperbarui secara otomatis. Namun, secara **default**, **props** Livewire tidak bersifat **reactive**.
 
-When using Livewire, [every component is independent](/docs/4.x/understanding-nesting#every-component-is-an-island). This means that when an update is triggered on the parent and a network request is dispatched, only the parent component's state is sent to the server to re-render - not the child component's. The intention behind this behavior is to only send the minimal amount of data back and forth between the server and client, making updates as performant as possible.
+Saat menggunakan Livewire, [setiap component adalah independen](https://www.google.com/search?q=/docs/4.x/understanding-nesting%23every-component-is-an-island). Ini berarti ketika sebuah pembaruan dipicu pada **parent** dan sebuah **network request** dikirimkan, hanya **state** dari **parent component** yang dikirim ke server untuk dirender ulang - bukan milik **child component**. Niat di balik perilaku ini adalah untuk hanya mengirimkan jumlah data minimal bolak-balik antara server dan klien, membuat pembaruan seefisien mungkin.
 
-But, if you want or need a prop to be reactive, you can easily enable this behavior using the `#[Reactive]` attribute parameter.
+Tetapi, jika Anda ingin atau butuh sebuah **prop** menjadi **reactive**, Anda dapat dengan mudah mengaktifkan perilaku ini menggunakan parameter atribut `#[Reactive]`.
 
-For example, below is the template of a parent `todos` component. Inside, it is rendering a `todo-count` component and passing in the current list of todos:
+Sebagai contoh, di bawah ini adalah **template** dari sebuah **parent component** `todos`. Di dalamnya, ia merender sebuah **component** `todo-count` dan meneruskan daftar **todos** saat ini:
 
 ```blade
 <div>
@@ -170,11 +174,11 @@ For example, below is the template of a parent `todos` component. Inside, it is 
 
     <livewire:todo-count :$todos />
 
-    <!-- ... -->
-</div>
+    </div>
+
 ```
 
-Now let's add `#[Reactive]` to the `$todos` prop in the `todo-count` component. Once we have done so, any todos that are added or removed inside the parent component will automatically trigger an update within the `todo-count` component:
+Sekarang mari kita tambahkan `#[Reactive]` ke properti `$todos` di dalam **component** `todo-count`. Setelah kita melakukannya, setiap **todos** yang ditambah atau dihapus di dalam **parent component** akan secara otomatis memicu pembaruan di dalam **component** `todo-count`:
 
 ```php
 <?php // resources/views/components/⚡todo-count.blade.php
@@ -199,20 +203,21 @@ new class extends Component {
 <div>
     Count: {{ $this->count }}
 </div>
+
 ```
 
-Reactive properties are an incredibly powerful feature, making Livewire more similar to frontend component libraries like Vue and React. But, it is important to understand the performance implications of this feature and only add `#[Reactive]` when it makes sense for your particular scenario.
+**Reactive properties** adalah fitur yang sangat kuat, membuat Livewire lebih mirip dengan **frontend component libraries** seperti Vue dan React. Namun, penting untuk memahami implikasi performa dari fitur ini dan hanya menambahkan `#[Reactive]` jika memang masuk akal untuk skenario khusus Anda.
 
-> [!tip] Islands can eliminate the need for reactive props
-> If you find yourself creating child components primarily to isolate updates and using `#[Reactive]` to keep them in sync, consider using [islands](/docs/4.x/islands) instead. Islands provide isolated re-rendering within a single component without the need for reactive props or child component communication.
+> [!tip] Islands dapat meniadakan kebutuhan akan reactive props
+> Jika Anda mendapati diri Anda membuat **child components** terutama untuk mengisolasi pembaruan dan menggunakan `#[Reactive]` untuk menjaganya tetap sinkron, pertimbangkan untuk menggunakan [islands](https://www.google.com/search?q=/docs/4.x/islands) sebagai gantinya. **Islands** menyediakan perenderan ulang yang terisolasi dalam satu **component** tanpa perlu **reactive props** atau komunikasi **child component**.
 
-## Binding to child data using `wire:model`
+## Binding to child data menggunakan `wire:model`
 
-Another powerful pattern for sharing state between parent and child components is using `wire:model` directly on a child component via Livewire's `Modelable` feature.
+Pola kuat lainnya untuk berbagi **state** antara **parent** dan **child components** adalah menggunakan `wire:model` secara langsung pada sebuah **child component** melalui fitur `Modelable` milik Livewire.
 
-This behavior is very commonly needed when extracting an input element into a dedicated Livewire component while still accessing its state in the parent component.
+Perilaku ini sangat umum dibutuhkan saat mengekstrak sebuah elemen **input** ke dalam sebuah **Livewire component** khusus sambil tetap mengakses **state**-nya di **parent component**.
 
-Below is an example of a parent `todos` component that contains a `$todo` property which tracks the current todo about to be added by a user:
+Di bawah ini adalah contoh dari sebuah **parent component** `todos` yang berisi sebuah properti `$todo` yang melacak **todo** saat ini yang akan ditambahkan oleh pengguna:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -238,17 +243,16 @@ new class extends Component {
         return Auth::user()->todos,
     }
 };
+
 ```
 
-As you can see in the `todos` template, `wire:model` is being used to bind the `$todo` property directly to a nested `todo-input` component:
+Seperti yang Anda lihat di dalam **template** `todos`, `wire:model` digunakan untuk mengikat (**bind**) properti `$todo` secara langsung ke sebuah **nested component** `todo-input`:
 
 ```blade
 <div>
     <h1>Todos</h1>
 
-    <livewire:todo-input wire:model="todo" /> <!-- [tl! highlight] -->
-
-    <button wire:click="add">Add Todo</button>
+    <livewire:todo-input wire:model="todo" /> <button wire:click="add">Add Todo</button>
 
     <div>
         @foreach ($this->todos as $todo)
@@ -256,11 +260,12 @@ As you can see in the `todos` template, `wire:model` is being used to bind the `
         @endforeach
     </div>
 </div>
+
 ```
 
-Livewire provides a `#[Modelable]` attribute you can add to any child component property to make it _modelable_ from a parent component.
+Livewire menyediakan sebuah atribut `#[Modelable]` yang dapat Anda tambahkan ke properti **child component** mana pun untuk menjadikannya *modelable* dari sebuah **parent component**.
 
-Below is the `todo-input` component with the `#[Modelable]` attribute added above the `$value` property to signal to Livewire that if `wire:model` is declared on the component by a parent it should bind to this property:
+Di bawah ini adalah **component** `todo-input` dengan atribut `#[Modelable]` ditambahkan di atas properti `$value` untuk memberi sinyal kepada Livewire bahwa jika `wire:model` dideklarasikan pada **component** oleh sebuah **parent**, ia harus mengikat ke properti ini:
 
 ```php
 <?php // resources/views/components/⚡todo-input.blade.php
@@ -277,19 +282,19 @@ new class extends Component {
 <div>
     <input type="text" wire:model="value" >
 </div>
+
 ```
 
-Now the parent `todos` component can treat `todo-input` like any other input element and bind directly to its value using `wire:model`.
+Sekarang **parent component** `todos` dapat memperlakukan `todo-input` seperti elemen **input** lainnya dan mengikat langsung ke nilainya menggunakan `wire:model`.
 
 > [!warning]
-> Currently Livewire only supports a single `#[Modelable]` attribute, so only the first one will be bound.
-
+> Saat ini Livewire hanya mendukung satu atribut `#[Modelable]`, sehingga hanya atribut pertama yang akan diikat.
 
 ## Slots
 
-Slots allow you to pass Blade content from a parent component into a child component. This is useful when a child component needs to render its own content while also allowing the parent to inject custom content in specific places.
+**Slots** memungkinkan Anda meneruskan konten Blade dari sebuah **parent component** ke dalam sebuah **child component**. Ini berguna ketika sebuah **child component** perlu merender kontennya sendiri sambil tetap mengizinkan **parent** untuk menyuntikkan konten khusus di tempat-tempat tertentu.
 
-Below is an example of a parent component that renders a list of comments. Each comment is rendered by a `Comment` child component, but the parent passes in a "Remove" button via a slot:
+Di bawah ini adalah contoh dari sebuah **parent component** yang merender daftar komentar. Setiap komentar dirender oleh sebuah **child component** `Comment`, tetapi **parent** meneruskan sebuah tombol "Remove" melalui sebuah **slot**:
 
 ```php
 <?php
@@ -323,9 +328,10 @@ new class extends Component {
         </livewire:comment>
     @endforeach
 </div>
+
 ```
 
-Now that content has been passed to the `Comment` child component, you can render it using the `$slot` variable:
+Sekarang setelah konten tersebut diteruskan ke **child component** `Comment`, Anda dapat merendernya menggunakan variabel `$slot`:
 
 ```php
 <?php
@@ -344,17 +350,18 @@ new class extends Component {
 
     {{ $slot }}
 </div>
+
 ```
 
-When the `Comment` component renders `$slot`, Livewire will inject the content passed from the parent.
+Saat **component** `Comment` merender `$slot`, Livewire akan menyuntikkan konten yang diteruskan dari **parent**.
 
-It's important to understand that slots are evaluated in the context of the parent component. This means any properties or methods referenced inside the slot belong to the parent, not the child. In the example above, the `removeComment()` method is called on the parent component, not the `Comment` child.
+Penting untuk dipahami bahwa **slots** dievaluasi dalam konteks **parent component**. Ini berarti setiap properti atau metode yang direferensikan di dalam **slot** adalah milik **parent**, bukan **child**. Pada contoh di atas, metode `removeComment()` dipanggil pada **parent component**, bukan pada **child** `Comment`.
 
 ### Named slots
 
-In addition to the default slot, you may also pass multiple named slots into a child component. This is useful when you want to provide content for multiple areas of a child component.
+Selain default slot, Anda juga dapat meneruskan beberapa **named slots** ke dalam sebuah **child component**. Ini berguna ketika Anda ingin menyediakan konten untuk beberapa area dari sebuah **child component**.
 
-Below is an example of passing both a default slot and a named `actions` slot to the `Comment` component:
+Di bawah ini adalah contoh meneruskan sebuah default slot dan sebuah **named slot** `actions` ke **component** `Comment`:
 
 ```blade
 <div>
@@ -370,9 +377,10 @@ Below is an example of passing both a default slot and a named `actions` slot to
         </livewire:comment>
     @endforeach
 </div>
+
 ```
 
-You can access named slots in the child component by passing the slot name to the `$slots` variable:
+Anda dapat mengakses **named slots** di dalam **child component** dengan meneruskan nama slot ke variabel `$slots`:
 
 ```blade
 <div>
@@ -387,11 +395,12 @@ You can access named slots in the child component by passing the slot name to th
         {{ $slot }}
     </div>
 </div>
+
 ```
 
 ### Checking if a slot was provided
 
-You can check if a slot was provided by the parent using the `has()` method on the `$slots` variable. This is helpful when you want to conditionally render content based on whether or not a slot is present:
+Anda dapat memeriksa apakah sebuah slot disediakan oleh **parent** menggunakan metode `has()` pada variabel `$slots`. Ini membantu ketika Anda ingin merender konten secara kondisional berdasarkan apakah sebuah slot ada atau tidak:
 
 ```blade
 <div>
@@ -406,40 +415,43 @@ You can check if a slot was provided by the parent using the `has()` method on t
 
     {{ $slot }}
 </div>
+
 ```
 
 ## Forwarding HTML attributes
 
-Like Blade components, Livewire components support forwarding HTML attributes from a parent to a child using the `$attributes` variable.
+Seperti Blade components, **Livewire components** mendukung penerusan (**forwarding**) atribut HTML dari sebuah **parent** ke sebuah **child** menggunakan variabel `$attributes`.
 
-Below is an example of a parent component passing a `class` attribute to a child component:
+Di bawah ini adalah contoh dari sebuah **parent component** yang meneruskan atribut `class` ke sebuah **child component**:
 
 ```blade
 <livewire:comment :$comment class="border-b" />
+
 ```
 
-You can apply these attributes in the child component using the `$attributes` variable:
+Anda dapat menerapkan atribut-atribut ini di dalam **child component** menggunakan variabel `$attributes`:
 
 ```blade
 <div {{ $attributes->class('bg-white rounded-md') }}>
     <p>{{ $comment->author }}</p>
     <p>{{ $comment->body }}</p>
 </div>
+
 ```
 
-Attributes that match public property names are automatically passed as props and excluded from `$attributes`. Any remaining attributes like `class`, `id`, or `data-*` are available through `$attributes`.
+Atribut yang cocok dengan nama **public property** secara otomatis diteruskan sebagai **props** dan dikecualikan dari `$attributes`. Atribut apa pun yang tersisa seperti `class`, `id`, atau `data-*` tersedia melalui `$attributes`.
 
 ## Islands vs nested components
 
-When building Livewire applications, you'll often face a choice: Should you create a nested child component or use an island? Both approaches allow you to isolate updates to specific regions, but they serve different purposes.
+Saat membangun aplikasi Livewire, Anda akan sering menghadapi pilihan: Haruskah Anda membuat sebuah **nested child component** atau menggunakan sebuah **island**? Kedua pendekatan ini memungkinkan Anda untuk mengisolasi pembaruan pada wilayah tertentu, tetapi keduanya melayani tujuan yang berbeda.
 
-### When to use islands
+### Kapan menggunakan islands
 
-Islands are ideal when you want performance isolation without architectural complexity. Use islands when:
+**Islands** sangat ideal ketika Anda menginginkan isolasi performa tanpa kompleksitas arsitektural. Gunakan **islands** ketika:
 
-**You need performance optimization without the overhead**
+**Anda membutuhkan optimasi performa tanpa beban overhead**
 
-If your primary goal is to prevent expensive computations from running unnecessarily, islands are the simpler solution:
+Jika tujuan utama Anda adalah mencegah komputasi yang mahal berjalan secara tidak perlu, **islands** adalah solusi yang lebih sederhana:
 
 ```blade
 {{-- Island: Simple performance isolation --}}
@@ -449,23 +461,25 @@ If your primary goal is to prevent expensive computations from running unnecessa
         <button wire:click="$refresh">Refresh</button>
     </div>
 @endisland
+
 ```
 
-This achieves the same performance benefit as a child component, but without creating a separate component file, managing props, or setting up event communication.
+Ini mencapai manfaat performa yang sama dengan sebuah **child component**, tetapi tanpa membuat file **component** terpisah, mengelola **props**, atau menyiapkan komunikasi **event**.
 
-**You want to defer or lazy load content**
+**Anda ingin menunda (defer) atau lazy load konten**
 
-Islands excel at deferring expensive operations until after the initial page load:
+**Islands** unggul dalam menunda operasi yang mahal hingga setelah pemuatan halaman awal:
 
 ```blade
 @island(lazy: true)
     <div>{{ $this->slowApiCall }}</div>
 @endisland
+
 ```
 
-**You have multiple independent UI regions**
+**Anda memiliki beberapa wilayah UI yang independen**
 
-When you have several regions that update independently but don't need separate logic:
+Ketika Anda memiliki beberapa wilayah yang diperbarui secara independen tetapi tidak membutuhkan logika terpisah:
 
 ```blade
 @island(name: 'stats')
@@ -475,28 +489,30 @@ When you have several regions that update independently but don't need separate 
 @island(name: 'chart')
     <div>Chart: {{ $this->chartData }}</div>
 @endisland
+
 ```
 
-**The isolated region doesn't need its own lifecycle**
+**Wilayah terisolasi tersebut tidak membutuhkan lifecycle-nya sendiri**
 
-Islands share the parent component's lifecycle, state, and methods. This is perfect when the region is conceptually part of the same component.
+**Islands** berbagi **lifecycle**, **state**, dan **methods** milik **parent component**. Ini sempurna ketika wilayah tersebut secara konseptual adalah bagian dari **component** yang sama.
 
-### When to use nested components
+### Kapan menggunakan nested components
 
-Nested components are better when you need true encapsulation and reusability. Use nested components when:
+**Nested components** lebih baik ketika Anda membutuhkan enkapsulasi sejati dan penggunaan kembali (**reusability**). Gunakan **nested components** ketika:
 
-**You need reusable, self-contained functionality**
+**Anda membutuhkan fungsionalitas yang reusable dan mandiri (self-contained)**
 
-If the component will be used in multiple places with its own logic and state:
+Jika **component** tersebut akan digunakan di berbagai tempat dengan logika dan **state**-nya sendiri:
 
 ```blade
-{{-- This todo-item can be reused across the application --}}
+{{-- todo-item ini dapat digunakan kembali di seluruh aplikasi --}}
 <livewire:todo-item :$todo :wire:key="$todo->id" />
+
 ```
 
-**You need separate lifecycle hooks**
+**Anda membutuhkan lifecycle hooks yang terpisah**
 
-When the child needs its own `mount()`, `updated()`, or other lifecycle methods:
+Ketika **child** membutuhkan `mount()`, `updated()`, atau metode **lifecycle** lainnya sendiri:
 
 ```php
 public function mount($todo)
@@ -506,52 +522,54 @@ public function mount($todo)
 
 public function updated($property)
 {
-    // Child-specific update logic
+    // Logika pembaruan khusus child
 }
+
 ```
 
-**You need encapsulated state and logic**
+**Anda membutuhkan state dan logika yang terenkapsulasi**
 
-When the child has complex state management that should be isolated:
+Ketika **child** memiliki manajemen **state** yang kompleks yang harus diisolasi:
 
 ```php
-// Child component with its own encapsulated state
+// Child component dengan state terenkapsulasinya sendiri
 public $editMode = false;
 public $draft = '';
 
 public function startEdit() { /* ... */ }
 public function saveEdit() { /* ... */ }
 public function cancelEdit() { /* ... */ }
+
 ```
 
-**You need the component to be truly independent**
+**Anda membutuhkan component tersebut untuk benar-benar independen**
 
-Nested components are truly independent, maintaining their own state across parent updates. This is valuable when you don't want parent re-renders to affect the child.
+**Nested components** benar-benar independen, mempertahankan **state** mereka sendiri di seluruh pembaruan **parent**. Ini berharga ketika Anda tidak ingin perenderan ulang **parent** memengaruhi **child**.
 
-**You're building a component library**
+**Anda sedang membangun sebuah component library**
 
-When creating reusable components for your team or organization, nested components provide the proper encapsulation boundaries.
+Saat membuat **components** yang dapat digunakan kembali untuk tim atau organisasi Anda, **nested components** menyediakan batasan enkapsulasi yang tepat.
 
-### Quick decision guide
+### Panduan keputusan cepat
 
-Still not sure? Ask yourself:
+Masih belum yakin? Tanyakan pada diri sendiri:
 
-- **"Does this need to be reusable?"** → Nested component
-- **"Does this need its own lifecycle methods?"** → Nested component
-- **"Am I just trying to optimize performance?"** → Island
-- **"Do I want to defer loading expensive content?"** → Island (with `lazy` or `defer`)
-- **"Will this be used in one place only?"** → Probably an island
-- **"Does this need complex, isolated state?"** → Nested component
+* **"Apakah ini perlu bisa digunakan kembali?"** → **Nested component**
+* **"Apakah ini membutuhkan metode lifecycle-nya sendiri?"** → **Nested component**
+* **"Apakah saya hanya mencoba mengoptimalkan performa?"** → **Island**
+* **"Apakah saya ingin menunda pemuatan konten yang mahal?"** → **Island** (dengan `lazy` atau `defer`)
+* **"Apakah ini hanya akan digunakan di satu tempat saja?"** → Mungkin sebuah **island**
+* **"Apakah ini membutuhkan state yang kompleks dan terisolasi?"** → **Nested component**
 
-Remember: You can always start with an island for simplicity and refactor to a nested component later if you need the additional encapsulation.
+Ingat: Anda selalu dapat memulai dengan sebuah **island** untuk kesederhanaan dan melakukan **refactor** ke sebuah **nested component** kemudian jika Anda membutuhkan enkapsulasi tambahan.
 
-## Listening for events from children
+## Listening for events dari children
 
-Another powerful parent-child component communication technique is Livewire's event system, which allows you to dispatch an event on the server or client that can be intercepted by other components.
+Teknik komunikasi **parent-child component** kuat lainnya adalah sistem **event** Livewire, yang memungkinkan Anda untuk men-**dispatch** sebuah **event** di server atau klien yang dapat dicegat oleh **components** lain.
 
-Our [complete documentation on Livewire's event system](/docs/4.x/events) provides more detailed information on events, but below we'll discuss a simple example of using an event to trigger an update in a parent component.
+Dokumentasi lengkap kami tentang [sistem event Livewire](https://www.google.com/search?q=/docs/4.x/events) menyediakan informasi lebih rinci tentang **events**, tetapi di bawah ini kita akan membahas contoh sederhana menggunakan sebuah **event** untuk memicu pembaruan di dalam sebuah **parent component**.
 
-Consider a `todos` component with functionality to show and remove todos:
+Pertimbangkan sebuah **component** `todos` dengan fungsionalitas untuk menampilkan dan menghapus **todos**:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -584,9 +602,10 @@ new class extends Component {
         <livewire:todo-item :$todo :wire:key="$todo->id" />
     @endforeach
 </div>
+
 ```
 
-To call `remove()` from inside the child `todo-item` components, you can add an event listener to `todos` via the `#[On]` attribute:
+Untuk memanggil `remove()` dari dalam **child** `todo-item` **components**, Anda dapat menambahkan sebuah **event listener** ke `todos` melalui atribut `#[On]`:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -621,9 +640,10 @@ new class extends Component {
         <livewire:todo-item :$todo :wire:key="$todo->id" />
     @endforeach
 </div>
+
 ```
 
-Once the attribute has been added to the action, you can dispatch the `remove-todo` event from the `todo-item` child component:
+Setelah atribut tersebut ditambahkan ke **action**, Anda dapat men-**dispatch** **event** `remove-todo` dari **child component** `todo-item`:
 
 ```php
 <?php // resources/views/components/⚡todo-item.blade.php
@@ -646,20 +666,21 @@ new class extends Component {
 
     <button wire:click="remove">Remove</button>
 </div>
+
 ```
 
-Now when the "Remove" button is clicked inside a `todo-item`, the parent `todos` component will intercept the dispatched event and perform the todo removal.
+Sekarang ketika tombol "Remove" diklik di dalam sebuah `todo-item`, **parent component** `todos` akan mencegat **event** yang di-**dispatch** tersebut dan melakukan penghapusan **todo**.
 
-After the todo is removed in the parent, the list will be re-rendered and the child that dispatched the `remove-todo` event will be removed from the page.
+Setelah **todo** dihapus di **parent**, daftar akan dirender ulang dan **child** yang men-**dispatch** **event** `remove-todo` akan dihapus dari halaman.
 
-### Improving performance by dispatching client-side
+### Meningkatkan performa dengan dispatching client-side
 
-Though the above example works, it takes two network requests to perform a single action:
+Meskipun contoh di atas berfungsi, ia membutuhkan dua **network requests** untuk melakukan satu tindakan:
 
-1. The first network request from the `todo-item` component triggers the `remove` action, dispatching the `remove-todo` event.
-2. The second network request is after the `remove-todo` event is dispatched client-side and is intercepted by `todos` to call its `remove` action.
+1. **Network request** pertama dari **component** `todo-item` memicu **action** `remove`, yang men-**dispatch** **event** `remove-todo`.
+2. **Network request** kedua terjadi setelah **event** `remove-todo` di-**dispatch** di sisi klien dan dicegat oleh `todos` untuk memanggil **action** `remove` miliknya.
 
-You can avoid the first request entirely by dispatching the `remove-todo` event directly on the client-side. Below is an updated `todo-item` component that does not trigger a network request when dispatching the `remove-todo` event:
+Anda dapat menghindari **request** pertama sepenuhnya dengan men-**dispatch** **event** `remove-todo` secara langsung di sisi klien (**client-side**). Di bawah ini adalah **component** `todo-item` yang telah diperbarui yang tidak memicu **network request** saat men-**dispatch** **event** `remove-todo`:
 
 ```php
 <?php // resources/views/components/⚡todo-item.blade.php
@@ -677,20 +698,19 @@ new class extends Component {
 
     <button wire:click="$dispatch('remove-todo', { todoId: {{ $todo->id }} })">Remove</button>
 </div>
+
 ```
 
-As a rule of thumb, always prefer dispatching client-side when possible.
+Sebagai aturan praktis, selalu utamakan men-**dispatch** secara **client-side** jika memungkinkan.
 
-> [!tip] Islands eliminate event communication overhead
-> If you're creating child components primarily to trigger parent updates via events, consider using [islands](/docs/4.x/islands) instead. Islands can call component methods directly without the indirection of events, since they share the same component context.
+> [!tip] Islands meniadakan beban komunikasi event
+> Jika Anda membuat **child components** terutama untuk memicu pembaruan **parent** melalui **events**, pertimbangkan untuk menggunakan [islands](https://www.google.com/search?q=/docs/4.x/islands) sebagai gantinya. **Islands** dapat memanggil metode **component** secara langsung tanpa perantara **events**, karena mereka berbagi konteks **component** yang sama.
 
-## Directly accessing the parent from the child
+Komunikasi melalui **event** menambahkan lapisan ketidaklarangsungan (**indirection**). Seorang **parent** dapat mendengarkan sebuah **event** yang tidak pernah di-**dispatch** dari seorang **child**, dan seorang **child** dapat men-**dispatch** sebuah **event** yang tidak pernah dicegat oleh seorang **parent**.
 
-Event communication adds a layer of indirection. A parent can listen for an event that never gets dispatched from a child, and a child can dispatch an event that is never intercepted by a parent.
+Ketidaklarangsungan ini terkadang diinginkan; namun, dalam kasus lain Anda mungkin lebih suka mengakses **parent component** secara langsung dari **child component**.
 
-This indirection is sometimes desirable; however, in other cases you may prefer to access a parent component directly from the child component.
-
-Livewire allows you to accomplish this by providing a magic `$parent` variable to your Blade template that you can use to access actions and properties directly from the child. Here's the above `TodoItem` template rewritten to call the `remove()` action directly on the parent via the magic `$parent` variable:
+Livewire memungkinkan Anda untuk mencapai hal ini dengan menyediakan variabel **magic** `$parent` ke dalam **Blade template** Anda yang dapat digunakan untuk mengakses **actions** dan **properties** secara langsung dari **child**. Berikut adalah template `TodoItem` di atas yang ditulis ulang untuk memanggil **action** `remove()` secara langsung pada **parent** melalui variabel **magic** `$parent`:
 
 ```blade
 <div>
@@ -698,19 +718,21 @@ Livewire allows you to accomplish this by providing a magic `$parent` variable t
 
     <button wire:click="$parent.remove({{ $todo->id }})">Remove</button>
 </div>
+
 ```
 
-Events and direct parent communication are a few of the ways to communicate back and forth between parent and child components. Understanding their tradeoffs enables you to make more informed decisions about which pattern to use in a particular scenario.
+**Events** dan komunikasi **parent** langsung adalah beberapa cara untuk berkomunikasi bolak-balik antara **parent** dan **child components**. Memahami **tradeoffs** mereka memungkinkan Anda membuat keputusan yang lebih tepat tentang pola mana yang akan digunakan dalam skenario tertentu.
 
 ## Dynamic child components
 
-Sometimes, you may not know which child component should be rendered on a page until run-time. Therefore, Livewire allows you to choose a child component at run-time via `<livewire:dynamic-component ...>`, which receives an `:is` prop:
+Terkadang, Anda mungkin tidak tahu **child component** mana yang harus dirender pada sebuah halaman hingga saat aplikasi berjalan (**run-time**). Oleh karena itu, Livewire memungkinkan Anda memilih sebuah **child component** pada saat **run-time** melalui `<livewire:dynamic-component ...>`, yang menerima sebuah **prop** `:is`:
 
 ```blade
 <livewire:dynamic-component :is="$current" />
+
 ```
 
-Dynamic child components are useful in a variety of different scenarios, but below is an example of rendering different steps in a multi-step form using a dynamic component:
+**Dynamic child components** berguna dalam berbagai skenario yang berbeda, namun di bawah ini adalah contoh merender langkah-langkah yang berbeda dalam sebuah **multi-step form** menggunakan **dynamic component**:
 
 ```php
 <?php // resources/views/components/⚡steps.blade.php
@@ -740,9 +762,10 @@ new class extends Component {
 
     <button wire:click="next">Next</button>
 </div>
+
 ```
 
-Now, if the `steps` component's `$current` prop is set to "step-one", Livewire will render a component named "step-one" like so:
+Sekarang, jika **prop** `$current` milik **component** `steps` diatur ke "step-one", Livewire akan merender sebuah **component** bernama "step-one" seperti ini:
 
 ```php
 <?php // resources/views/components/⚡step-one.blade.php
@@ -757,24 +780,25 @@ new class extends Component {
 <div>
     Step One Content
 </div>
+
 ```
 
-If you prefer, you can use the alternative syntax:
+Jika Anda lebih suka, Anda dapat menggunakan sintaks alternatif:
 
 ```blade
 <livewire:is :component="$current" :wire:key="$current" />
+
 ```
 
 > [!warning]
-> Don't forget to assign each child component a unique key. Although Livewire automatically generates a key for `<livewire:dynamic-child />` and `<livewire:is />`, that same key will apply to _all_ your child components, meaning subsequent renders will be skipped.
->
-> See [forcing a child component to re-render](#forcing-a-child-component-to-re-render) for a deeper understanding of how keys affect component rendering.
+> Jangan lupa untuk menetapkan **key** yang unik pada setiap **child component**. Meskipun Livewire secara otomatis menghasilkan sebuah **key** untuk `<livewire:dynamic-child />` dan `<livewire:is />`, **key** yang sama tersebut akan berlaku untuk *semua* **child components** Anda, yang berarti perenderan berikutnya akan dilewati.
+> Lihat [memaksa sebuah child component untuk merender ulang](https://www.google.com/search?q=%23memaksa-sebuah-child-component-untuk-merender-ulang) untuk pemahaman yang lebih dalam tentang bagaimana **keys** memengaruhi perenderan **component**.
 
 ## Recursive components
 
-Although rarely needed by most applications, Livewire components may be nested recursively, meaning a parent component renders itself as its child.
+Meskipun jarang dibutuhkan oleh sebagian besar aplikasi, **Livewire components** dapat disarangkan secara rekursif (**recursively**), artinya sebuah **parent component** merender dirinya sendiri sebagai **child**-nya.
 
-Imagine a survey which contains a `survey-question` component that can have sub-questions attached to itself:
+Bayangkan sebuah survei yang berisi sebuah **component** `survey-question` yang dapat memiliki sub-pertanyaan yang terlampir pada dirinya sendiri:
 
 ```php
 <?php // resources/views/components/⚡survey-question.blade.php
@@ -801,57 +825,64 @@ new class extends Component {
         <livewire:survey-question :question="$subQuestion" :wire:key="$subQuestion->id" />
     @endforeach
 </div>
+
 ```
 
 > [!warning]
-> Of course, the standard rules of recursion apply to recursive components. Most importantly, you should have logic in your template to ensure the template doesn't recurse indefinitely. In the example above, if a `$subQuestion` contained the original question as its own `$subQuestion`, an infinite loop would occur.
+> Tentu saja, aturan standar rekursi berlaku untuk **recursive components**. Yang paling penting, Anda harus memiliki logika dalam **template** Anda untuk memastikan **template** tersebut tidak melakukan rekursi tanpa henti. Pada contoh di atas, jika sebuah `$subQuestion` berisi pertanyaan asli sebagai `$subQuestion`-nya sendiri, sebuah **infinite loop** akan terjadi.
 
-## Forcing a child component to re-render
+## Memaksa sebuah child component untuk merender ulang
 
-Behind the scenes, Livewire generates a key for each nested Livewire component in its template.
+Di balik layar, Livewire menghasilkan sebuah **key** untuk setiap **nested Livewire component** di dalam **template**-nya.
 
-For example, consider the following nested `todo-count` component:
+Sebagai contoh, pertimbangkan **nested component** `todo-count` berikut:
 
 ```blade
 <div>
     <livewire:todo-count :$todos />
 </div>
+
 ```
 
-Livewire internally attaches a random string key to the component like so:
+Livewire secara internal melampirkan sebuah **key** string acak ke **component** tersebut seperti ini:
 
 ```blade
 <div>
     <livewire:todo-count :$todos wire:key="lska" />
 </div>
+
 ```
 
-When the parent component is rendering and encounters a child component like the above, it stores the key in a list of children attached to the parent:
+Ketika **parent component** sedang merender dan menemui sebuah **child component** seperti di atas, ia menyimpan **key** tersebut dalam daftar **children** yang terlampir pada **parent**:
 
 ```php
 'children' => ['lska'],
+
 ```
 
-Livewire uses this list for reference on subsequent renders in order to detect if a child component has already been rendered in a previous request. If it has already been rendered, the component is skipped. Remember, [nested components are independent](/docs/4.x/understanding-nesting#every-component-is-an-island). However, if the child key is not in the list, meaning it hasn't been rendered already, Livewire will create a new instance of the component and render it in place.
+Livewire menggunakan daftar ini sebagai referensi pada perenderan berikutnya untuk mendeteksi apakah sebuah **child component** sudah dirender pada **request** sebelumnya. Jika sudah pernah dirender, **component** tersebut akan dilewati. Ingat, [nested components are independent](https://www.google.com/search?q=/docs/4.x/understanding-nesting%23every-component-is-an-island). Namun, jika **child key** tidak ada dalam daftar, yang berarti belum pernah dirender, Livewire akan membuat instans baru dari **component** tersebut dan merendernya di tempat.
 
-These nuances are all behind-the-scenes behavior that most users don't need to be aware of; however, the concept of setting a key on a child is a powerful tool for controlling child rendering.
+Nuansa-nuansa ini semuanya adalah perilaku di balik layar yang tidak perlu diketahui oleh sebagian besar pengguna; namun, konsep pengaturan **key** pada sebuah **child** adalah alat yang ampuh untuk mengontrol perenderan **child**.
 
-Using this knowledge, if you want to force a component to re-render, you can simply change its key.
+Menggunakan pengetahuan ini, jika Anda ingin memaksa sebuah **component** untuk merender ulang, Anda cukup mengubah **key**-nya.
 
-Below is an example where we might want to destroy and re-initialize the `todo-count` component if the `$todos` being passed to the component are changed:
+Di bawah ini adalah contoh di mana kita mungkin ingin menghancurkan dan menginisialisasi ulang **component** `todo-count` jika `$todos` yang diteruskan ke **component** tersebut berubah:
 
 ```blade
 <div>
     <livewire:todo-count :todos="$todos" :wire:key="$todos->pluck('id')->join('-')" />
 </div>
+
 ```
 
-As you can see above, we are generating a dynamic `:key` string based on the content of `$todos`. This way, the `todo-count` component will render and exist as normal until the `$todos` themselves change. At that point, the component will be re-initialized entirely from scratch, and the old component will be discarded.
+Seperti yang Anda lihat di atas, kita menghasilkan sebuah string `:key` dinamis berdasarkan konten dari `$todos`. Dengan cara ini, **component** `todo-count` akan merender dan ada seperti biasa sampai `$todos` itu sendiri berubah. Pada titik itu, **component** akan diinisialisasi ulang sepenuhnya dari awal, dan **component** yang lama akan dibuang.
+
+---
 
 ## See also
 
-- **[Events](/docs/4.x/events)** — Communicate between nested components
-- **[Components](/docs/4.x/components)** — Learn about rendering and organizing components
-- **[Islands](/docs/4.x/islands)** — Alternative to nesting for isolated updates
-- **[Understanding Nesting](/docs/4.x/understanding-nesting)** — Deep dive into nesting performance and behavior
-- **[Reactive Attribute](/docs/4.x/attribute-reactive)** — Make props reactive in nested components
+* **[Events](https://www.google.com/search?q=/docs/4.x/events)** — Berkomunikasi antar **nested components**
+* **[Components](https://www.google.com/search?q=/docs/4.x/components)** — Pelajari tentang merender dan mengorganisir **components**
+* **[Islands](https://www.google.com/search?q=/docs/4.x/islands)** — Alternatif untuk **nesting** untuk pembaruan yang terisolasi
+* **[Understanding Nesting](https://www.google.com/search?q=/docs/4.x/understanding-nesting)** — Penjelasan mendalam tentang performa dan perilaku **nesting**
+* **[Reactive Attribute](https://www.google.com/search?q=/docs/4.x/attribute-reactive)** — Membuat **props** bersifat **reactive** di dalam **nested components**
