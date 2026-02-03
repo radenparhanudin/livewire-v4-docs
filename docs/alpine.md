@@ -1,32 +1,29 @@
+[AlpineJS](https://alpinejs.dev/) adalah *library* JavaScript ringan yang mempermudah penambahan interaktivitas *client-side* ke halaman web Anda. Ia awalnya dibuat untuk melengkapi alat seperti Livewire di mana utilitas yang berfokus pada JavaScript sangat membantu untuk memberikan sentuhan interaktivitas di sekitar aplikasi Anda.
 
-[AlpineJS](https://alpinejs.dev/) is a lightweight JavaScript library that makes it easy to add client-side interactivity to your web pages. It was originally built to complement tools like Livewire where a more JavaScript-centric utility is helpful for sprinkling interactivity around your app.
+Livewire menyertakan Alpine secara otomatis (*out of the box*) sehingga tidak perlu menginstalnya ke dalam proyek Anda secara terpisah.
 
-Livewire ships with Alpine out of the box so there is no need to install it into your project separately.
-
-The best place to learn about using AlpineJS is [the Alpine documentation](https://alpinejs.dev).
+Tempat terbaik untuk mempelajari penggunaan AlpineJS adalah [dokumentasi Alpine](https://alpinejs.dev).
 
 ## A Basic Alpine component
 
-To lay a foundation for the rest of this documentation, here is one of the most simple and informative examples of an Alpine component. A small "counter" that shows a number on the page and allows the user to increment that number by clicking a button:
+Untuk meletakkan dasar bagi sisa dokumentasi ini, berikut adalah salah satu contoh *Alpine component* yang paling sederhana dan informatif. Sebuah "counter" kecil yang menampilkan angka di halaman dan memungkinkan pengguna untuk menambah angka tersebut dengan mengklik sebuah tombol:
 
 ```html
-<!-- Declare a JavaScript object of data... -->
 <div x-data="{ count: 0 }">
-    <!-- Render the current "count" value inside an element... -->
     <h2 x-text="count"></h2>
 
-    <!-- Increment the "count" value by "1" when a click event is dispatched... -->
     <button x-on:click="count++">+</button>
 </div>
+
 ```
 
-The Alpine component above can be used inside any Livewire component in your application without a hitch. Livewire takes care of maintaining Alpine's state across Livewire component updates. In essence, you should feel free to use Alpine components inside Livewire as if you were using Alpine in any other non-Livewire context.
+*Alpine component* di atas dapat digunakan di dalam *Livewire component* apa pun di aplikasi Anda tanpa kendala. Livewire bertugas menjaga *state* Alpine tetap konsisten saat terjadi pembaruan *Livewire component*. Intinya, Anda bebas menggunakan *Alpine components* di dalam Livewire seolah-olah Anda menggunakan Alpine dalam konteks non-Livewire lainnya.
 
 ## Using Alpine inside Livewire
 
-Let's explore a more real-life example of using an Alpine component inside a Livewire component.
+Mari kita eksplorasi contoh yang lebih nyata dalam menggunakan *Alpine component* di dalam sebuah *Livewire component*.
 
-Below is a simple Livewire component showing the details of a post model from the database. By default, only the title of the post is shown:
+Di bawah ini adalah *Livewire component* sederhana yang menampilkan detail dari sebuah *post model* dari *database*. Secara *default*, hanya judul postingan yang ditampilkan:
 
 ```html
 <div>
@@ -43,108 +40,103 @@ Below is a simple Livewire component showing the details of a post model from th
         </div>
     </div>
 </div>
+
 ```
 
-By using Alpine, we can hide the content of the post until the user presses the "Show post content..." button. At that point, Alpine's `expanded` property will be set to `true` and the content will be shown on the page because `x-show="expanded"` is used to give Alpine control over the visibility of the post's content.
+Dengan menggunakan Alpine, kita dapat menyembunyikan konten postingan sampai pengguna menekan tombol "Show post content...". Pada titik tersebut, *property* `expanded` milik Alpine akan diatur menjadi `true` dan konten akan ditampilkan di halaman karena `x-show="expanded"` digunakan untuk memberi Alpine kontrol atas visibilitas konten postingan tersebut.
 
-This is an example of where Alpine shines: adding interactivity into your application without triggering Livewire server-roundtrips.
+Ini adalah contoh di mana Alpine sangat unggul: menambahkan interaktivitas ke dalam aplikasi Anda tanpa memicu *Livewire server-roundtrips*.
 
 ## Controlling Livewire from Alpine using `$wire`
 
-One of the most powerful features available to you as a Livewire developer is `$wire`. The `$wire` object is a magic object available to all your Alpine components that are used inside of Livewire.
+Salah satu fitur paling kuat yang tersedia bagi Anda sebagai pengembang Livewire adalah `$wire`. *Object* `$wire` adalah *magic object* yang tersedia untuk semua *Alpine components* Anda yang digunakan di dalam Livewire.
 
-You can think of `$wire` as a gateway from JavaScript into PHP. It allows you to access and modify Livewire component properties, call Livewire component methods, and do much more; all from inside AlpineJS.
+Anda dapat menganggap `$wire` sebagai gerbang dari JavaScript ke PHP. Ia memungkinkan Anda untuk mengakses dan memodifikasi *Livewire component properties*, memanggil *Livewire component methods*, dan melakukan lebih banyak lagi; semuanya dari dalam AlpineJS.
 
 ### Accessing Livewire properties
 
-Here is an example of a simple "character count" utility in a form for creating a post. This will instantly show a user how many characters are contained inside their post's content as they type:
+Berikut adalah contoh utilitas "character count" sederhana dalam sebuah *form* untuk membuat postingan. Ini akan langsung menunjukkan kepada pengguna berapa banyak karakter yang terkandung di dalam konten postingan mereka saat mereka mengetik:
 
 ```html
 <form wire:submit="save">
-    <!-- ... -->
-
     <input wire:model="content" type="text">
 
     <small>
-        Character count: <span x-text="$wire.content.length"></span> <!-- [tl! highlight] -->
-    </small>
+        Character count: <span x-text="$wire.content.length"></span> </small>
 
     <button type="submit">Save</button>
 </form>
+
 ```
 
-As you can see `x-text` in the above example is being used to allow Alpine to control the text content of the `<span>` element. `x-text` accepts any JavaScript expression inside of it and automatically reacts when any dependencies are updated. Because we are using `$wire.content` to access the value of `$content`, Alpine will automatically update the text content every time `$wire.content` is updated from Livewire; in this case by `wire:model="content"`.
+Seperti yang Anda lihat, `x-text` pada contoh di atas digunakan agar Alpine dapat mengontrol konten teks dari elemen `<span>`. `x-text` menerima ekspresi JavaScript apa pun di dalamnya dan secara otomatis bereaksi saat ada ketergantungan yang diperbarui. Karena kita menggunakan `$wire.content` untuk mengakses nilai `$content`, Alpine akan secara otomatis memperbarui konten teks setiap kali `$wire.content` diperbarui dari Livewire; dalam hal ini melalui `wire:model="content"`.
 
 ### Mutating Livewire properties
 
-Here is an example of using `$wire` inside Alpine to clear the "title" field of a form for creating a post.
+Berikut adalah contoh penggunaan `$wire` di dalam Alpine untuk menghapus bidang "title" pada sebuah *form* pembuatan postingan.
 
 ```html
 <form wire:submit="save">
     <input wire:model="title" type="text">
 
-    <button type="button" x-on:click="$wire.title = ''">Clear</button> <!-- [tl! highlight] -->
-
-    <!-- ... -->
-
-    <button type="submit">Save</button>
+    <button type="button" x-on:click="$wire.title = ''">Clear</button> <button type="submit">Save</button>
 </form>
+
 ```
 
-As a user is filling out the above Livewire form, they can press "Clear" and the title field will be cleared without sending a network request from Livewire. The interaction will be "instant".
+Saat pengguna mengisi formulir Livewire di atas, mereka dapat menekan "Clear" dan bidang judul akan dikosongkan tanpa mengirimkan *network request* dari Livewire. Interaksinya akan terasa "instan".
 
-Here's a brief explanation of what's going on to make that happen:
+Berikut penjelasan singkat tentang apa yang terjadi:
 
-* `x-on:click` tells Alpine to listen for a click on the button element
-* When clicked, Alpine runs the provided JS expression: `$wire.title = ''`
-* Because `$wire` is a magic object representing the Livewire component, all properties from your component can be accessed or mutated straight from JavaScript
-* `$wire.title = ''` sets the value of `$title` in your Livewire component to an empty string
-* Any Livewire utilities like `wire:model` will instantly react to this change, all without sending a server-roundtrip
-* On the next Livewire network request, the `$title` property will be updated to an empty string on the backend
+* `x-on:click` memberitahu Alpine untuk mendengarkan klik pada elemen tombol.
+* Saat diklik, Alpine menjalankan ekspresi JS yang diberikan: `$wire.title = ''`.
+* Karena `$wire` adalah *magic object* yang mewakili *Livewire component*, semua *properties* dari *component* Anda dapat diakses atau diubah langsung dari JavaScript.
+* `$wire.title = ''` menetapkan nilai `$title` di *Livewire component* Anda menjadi string kosong.
+* Utilitas Livewire seperti `wire:model` akan langsung bereaksi terhadap perubahan ini, semuanya tanpa mengirimkan *server-roundtrip*.
+* Pada *Livewire network request* berikutnya, *property* `$title` akan diperbarui menjadi string kosong di *backend*.
 
 ### Calling Livewire methods
 
-Alpine can also easily call any Livewire methods/actions by simply calling them directly on `$wire`.
+Alpine juga dapat dengan mudah memanggil *Livewire methods*/*actions* apa pun hanya dengan memanggilnya langsung pada `$wire`.
 
-Here is an example of using Alpine to listen for a "blur" event on an input and triggering a form save. The "blur" event is dispatched by the browser when a user presses "tab" to remove focus from the current element and focus on the next one on the page:
+Berikut adalah contoh penggunaan Alpine untuk mendengarkan *event* "blur" pada sebuah *input* dan memicu penyimpanan formulir. *Event* "blur" di-dispatch oleh browser saat pengguna menekan "tab" untuk memindahkan fokus dari elemen saat ini ke elemen berikutnya di halaman:
 
 ```html
 <form wire:submit="save">
-    <input wire:model="title" type="text" x-on:blur="$wire.save()">  <!-- [tl! highlight] -->
-
-    <!-- ... -->
-
-    <button type="submit">Save</button>
+    <input wire:model="title" type="text" x-on:blur="$wire.save()">  <button type="submit">Save</button>
 </form>
+
 ```
 
-Typically, you would just use `wire:model.live.blur="title"` in this situation, however, it's helpful for demonstration purposes how you can achieve this using Alpine.
+Biasanya, Anda cukup menggunakan `wire:model.live.blur="title"` dalam situasi ini, namun sebagai tujuan demonstrasi, ini menunjukkan bagaimana Anda dapat mencapainya menggunakan Alpine.
 
 #### Passing parameters
 
-You can also pass parameters to Livewire methods by simply passing them to the `$wire` method call.
+Anda juga dapat meneruskan *parameters* ke *Livewire methods* dengan mengirimkannya langsung ke pemanggilan *method* `$wire`.
 
-Consider a component with a `deletePost()` method like so:
+Pertimbangkan sebuah *component* dengan *method* `deletePost()` seperti ini:
 
 ```php
 public function deletePost($postId)
 {
     $post = Post::find($postId);
 
-    // Authorize user can delete...
+    // Otorisasi apakah user bisa menghapus...
     auth()->user()->can('update', $post);
 
     $post->delete();
 }
+
 ```
 
-Now, you can pass a `$postId` parameter to the `deletePost()` method from Alpine like so:
+Sekarang, Anda dapat meneruskan *parameter* `$postId` ke *method* `deletePost()` dari Alpine seperti ini:
 
 ```html
 <button type="button" x-on:click="$wire.deletePost(1)">
+
 ```
 
-In general, something like a `$postId` would be generated in Blade. Here's an example of using Blade to determine which `$postId` Alpine passes into `deletePost()`:
+Secara umum, sesuatu seperti `$postId` akan dihasilkan di Blade. Berikut contoh penggunaan Blade untuk menentukan `$postId` mana yang diteruskan Alpine ke dalam `deletePost()`:
 
 ```html
 @foreach ($posts as $post)
@@ -152,9 +144,10 @@ In general, something like a `$postId` would be generated in Blade. Here's an ex
         Delete "{{ $post->title }}"
     </button>
 @endforeach
+
 ```
 
-If there are three posts on the page, the above Blade template will render to something like the following in the browser:
+Jika ada tiga postingan di halaman, *template* Blade di atas akan dirender menjadi sesuatu seperti berikut di browser:
 
 ```html
 <button type="button" x-on:click="$wire.deletePost(1)">
@@ -168,74 +161,77 @@ If there are three posts on the page, the above Blade template will render to so
 <button type="button" x-on:click="$wire.deletePost(3)">
     Delete "Teach what you learn"
 </button>
+
 ```
 
-As you can see, we've used Blade to render different post IDs into the Alpine `x-on:click` expressions.
+Seperti yang Anda lihat, kita telah menggunakan Blade untuk merender ID postingan yang berbeda ke dalam ekspresi `x-on:click` Alpine.
 
 #### Blade parameter "gotchas"
 
-This is an extremely powerful technique, but can be confusing when reading your Blade templates. It can be hard to know which parts are Blade and which parts are Alpine at first glance. Therefore, it's helpful to inspect the HTML rendered on the page to make sure what you are expecting to be rendered is accurate.
+Ini adalah teknik yang sangat kuat, tetapi bisa membingungkan saat membaca *template* Blade Anda. Mungkin sulit untuk mengetahui bagian mana yang merupakan Blade dan bagian mana yang merupakan Alpine pada pandangan pertama. Oleh karena itu, sangat membantu untuk memeriksa HTML yang dirender di halaman untuk memastikan apa yang Anda harapkan dirender adalah akurat.
 
-Here's an example that commonly confuses people:
+Berikut contoh yang sering membingungkan orang:
 
-Let's say, instead of an ID, your Post model uses UUIDs for indexes (IDs are integers, and UUIDs are long strings of characters).
+Katakanlah, alih-alih ID, *Post model* Anda menggunakan UUID untuk indeks (ID adalah integer, dan UUID adalah string karakter yang panjang).
 
-If we render the following just like we did with an ID there will be an issue:
+Jika kita merender berikut ini sama seperti yang kita lakukan dengan ID, akan ada masalah:
 
 ```html
-<!-- Warning: this is an example of problematic code... -->
 <button
     type="button"
     x-on:click="$wire.deletePost({{ $post->uuid }})"
 >
+
 ```
 
-The above Blade template will render the following in your HTML:
+*Template* Blade di atas akan merender berikut ini di HTML Anda:
 
 ```html
-<!-- Warning: this is an example of problematic code... -->
 <button
     type="button"
     x-on:click="$wire.deletePost(93c7b04c-c9a4-4524-aa7d-39196011b81a)"
 >
+
 ```
 
-Notice the lack of quotes around the UUID string? When Alpine goes to evaluate this expression, JavaScript will throw an error: "Uncaught SyntaxError: Invalid or unexpected token".
+Perhatikan kurangnya tanda kutip di sekitar string UUID? Saat Alpine mengevaluasi ekspresi ini, JavaScript akan melemparkan kesalahan: "Uncaught SyntaxError: Invalid or unexpected token".
 
-To fix this, we need to add quotations around the Blade expression like so:
+Untuk memperbaikinya, kita perlu menambahkan tanda kutip di sekitar ekspresi Blade seperti ini:
 
 ```html
 <button
     type="button"
     x-on:click="$wire.deletePost('{{ $post->uuid }}')"
 >
+
 ```
 
-Now the above template will render properly and everything will work as expected:
+Sekarang *template* di atas akan dirender dengan benar dan semuanya akan berjalan sesuai harapan:
 
 ```html
 <button
     type="button"
     x-on:click="$wire.deletePost('93c7b04c-c9a4-4524-aa7d-39196011b81a')"
 >
+
 ```
 
 ### Refreshing a component
 
-You can easily refresh a Livewire component (trigger network roundtrip to re-render a component's Blade view) using `$wire.$refresh()`:
+Anda dapat dengan mudah menyegarkan (*refresh*) sebuah *Livewire component* (memicu *network roundtrip* untuk merender ulang *Blade view* milik *component*) menggunakan `$wire.$refresh()`:
 
 ```html
 <button type="button" x-on:click="$wire.$refresh()">
+
 ```
 
 ## Sharing state using `$wire.entangle`
 
-> [!warning] You probably don't need this
-> In almost all cases, you should use `$wire` to directly access Livewire properties from Alpine instead of using `$wire.entangle()`. Entangling creates duplicate state that can cause predictability and performance issues. This API is maintained for backwards compatibility but is discouraged for new code.
->
-> **Do not use the `@@entangle` Blade directive** - it has been deprecated and causes issues when removing DOM elements.
+> [!warning] Anda mungkin tidak membutuhkan ini
+> Dalam hampir semua kasus, Anda harus menggunakan `$wire` untuk secara langsung mengakses *Livewire properties* dari Alpine alih-alih menggunakan `$wire.entangle()`. *Entangling* membuat *state* ganda yang dapat menyebabkan masalah prediktabilitas dan performa. API ini dipertahankan untuk kompatibilitas ke belakang tetapi tidak disarankan untuk kode baru.
+> **Jangan gunakan direktif Blade `@@entangle**` - ini telah didepresiasi dan menyebabkan masalah saat menghapus elemen DOM.
 
-For rare cases where you need bidirectional state synchronization between Alpine and Livewire, you can use `$wire.entangle()`:
+Untuk kasus langka di mana Anda memerlukan sinkronisasi *state* dua arah (*bidirectional*) antara Alpine dan Livewire, Anda dapat menggunakan `$wire.entangle()`:
 
 ```blade
 <div x-data="{ open: $wire.entangle('showDropdown') }">
@@ -245,62 +241,65 @@ For rare cases where you need bidirectional state synchronization between Alpine
         <li><button wire:click="archive">Archive</button></li>
     </ul>
 </div>
+
 ```
 
-By default, changes are deferred until the next Livewire request. Use `.live` to sync immediately:
+Secara *default*, perubahan ditunda (*deferred*) sampai *Livewire request* berikutnya. Gunakan `.live` untuk sinkronisasi segera:
 
 ```blade
 <div x-data="{ open: $wire.entangle('showDropdown').live }">
+
 ```
 
 ## Using the `@js` directive
 
-If you need to output PHP data for use in Alpine directly, you can use the `@js` directive.
+Jika Anda perlu mengeluarkan data PHP untuk digunakan di Alpine secara langsung, Anda dapat menggunakan direktif `@js`.
 
 ```blade
 <div x-data="{ posts: @js($posts) }">
     ...
 </div>
+
 ```
 
 ## Manually bundling Alpine in your JavaScript build
 
-By default, Livewire and Alpine's JavaScript is injected onto each Livewire page automatically.
+Secara *default*, JavaScript Livewire dan Alpine disuntikkan ke setiap halaman Livewire secara otomatis.
 
-This is ideal for simpler setups, however, you may want to include your own Alpine components, stores, and plugins into your project.
+Ini ideal untuk pengaturan yang lebih sederhana, namun Anda mungkin ingin menyertakan *Alpine components*, *stores*, dan *plugins* Anda sendiri ke dalam proyek Anda.
 
-To include Livewire and Alpine via your own JavaScript bundle on a page is straightforward.
+Untuk menyertakan Livewire dan Alpine melalui *JavaScript bundle* Anda sendiri di sebuah halaman sangatlah mudah.
 
-First, you must include the `@livewireScriptConfig` directive in your layout file like so:
+Pertama, Anda harus menyertakan direktif `@livewireScriptConfig` di file *layout* Anda seperti ini:
 
 ```blade
 <html>
 <head>
-    <!-- ... -->
     @livewireStyles
     @vite(['resources/js/app.js'])
 </head>
 <body>
     {{ $slot }}
 
-    @livewireScriptConfig <!-- [tl! highlight] -->
-</body>
+    @livewireScriptConfig </body>
 </html>
+
 ```
 
-This allows Livewire to provide your bundle with certain configuration it needs for your app to run properly.
+Ini memungkinkan Livewire untuk menyediakan *bundle* Anda dengan konfigurasi tertentu yang dibutuhkannya agar aplikasi Anda berjalan dengan benar.
 
-Now you can import Livewire and Alpine in your `resources/js/app.js` file like so:
+Sekarang Anda dapat mengimpor Livewire dan Alpine di file `resources/js/app.js` Anda seperti ini:
 
 ```js
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
 
-// Register any Alpine directives, components, or plugins here...
+// Daftarkan Alpine directives, components, atau plugins apa pun di sini...
 
 Livewire.start()
+
 ```
 
-Here is an example of registering a custom Alpine directive called "x-clipboard" in your application:
+Berikut adalah contoh pendaftaran *Alpine directive* kustom yang disebut "x-clipboard" di aplikasi Anda:
 
 ```js
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
@@ -314,13 +313,14 @@ Alpine.directive('clipboard', (el) => {
 })
 
 Livewire.start()
+
 ```
 
-Now the `x-clipboard` directive will be available to all your Alpine components in your Livewire application.
+Sekarang direktif `x-clipboard` akan tersedia untuk semua *Alpine components* di aplikasi Livewire Anda.
 
 ## See also
 
-- **[Properties](/docs/4.x/properties)** — Access Livewire properties from Alpine using $wire
-- **[Actions](/docs/4.x/actions)** — Call Livewire actions from Alpine
-- **[JavaScript](/docs/4.x/javascript)** — Execute custom JavaScript in components
-- **[Events](/docs/4.x/events)** — Dispatch and listen for events with Alpine
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Akses *Livewire properties* dari Alpine menggunakan `$wire`
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Panggil *Livewire actions* dari Alpine
+* **[JavaScript](https://www.google.com/search?q=/docs/4.x/javascript)** — Jalankan *custom JavaScript* di dalam *components*
+* **[Events](https://www.google.com/search?q=/docs/4.x/events)** — *Dispatch* dan dengarkan *events* dengan Alpine
