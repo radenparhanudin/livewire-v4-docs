@@ -1,6 +1,6 @@
-Livewire actions are methods on your component that can be triggered by frontend interactions like clicking a button or submitting a form. They provide the developer experience of being able to call a PHP method directly from the browser, allowing you to focus on the logic of your application without getting bogged down writing boilerplate code connecting your application's frontend and backend.
+Livewire **actions** adalah **methods** pada **component** Anda yang dapat dipicu oleh interaksi *frontend* seperti mengklik tombol atau mengirimkan formulir. Mereka memberikan pengalaman pengembangan berupa kemampuan untuk memanggil **PHP method** secara langsung dari browser, sehingga Anda dapat fokus pada logika aplikasi tanpa harus menulis kode *boilerplate* yang menghubungkan *frontend* dan *backend* aplikasi Anda.
 
-Let's explore a basic example of calling a `save` action:
+Mari kita pelajari contoh dasar pemanggilan **action** `save`:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -25,23 +25,25 @@ new class extends Component {
 };
 ?>
 
-<form wire:submit="save"> <!-- [tl! highlight] -->
+<form wire:submit="save"> 
     <input type="text" wire:model="title">
 
     <textarea wire:model="content"></textarea>
 
     <button type="submit">Save</button>
 </form>
+
 ```
 
-In the above example, when a user submits the form by clicking "Save", `wire:submit` intercepts the `submit` event and calls the `save()` action on the server.
+Pada contoh di atas, saat pengguna mengirimkan formulir dengan mengklik "Save", `wire:submit` akan mencegat *event* `submit` dan memanggil **action** `save()` di server.
 
-In essence, actions are a way to easily map user interactions to server-side functionality without the hassle of submitting and handling AJAX requests manually.
+Intinya, **actions** adalah cara untuk memetakan interaksi pengguna ke fungsionalitas sisi server dengan mudah tanpa repot mengirimkan dan menangani permintaan AJAX secara manual.
+
 ## Passing parameters
 
-Livewire allows you to pass parameters from your Blade template to the actions in your component, giving you the opportunity to provide an action additional data or state from the frontend when the action is called.
+Livewire memungkinkan Anda mengirimkan parameter dari Blade **template** ke **actions** di dalam **component**, memberikan Anda kesempatan untuk menyediakan data atau **state** tambahan dari *frontend* saat **action** dipanggil.
 
-For example, let's imagine you have a `ShowPosts` component that allows users to delete a post. You can pass the post's ID as a parameter to the `delete()` action in your Livewire component. Then, the action can fetch the relevant post and delete it from the database:
+Sebagai contoh, bayangkan Anda memiliki **component** `ShowPosts` yang memungkinkan pengguna menghapus postingan. Anda dapat mengirimkan ID postingan sebagai parameter ke **action** `delete()` di Livewire **component** Anda. Kemudian, **action** tersebut dapat mengambil postingan yang relevan dan menghapusnya dari database:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -67,6 +69,7 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
 ```blade
@@ -76,239 +79,160 @@ new class extends Component {
             <h1>{{ $post->title }}</h1>
             <span>{{ $post->content }}</span>
 
-            <button wire:click="delete({{ $post->id }})">Delete</button> <!-- [tl! highlight] -->
+            <button wire:click="delete({{ $post->id }})">Delete</button> 
         </div>
     @endforeach
 </div>
+
 ```
 
-For a post with an ID of 2, the "Delete" button in the Blade template above will render in the browser as:
+Untuk postingan dengan ID 2, tombol "Delete" pada Blade **template** di atas akan di-*render* di browser sebagai:
 
 ```blade
 <button wire:click="delete(2)">Delete</button>
+
 ```
 
-When this button is clicked, the `delete()` method will be called and `$id` will be passed in with a value of "2".
+Saat tombol ini diklik, **method** `delete()` akan dipanggil dan `$id` akan dikirimkan dengan nilai "2".
 
-> [!warning] Don't trust action parameters
-> Action parameters should be treated just like HTTP request input, meaning action parameter values should not be trusted. You should always authorize ownership of an entity before updating it in the database.
->
-> For more information, consult our documentation regarding [security concerns and best practices](/docs/4.x/actions#security-concerns).
+> [!warning] Jangan mempercayai parameter action
+> Parameter **action** harus diperlakukan sama seperti *input* permintaan HTTP, yang berarti nilai parameter **action** tidak boleh dipercayai begitu saja. Anda harus selalu melakukan otorisasi kepemilikan suatu entitas sebelum memperbaruinya di database.
+> Untuk informasi lebih lanjut, pelajari dokumentasi kami mengenai [masalah keamanan dan praktik terbaik](https://www.google.com/search?q=/docs/4.x/actions%23security-concerns).
 
-
-As an added convenience, you may automatically resolve Eloquent models by a corresponding model ID that is provided to an action as a parameter. This is very similar to [route model binding](/docs/4.x/components#using-route-model-binding). To get started, type-hint an action parameter with a model class and the appropriate model will automatically be retrieved from the database and passed to the action instead of the ID:
+Sebagai kenyamanan tambahan, Anda dapat secara otomatis me-*resolve* **Eloquent models** melalui ID model terkait yang diberikan ke **action** sebagai parameter. Ini sangat mirip dengan [route model binding](https://www.google.com/search?q=/docs/4.x/components%23using-route-model-binding). Untuk memulainya, berikan **type-hint** pada parameter **action** dengan **model class**, dan model yang sesuai akan secara otomatis diambil dari database dan dikirimkan ke **action**, alih-alih hanya berupa ID:
 
 ```php
-<?php // resources/views/components/post/⚡index.blade.php
+public function delete(Post $post) 
+{
+    $this->authorize('delete', $post);
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
-use App\Models\Post;
+    $post->delete();
+}
 
-new class extends Component {
-    #[Computed]
-    public function posts()
-    {
-        return Auth::user()->posts;
-    }
-
-    public function delete(Post $post) // [tl! highlight]
-    {
-        $this->authorize('delete', $post);
-
-        $post->delete();
-    }
-};
 ```
 
 ## Dependency injection
 
-You can take advantage of [Laravel's dependency injection](https://laravel.com/docs/controllers#dependency-injection-and-controllers) system by type-hinting parameters in your action's signature. Livewire and Laravel will automatically resolve the action's dependencies from the container:
+Anda dapat memanfaatkan sistem [dependency injection Laravel](https://laravel.com/docs/controllers#dependency-injection-and-controllers) dengan memberikan **type-hint** pada parameter di *signature* **action** Anda. Livewire dan Laravel akan secara otomatis me-*resolve* dependensi **action** tersebut dari **container**:
 
 ```php
-<?php // resources/views/components/post/⚡index.blade.php
+public function delete(PostRepository $posts, $postId) 
+{
+    $posts->deletePost($postId);
+}
 
-use Illuminate\Support\Facades\Auth;
-use App\Repositories\PostRepository;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
-
-new class extends Component {
-    #[Computed]
-    public function posts()
-    {
-        return Auth::user()->posts;
-    }
-
-    public function delete(PostRepository $posts, $postId) // [tl! highlight]
-    {
-        $posts->deletePost($postId);
-    }
-};
 ```
-
-```blade
-<div>
-    @foreach ($this->posts as $post)
-        <div wire:key="{{ $post->id }}">
-            <h1>{{ $post->title }}</h1>
-            <span>{{ $post->content }}</span>
-
-            <button wire:click="delete({{ $post->id }})">Delete</button> <!-- [tl! highlight] -->
-        </div>
-    @endforeach
-</div>
-```
-
-In this example, the `delete()` method receives an instance of `PostRepository` resolved via [Laravel's service container](https://laravel.com/docs/container#main-content) before receiving the provided `$postId` parameter.
 
 ## Event listeners
 
-Livewire supports a variety of event listeners, allowing you to respond to various types of user interactions:
+Livewire mendukung berbagai macam **event listeners**, memungkinkan Anda untuk merespons berbagai jenis interaksi pengguna:
 
-| Listener        | Description                               |
-|-----------------|-------------------------------------------|
-| `wire:click`    | Triggered when an element is clicked      |
-| `wire:submit`   | Triggered when a form is submitted        |
-| `wire:keydown`  | Triggered when a key is pressed down      |
-| `wire:keyup`  | Triggered when a key is released
-| `wire:mouseenter`| Triggered when the mouse enters an element |
-| `wire:*`| Whatever text follows `wire:` will be used as the event name of the listener |
+| Listener | Deskripsi |
+| --- | --- |
+| `wire:click` | Dipicu saat sebuah elemen diklik |
+| `wire:submit` | Dipicu saat sebuah formulir dikirimkan |
+| `wire:keydown` | Dipicu saat sebuah tombol keyboard ditekan |
+| `wire:keyup` | Dipicu saat sebuah tombol keyboard dilepaskan |
+| `wire:mouseenter` | Dipicu saat mouse memasuki area elemen |
+| `wire:*` | Teks apa pun setelah `wire:` akan digunakan sebagai nama *event* listener |
 
-Because the event name after `wire:` can be anything, Livewire supports any browser event you might need to listen for. For example, to listen for `transitionend`, you can use `wire:transitionend`.
+Karena nama *event* setelah `wire:` bisa berupa apa saja, Livewire mendukung *event* browser apa pun yang mungkin perlu Anda dengarkan. Misalnya, untuk mendengarkan `transitionend`, Anda dapat menggunakan `wire:transitionend`.
 
 ### Listening for specific keys
 
-You can use one of Livewire's convenient aliases to narrow down key press event listeners to a specific key or combination of keys.
+Anda dapat menggunakan salah satu alias praktis Livewire untuk menyaring *event listener* penekanan tombol ke tombol tertentu atau kombinasi tombol.
 
-For example, to perform a search when a user hits `Enter` after typing into a search box, you can use `wire:keydown.enter`:
+Contohnya, untuk melakukan pencarian saat pengguna menekan `Enter` setelah mengetik di kotak pencarian, Anda dapat menggunakan `wire:keydown.enter`:
 
 ```blade
 <input wire:model="query" wire:keydown.enter="searchPosts">
+
 ```
 
-You can chain more key aliases after the first to listen for combinations of keys. For example, if you would like to listen for the `Enter` key only while the `Shift` key is pressed, you may write the following:
+Anda dapat merantai lebih banyak alias tombol untuk mendengarkan kombinasi tombol. Misalnya, jika Anda ingin mendengarkan tombol `Enter` hanya saat tombol `Shift` juga ditekan, Anda dapat menulis sebagai berikut:
 
 ```blade
 <input wire:keydown.shift.enter="...">
+
 ```
 
-Below is a list of all the available key modifiers:
-
-| Modifier      | Key                          |
-|---------------|------------------------------|
-| `.shift`      | Shift                        |
-| `.enter`      | Enter                        |
-| `.space`      | Space                        |
-| `.ctrl`       | Ctrl                         |
-| `.cmd`        | Cmd                          |
-| `.meta`       | Cmd on Mac, Windows key on Windows |
-| `.alt`        | Alt                          |
-| `.up`         | Up arrow                     |
-| `.down`       | Down arrow                   |
-| `.left`       | Left arrow                   |
-| `.right`      | Right arrow                  |
-| `.escape`     | Escape                       |
-| `.tab`        | Tab                          |
-| `.caps-lock`  | Caps Lock                    |
-| `.equal`      | Equal, `=`                   |
-| `.period`     | Period, `.`                  |
-| `.slash`      | Forward Slash, `/`           |
+Berikut adalah daftar semua **key modifiers** yang tersedia: `.shift`, `.enter`, `.space`, `.ctrl`, `.cmd`, `.meta`, `.alt`, `.up`, `.down`, `.left`, `.right`, `.escape`, `.tab`, `.caps-lock`, `.equal`, `.period`, `.slash`.
 
 ### Event handler modifiers
 
-Livewire also includes helpful modifiers to make common event-handling tasks trivial.
+Livewire juga menyertakan pengubah (*modifiers*) yang membantu untuk membuat tugas penanganan *event* umum menjadi sangat mudah.
 
-For example, if you need to call `event.preventDefault()` from inside an event listener, you can suffix the event name with `.prevent`:
+Misalnya, jika Anda perlu memanggil `event.preventDefault()` dari dalam *event listener*, Anda dapat menambahkan akhiran `.prevent` pada nama *event*:
 
 ```blade
 <input wire:keydown.prevent="...">
+
 ```
 
-Here is a full list of all the available event listener modifiers and their functions:
+Daftar lengkap pengubah *event listener* yang tersedia meliputi: `.prevent`, `.stop`, `.window`, `.outside`, `.document`, `.once`, `.debounce`, `.throttle`, `.self`, `.camel`, `.dot`, `.passive`, `.capture`.
 
-| Modifier         | Key                                                     |
-|------------------|---------------------------------------------------------|
-| `.prevent`       | Equivalent of calling `.preventDefault()`               |
-| `.stop`          | Equivalent of calling `.stopPropagation()`              |
-| `.window`        | Listens for event on the `window` object                 |
-| `.outside`       | Only listens for clicks "outside" the element            |
-| `.document`      | Listens for events on the `document` object              |
-| `.once`          | Ensures the listener is only called once                 |
-| `.debounce`      | Debounce the handler by 250ms as a default               |
-| `.debounce.100ms`| Debounce the handler for a specific amount of time       |
-| `.throttle`      | Throttle the handler to being called every 250ms at minimum |
-| `.throttle.100ms`| Throttle the handler at a custom duration                |
-| `.self`          | Only call listener if event originated on this element, not children |
-| `.camel`         | Converts event name to camel case (`wire:custom-event` -> "customEvent") |
-| `.dot`           | Converts event name to dot notation (`wire:custom-event` -> "custom.event") |
-| `.passive`       | `wire:touchstart.passive` won't block scroll performance |
-| `.capture`       | Listen for event in the "capturing" phase                 |
+Karena `wire:` menggunakan direktif `x-on` milik [Alpine](https://alpinejs.dev) di balik layar, pengubah ini disediakan untuk Anda oleh Alpine.
 
-Because `wire:` uses [Alpine's](https://alpinejs.dev) `x-on` directive under the hood, these modifiers are made available to you by Alpine. For more context on when you should use these modifiers, consult the [Alpine Events documentation](https://alpinejs.dev/essentials/events).
+### Menangani event pihak ketiga
 
-### Handling third-party events
+Livewire juga mendukung pendengaran (*listening*) terhadap *custom events* yang dipicu oleh pustaka (*library*) pihak ketiga.
 
-Livewire also supports listening for custom events fired by third-party libraries.
-
-For example, let's imagine you're using the [Trix](https://trix-editor.org/) rich text editor in your project and you want to listen for the `trix-change` event to capture the editor's content. You can accomplish this using the `wire:trix-change` directive:
+Sebagai contoh, bayangkan Anda menggunakan editor teks kaya [Trix](https://trix-editor.org/) dalam proyek Anda dan ingin mendengarkan *event* `trix-change` untuk menangkap konten editor. Anda dapat mencapainya menggunakan direktif `wire:trix-change`:
 
 ```blade
 <form wire:submit="save">
-    <!-- ... -->
-
     <trix-editor
         wire:trix-change="setPostContent($event.target.value)"
     ></trix-editor>
 
-    <!-- ... -->
-</form>
+    </form>
+
 ```
 
-In this example, the `setPostContent` action is called whenever the `trix-change` event is triggered, updating the `content` property in the Livewire component with the current value of the Trix editor.
+Dalam contoh ini, *action* `setPostContent` dipanggil setiap kali *event* `trix-change` dipicu, memperbarui properti `content` di komponen Livewire dengan nilai saat ini dari editor Trix.
 
-> [!info] You can access the event object using `$event`
-> Within Livewire event handlers, you can access the event object via `$event`. This is useful for referencing information on the event. For example, you can access the element that triggered the event via `$event.target`.
+> [!info] Anda dapat mengakses objek event menggunakan `$event`
+> Di dalam *event handler* Livewire, Anda dapat mengakses objek *event* melalui `$event`. Ini berguna untuk mereferensikan informasi pada *event* tersebut. Misalnya, Anda dapat mengakses elemen yang memicu *event* melalui `$event.target`.
 
 > [!warning]
-> The Trix demo code above is incomplete and only useful as a demonstration of event listeners. If used verbatim, a network request would be fired on every single keystroke. A more performant implementation would be:
->
+> Kode demo Trix di atas belum lengkap dan hanya berguna sebagai demonstrasi *event listener*. Jika digunakan apa adanya, permintaan jaringan akan dikirim pada setiap ketukan tombol. Implementasi yang lebih berperforma adalah:
 > ```blade
 > <trix-editor
 >    x-on:trix-change="$wire.content = $event.target.value"
->></trix-editor>
+> ></trix-editor>
+> 
 > ```
+> 
+> 
 
-### Listening for dispatched custom events
+### Mendengarkan custom events yang dikirimkan (dispatched)
 
-If your application dispatches custom events from Alpine, you can also listen for those using Livewire:
+Jika aplikasi Anda mengirimkan (*dispatch*) *custom events* dari Alpine, Anda juga dapat mendengarkannya menggunakan Livewire:
 
 ```blade
 <div wire:custom-event="...">
 
-    <!-- Deeply nested within this component: -->
     <button x-on:click="$dispatch('custom-event')">...</button>
 
 </div>
+
 ```
 
-When the button is clicked in the above example, the `custom-event` event is dispatched and bubbles up to the root of the Livewire component where `wire:custom-event` catches it and invokes a given action.
+Ketika tombol diklik pada contoh di atas, *event* `custom-event` dikirimkan dan naik (*bubbles up*) ke akar komponen Livewire di mana `wire:custom-event` menangkapnya dan memanggil *action* yang ditentukan.
 
-If you want to listen for an event dispatched somewhere else in your application, you will need to wait instead for the event to bubble up to the `window` object and listen for it there. Fortunately, Livewire makes this easy by allowing you to add a simple `.window` modifier to any event listener:
+Jika Anda ingin mendengarkan *event* yang dikirimkan di tempat lain di aplikasi Anda, Anda harus menunggu hingga *event* tersebut naik ke objek `window` dan mendengarkannya di sana. Untungnya, Livewire memudahkan hal ini dengan mengizinkan Anda menambahkan pengubah `.window` sederhana ke *event listener* apa pun:
 
 ```blade
 <div wire:custom-event.window="...">
-    <!-- ... -->
-</div>
+    </div>
 
-<!-- Dispatched somewhere on the page outside the component: -->
 <button x-on:click="$dispatch('custom-event')">...</button>
+
 ```
 
-### Disabling inputs while a form is being submitted
+### Menonaktifkan input saat formulir sedang dikirim
 
-Consider the `CreatePost` example we previously discussed:
+Perhatikan contoh `CreatePost` yang kita bahas sebelumnya:
 
 ```blade
 <form wire:submit="save">
@@ -318,19 +242,20 @@ Consider the `CreatePost` example we previously discussed:
 
     <button type="submit">Save</button>
 </form>
+
 ```
 
-When a user clicks "Save", a network request is sent to the server to call the `save()` action on the Livewire component.
+Ketika pengguna mengklik "Save", permintaan jaringan dikirim ke server untuk memanggil *action* `save()` pada komponen Livewire.
 
-But, let's imagine that a user is filling out this form on a slow internet connection. The user clicks "Save" and nothing happens initially because the network request takes longer than usual. They might wonder if the submission failed and attempt to click the "Save" button again while the first request is still being handled.
+Namun, bayangkan jika pengguna mengisi formulir ini dengan koneksi internet yang lambat. Pengguna mengklik "Save" dan awalnya tidak terjadi apa-apa karena permintaan jaringan memakan waktu lebih lama dari biasanya. Mereka mungkin bertanya-tanya apakah pengiriman gagal dan mencoba mengklik tombol "Save" lagi saat permintaan pertama masih ditangani.
 
-In this case, there would be two requests for the same action being processed at the same time.
+Dalam kasus ini, akan ada dua permintaan untuk *action* yang sama yang diproses secara bersamaan.
 
-To prevent this scenario, Livewire automatically disables the submit button and all form inputs inside the `<form>` element while a `wire:submit` action is being processed. This ensures that a form isn't accidentally submitted twice.
+Untuk mencegah skenario ini, Livewire secara otomatis menonaktifkan tombol *submit* dan semua input formulir di dalam elemen `<form>` saat *action* `wire:submit` sedang diproses. Ini memastikan bahwa formulir tidak terkirim dua kali secara tidak sengaja.
 
-To further lessen the confusion for users on slower connections, it is often helpful to show some loading indicator such as a subtle background color change or SVG animation.
+Untuk lebih mengurangi kebingungan bagi pengguna dengan koneksi lambat, sering kali sangat membantu untuk menunjukkan indikator pemuatan (*loading indicator*) seperti perubahan warna latar belakang yang halus atau animasi SVG.
 
-Livewire provides a `wire:loading` directive that makes it trivial to show and hide loading indicators anywhere on a page. Here's a short example of using `wire:loading` to show a loading message below the "Save" button:
+Livewire menyediakan direktif `wire:loading` yang memudahkan penampilan dan penyembunyian indikator pemuatan di mana saja pada halaman. Berikut adalah contoh singkat penggunaan `wire:loading` untuk menampilkan pesan pemuatan di bawah tombol "Save":
 
 ```blade
 <form wire:submit="save">
@@ -338,11 +263,12 @@ Livewire provides a `wire:loading` directive that makes it trivial to show and h
 
     <button type="submit">Save</button>
 
-    <span wire:loading>Saving...</span> <!-- [tl! highlight] -->
+    <span wire:loading>Saving...</span> 
 </form>
+
 ```
 
-Alternatively, you can style loading states directly using Tailwind and Livewire's automatic `data-loading` attribute:
+Alternatifnya, Anda dapat mengatur gaya status pemuatan secara langsung menggunakan Tailwind dan atribut otomatis `data-loading` milik Livewire:
 
 ```blade
 <form wire:submit="save">
@@ -352,78 +278,87 @@ Alternatively, you can style loading states directly using Tailwind and Livewire
 
     <span class="not-data-loading:hidden">Saving...</span>
 </form>
+
 ```
 
-For most cases, using `data-loading` selectors is simpler and more flexible than `wire:loading`. [Learn more about loading states →](/docs/4.x/loading-states)
+Untuk sebagian besar kasus, menggunakan selektor `data-loading` lebih sederhana dan lebih fleksibel daripada `wire:loading`. [Pelajari lebih lanjut tentang loading states →](https://www.google.com/search?q=/docs/4.x/loading-states)
 
-## Refreshing a component
+## Refreshing a component (Menyegarkan komponen)
 
-Sometimes you may want to trigger a simple "refresh" of your component. For example, if you have a component checking the status of something in the database, you may want to show a button to your users allowing them to refresh the displayed results.
+Terkadang Anda mungkin ingin memicu "penyegaran" (*refresh*) sederhana pada komponen Anda. Misalnya, jika Anda memiliki komponen yang memeriksa status sesuatu di database, Anda mungkin ingin menampilkan tombol bagi pengguna untuk menyegarkan hasil yang ditampilkan.
 
-You can do this using Livewire's simple `$refresh` action anywhere you would normally reference your own component method:
+Anda dapat melakukan ini menggunakan *action* `$refresh` sederhana dari Livewire di mana pun Anda biasanya mereferensikan metode komponen Anda sendiri:
 
 ```blade
 <button type="button" wire:click="$refresh">...</button>
+
 ```
 
-When the `$refresh` action is triggered, Livewire will make a server-roundtrip and re-render your component without calling any methods.
+Ketika *action* `$refresh` dipicu, Livewire akan melakukan perjalanan pulang-pergi ke server (*server-roundtrip*) dan merender ulang komponen Anda tanpa memanggil metode apa pun.
 
-It's important to note that any pending data updates in your component (for example `wire:model` bindings) will be applied on the server when the component is refreshed.
+Penting untuk dicatat bahwa pembaruan data yang tertunda di komponen Anda (misalnya *binding* `wire:model`) akan diterapkan di server saat komponen disegarkan.
 
-You can also trigger a component refresh using AlpineJS in your Livewire component:
+Anda juga dapat memicu penyegaran komponen menggunakan AlpineJS di dalam komponen Livewire Anda:
 
 ```blade
 <button type="button" x-on:click="$wire.$refresh()">...</button>
+
 ```
 
-Learn more by reading the [documentation for using Alpine inside Livewire](/docs/4.x/alpine).
-## Confirming an action
+Pelajari lebih lanjut dengan membaca [dokumentasi penggunaan Alpine di dalam Livewire](https://www.google.com/search?q=/docs/4.x/alpine).
 
-When allowing users to perform dangerous actions—such as deleting a post from the database—you may want to show them a confirmation alert to verify that they wish to perform that action.
+## Konfirmasi sebuah action
 
-Livewire makes this easy by providing a simple directive called `wire:confirm`:
+Saat mengizinkan pengguna untuk melakukan tindakan berbahaya—seperti menghapus postingan dari database—Anda mungkin ingin menunjukkan kepada mereka peringatan konfirmasi untuk memverifikasi bahwa mereka benar-benar ingin melakukan tindakan tersebut.
+
+Livewire memudahkan hal ini dengan menyediakan direktif sederhana yang disebut `wire:confirm`:
 
 ```blade
 <button
     type="button"
     wire:click="delete"
-    wire:confirm="Are you sure you want to delete this post?"
+    wire:confirm="Apakah Anda yakin ingin menghapus postingan ini?"
 >
-    Delete post <!-- [tl! highlight:-2,1] -->
+    Delete post
 </button>
+
 ```
 
-When `wire:confirm` is added to an element containing a Livewire action, when a user tries to trigger that action, they will be presented with a confirmation dialog containing the provided message. They can either press "OK" to confirm the action, or press "Cancel" or hit the escape key.
+Ketika `wire:confirm` ditambahkan ke elemen yang berisi *action* Livewire, saat pengguna mencoba memicu tindakan tersebut, mereka akan disuguhkan dialog konfirmasi yang berisi pesan yang diberikan. Mereka dapat menekan "OK" untuk mengonfirmasi tindakan, atau menekan "Cancel" atau menekan tombol escape.
 
-For more information, visit the [`wire:confirm` documentation page](/docs/4.x/wire-confirm).
-## Calling actions from Alpine
+Untuk informasi lebih lanjut, kunjungi [halaman dokumentasi `wire:confirm](https://www.google.com/search?q=/docs/4.x/wire-confirm)`.
 
-Livewire integrates seamlessly with [Alpine](https://alpinejs.dev/). In fact, under the hood, every Livewire component is also an Alpine component. This means you can take full advantage of Alpine within your components to add JavaScript powered client-side interactivity.
+## Memanggil actions dari Alpine
 
-To make this pairing even more powerful, Livewire exposes a magic `$wire` object to Alpine that can be treated as a JavaScript representation of your PHP component. In addition to [accessing and mutating public properties via `$wire`](/docs/4.x/properties#accessing-properties-from-javascript), you can call actions. When an action is invoked on the `$wire` object, the corresponding PHP method will be invoked on your backend Livewire component:
+Livewire terintegrasi secara mulus dengan [Alpine](https://alpinejs.dev/). Faktanya, di balik layar, setiap komponen Livewire juga merupakan komponen Alpine. Ini berarti Anda dapat memanfaatkan sepenuhnya Alpine di dalam komponen Anda untuk menambahkan interaktivitas sisi klien yang didukung oleh JavaScript.
+
+Untuk membuat pasangan ini lebih kuat, Livewire mengekspos objek ajaib `$wire` ke Alpine yang dapat diperlakukan sebagai representasi JavaScript dari komponen PHP Anda. Selain [mengakses dan mengubah properti publik via `$wire](https://www.google.com/search?q=/docs/4.x/properties%23accessing-properties-from-javascript)`, Anda dapat memanggil *actions*. Ketika sebuah *action* dipanggil pada objek `$wire`, metode PHP yang sesuai akan dipanggil pada komponen Livewire *backend* Anda:
 
 ```blade
 <button x-on:click="$wire.save()">Save Post</button>
+
 ```
 
-Or, to illustrate a more complex example, you might use Alpine's [`x-intersect`](https://alpinejs.dev/plugins/intersect) utility to trigger a `incrementViewCount()` Livewire action when a given element is visible on the page:
+Atau, untuk mengilustrasikan contoh yang lebih kompleks, Anda mungkin menggunakan utilitas [`x-intersect`](https://www.google.com/search?q=%5Bhttps://alpinejs.dev/plugins/intersect%5D(https://alpinejs.dev/plugins/intersect)) dari Alpine untuk memicu *action* Livewire `incrementViewCount()` ketika elemen tertentu terlihat di halaman:
 
 ```blade
 <div x-intersect="$wire.incrementViewCount()">...</div>
+
 ```
 
-### Passing parameters
+### Mengirimkan parameter
 
-Any parameters you pass to the `$wire` method will also be passed to the PHP class method. For example, consider the following Livewire action:
+Parameter apa pun yang Anda kirimkan ke metode `$wire` juga akan diteruskan ke metode kelas PHP. Sebagai contoh, perhatikan *action* Livewire berikut:
 
 ```php
 public function addTodo($todo)
 {
     $this->todos[] = $todo;
 }
+
 ```
 
-Within your component's Blade template, you can invoke this action via Alpine, providing the parameter that should be given to the action:
+Di dalam Blade *template* komponen Anda, Anda dapat memanggil *action* ini melalui Alpine, dengan memberikan parameter yang harus diberikan ke *action* tersebut:
 
 ```blade
 <div x-data="{ todo: '' }">
@@ -431,15 +366,16 @@ Within your component's Blade template, you can invoke this action via Alpine, p
 
     <button x-on:click="$wire.addTodo(todo)">Add Todo</button>
 </div>
+
 ```
 
-If a user had typed in "Take out the trash" into the text input and the pressed the "Add Todo" button, the `addTodo()` method will be triggered with the `$todo` parameter value being "Take out the trash".
+Jika pengguna mengetikkan "Buang sampah" ke dalam input teks dan menekan tombol "Add Todo", metode `addTodo()` akan dipicu dengan nilai parameter `$todo` adalah "Buang sampah".
 
-### Receiving return values
+### Menerima nilai balik (return values)
 
-For even more power, invoked `$wire` actions return a promise while the network request is processing. When the server response is received, the promise resolves with the value returned by the backend action.
+Untuk kekuatan yang lebih besar, *actions* `$wire` yang dipanggil mengembalikan *promise* selama permintaan jaringan sedang diproses. Ketika respons server diterima, *promise* tersebut diselesaikan (*resolves*) dengan nilai yang dikembalikan oleh *action backend*.
 
-For example, consider a Livewire component that has the following action:
+Sebagai contoh, perhatikan komponen Livewire yang memiliki *action* berikut:
 
 ```php
 use App\Models\Post;
@@ -448,31 +384,33 @@ public function getPostCount()
 {
     return Post::count();
 }
+
 ```
 
-Using `$wire`, the action may be invoked and its returned value resolved:
+Menggunakan `$wire`, *action* tersebut dapat dipanggil dan nilai baliknya diselesaikan:
 
 ```blade
 <span x-init="$el.innerHTML = await $wire.getPostCount()"></span>
+
 ```
 
-In this example, if the `getPostCount()` method returns "10", the `<span>` tag will also contain "10".
+Dalam contoh ini, jika metode `getPostCount()` mengembalikan "10", tag `<span>` juga akan berisi "10".
 
-> [!tip] Use #[Json] for JavaScript-consumed actions
-> For actions primarily consumed by JavaScript, consider using the [`#[Json]` attribute](/docs/4.x/attribute-json). It returns data via promise resolution/rejection, automatically handles validation errors with promise rejection, and skips re-rendering for better performance.
+> [!tip] Gunakan #[Json] untuk action yang dikonsumsi JavaScript
+> Untuk *actions* yang terutama dikonsumsi oleh JavaScript, pertimbangkan untuk menggunakan [atribut `#[Json]](https://www.google.com/search?q=/docs/4.x/attribute-json)`. Atribut ini mengembalikan data melalui resolusi/penolakan *promise*, menangani kesalahan validasi secara otomatis dengan penolakan *promise*, dan melewati proses render ulang untuk performa yang lebih baik.
 
-Alpine knowledge is not required when using Livewire; however, it's an extremely powerful tool and knowing Alpine will augment your Livewire experience and productivity.
+Pengetahuan Alpine tidak wajib saat menggunakan Livewire; namun, Alpine adalah alat yang sangat kuat dan mempelajarinya akan meningkatkan pengalaman serta produktivitas Anda menggunakan Livewire.
 
 ## JavaScript actions
 
-Livewire allows you to define JavaScript actions that run entirely on the client-side without making a server request. This is useful in two scenarios:
+Livewire memungkinkan Anda untuk mendefinisikan **JavaScript actions** yang berjalan sepenuhnya di sisi klien tanpa melakukan permintaan (*request*) ke server. Ini sangat berguna dalam dua skenario:
 
-1. When you want to perform simple UI updates that don't require server communication
-2. When you want to optimistically update the UI with JavaScript before making a server request
+1. Ketika Anda ingin melakukan pembaruan UI sederhana yang tidak memerlukan komunikasi server.
+2. Ketika Anda ingin memperbarui UI secara **optimistic** dengan JavaScript sebelum melakukan permintaan ke server.
 
-To define a JavaScript action, you can use the `$js()` function inside a `<script>` tag in your component.
+Untuk mendefinisikan JavaScript action, Anda dapat menggunakan fungsi `$js()` di dalam tag `<script>` pada komponen Anda.
 
-Here's an example of bookmarking a post that uses a JavaScript action to optimistically update the UI before making a server request. The JavaScript action immediately shows the filled bookmark icon, then makes a request to persist the bookmark in the database:
+Berikut adalah contoh fitur *bookmark* postingan yang menggunakan JavaScript action untuk memperbarui UI secara optimis. Ikon *bookmark* akan langsung berubah menjadi terisi, kemudian sistem mengirimkan permintaan untuk menyimpan data tersebut ke database:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -482,7 +420,6 @@ use App\Models\Post;
 
 new class extends Component {
     public Post $post;
-
     public $bookmarked = false;
 
     public function mount()
@@ -493,177 +430,154 @@ new class extends Component {
     public function bookmarkPost()
     {
         $this->post->bookmark(auth()->user());
-
         $this->bookmarked = $this->post->bookmarkedBy(auth()->user());
     }
 };
+
 ```
 
 ```blade
 <div>
     <button wire:click="$js.bookmark" class="flex items-center gap-1">
-        {{-- Outlined bookmark icon... --}}
-        <svg wire:show="!bookmarked" wire:cloak xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-        </svg>
+        {{-- Ikon bookmark garis luar... --}}
+        <svg wire:show="!bookmarked" wire:cloak ...>...</svg>
 
-        {{-- Solid bookmark icon... --}}
-        <svg wire:show="bookmarked" wire:cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-            <path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" />
-        </svg>
+        {{-- Ikon bookmark terisi... --}}
+        <svg wire:show="bookmarked" wire:cloak ...>...</svg>
     </button>
 </div>
 
 <script>
     this.$js.bookmark = () => {
+        // Update UI secara instan di klien
         $wire.bookmarked = !$wire.bookmarked
 
+        // Panggil method PHP untuk simpan ke DB
         $wire.bookmarkPost()
     }
 </script>
+
 ```
 
-When a user clicks the heart button, the following sequence occurs:
+Saat pengguna mengklik tombol, urutan berikut terjadi:
 
-1. The "bookmark" JavaScript action is triggered
-2. The heart icon immediately updates by toggling `$wire.bookmarked` on the client-side
-3. The `bookmarkPost()` method is called to save the change to the database
+1. JavaScript action "bookmark" dipicu.
+2. Ikon *bookmark* langsung berubah dengan mengganti nilai `$wire.bookmarked` di sisi klien.
+3. Method `bookmarkPost()` dipanggil untuk menyimpan perubahan ke database.
 
-This provides instant visual feedback while ensuring the bookmark state is properly persisted.
+Ini memberikan umpan balik visual yang instan sambil memastikan status *bookmark* tersimpan dengan benar di server.
 
-> [!warning] Class-based components need @@script wrapper
-> The examples above use bare `<script>` tags, which work for single-file and multi-file components. If you're using class-based components, you must wrap your script tags with the `@@script` directive:
+> [!warning] Komponen berbasis kelas memerlukan pembungkus @@script
+> Contoh di atas menggunakan tag `<script>` biasa, yang berfungsi untuk komponen *single-file* dan *multi-file*. Jika Anda menggunakan komponen berbasis kelas (*class-based components*), Anda harus membungkus tag script dengan direktif `@@script`:
 > ```blade
 > @@script
 > <script>
->     this.$js.bookmark = () => { /* ... */ }
+>      this.$js.bookmark = () => { /* ... */ }
 > </script>
 > @@endscript
+> 
 > ```
-> This ensures your JavaScript is properly scoped to the component.
+> 
+> 
 
-### Calling from Alpine
+### Memanggil dari Alpine
 
-You can call JavaScript actions directly from Alpine using the `$wire` object. For example, you may use the `$wire` object to invoke the `bookmark` JavaScript action:
+Anda dapat memanggil JavaScript actions langsung dari Alpine menggunakan objek `$wire`:
 
 ```blade
 <button x-on:click="$wire.$js.bookmark()">Bookmark</button>
+
 ```
 
-### Calling from PHP
+### Memanggil dari PHP
 
-JavaScript actions can also be called using the `js()` method from PHP:
+JavaScript actions juga dapat dipanggil menggunakan method `js()` dari sisi PHP:
 
 ```php
-<?php // resources/views/components/post/⚡create.blade.php
+public function save()
+{
+    // ... logic simpan ...
+    $this->js('onPostSaved'); 
+}
 
-use Livewire\Component;
-
-new class extends Component {
-    public $title = '';
-
-    public function save()
-    {
-        // ...
-
-        $this->js('onPostSaved'); // [tl! highlight]
-    }
-};
 ```
-
-```blade
-<div>
-    <!-- ... -->
-
-    <button wire:click="save">Save</button>
-</div>
-
-<script>
-    this.$js.onPostSaved = () => {
-        alert('Your post has been saved successfully!')
-    }
-</script>
-```
-
-In this example, when the `save()` action is finished, the `postSaved` JavaScript action will be run, triggering the alert dialog.
 
 ## Magic actions
 
-Livewire provides a set of "magic" actions that allow you to perform common tasks in your components without defining custom methods. These magic actions can be used within event listeners defined in your Blade templates.
+Livewire menyediakan set "**magic actions**" yang memungkinkan Anda melakukan tugas-tugas umum tanpa harus mendefinisikan method khusus di kelas PHP.
 
 ### `$parent`
 
-The `$parent` magic variable allows you to access parent component properties and call parent component actions from a child component:
+Variabel ajaib `$parent` memungkinkan Anda mengakses properti atau memanggil action milik komponen induk dari komponen anak:
 
 ```blade
 <button wire:click="$parent.removePost({{ $post->id }})">Remove</button>
-```
 
-In the above example, if a parent component has a `removePost()` action, a child can call it directly from its Blade template using `$parent.removePost()`.
+```
 
 ### `$set`
 
-The `$set` magic action allows you to update a property in your Livewire component directly from the Blade template. To use `$set`, provide the property you want to update and the new value as arguments:
+Action `$set` memungkinkan Anda memperbarui properti di komponen Livewire secara langsung dari Blade:
 
 ```blade
 <button wire:click="$set('query', '')">Reset Search</button>
-```
 
-In this example, when the button is clicked, a network request is dispatched that sets the `$query` property in the component to `''`.
+```
 
 ### `$refresh`
 
-The `$refresh` action triggers a re-render of your Livewire component. This can be useful when updating the component's view without changing any property values:
+Action `$refresh` akan memicu render ulang (*re-render*) komponen:
 
 ```blade
 <button wire:click="$refresh">Refresh</button>
-```
 
-When the button is clicked, the component will re-render, allowing you to see the latest changes in the view.
+```
 
 ### `$toggle`
 
-The `$toggle` action is used to toggle the value of a boolean property in your Livewire component:
+Action `$toggle` digunakan untuk membolak-balik nilai (*toggle*) properti boolean:
 
 ```blade
 <button wire:click="$toggle('sortAsc')">
     Sort {{ $sortAsc ? 'Descending' : 'Ascending' }}
 </button>
-```
 
-In this example, when the button is clicked, the `$sortAsc` property in the component will toggle between `true` and `false`.
+```
 
 ### `$dispatch`
 
-The `$dispatch` action allows you to dispatch a Livewire event directly in the browser. Below is an example of a button that, when clicked, will dispatch the `post-deleted` event:
+Action `$dispatch` memungkinkan Anda mengirimkan (*dispatch*) *event* Livewire langsung di browser:
 
 ```blade
 <button type="submit" wire:click="$dispatch('post-deleted')">Delete Post</button>
+
 ```
 
 ### `$event`
 
-The `$event` action may be used within event listeners like `wire:click`. This action gives you access to the actual JavaScript event that was triggered, allowing you to reference the triggering element and other relevant information:
+Variabel ajaib `$event` dapat digunakan di dalam *event listener* seperti `wire:click`. Action ini memberi Anda akses ke objek *event* JavaScript asli yang dipicu, memungkinkan Anda untuk mereferensikan elemen pemicu dan informasi relevan lainnya:
 
 ```blade
 <input type="text" wire:keydown.enter="search($event.target.value)">
+
 ```
 
-When the enter key is pressed while a user is typing in the input above, the contents of the input will be passed as a parameter to the `search()` action.
+Ketika tombol Enter ditekan saat pengguna mengetik pada input di atas, konten dari input tersebut akan dikirimkan sebagai parameter ke action `search()`.
 
-### Using magic actions from Alpine
+### Menggunakan magic actions dari Alpine
 
-You can also call magic actions from Alpine using the `$wire` object. For example, you may use the `$wire` object to invoke the `$refresh` magic action:
+Anda juga dapat memanggil *magic actions* dari Alpine menggunakan objek `$wire`. Misalnya, Anda dapat menggunakan objek `$wire` untuk memicu *magic action* `$refresh`:
 
 ```blade
 <button x-on:click="$wire.$refresh()">Refresh</button>
+
 ```
 
-## Skipping re-renders
+## Melewatkan Render Ulang (Skipping re-renders)
 
-Sometimes there might be an action in your component with no side effects that would change the rendered Blade template when the action is invoked. If so, you can skip the `render` portion of Livewire's lifecycle by adding the `#[Renderless]` attribute above the action method.
+Terkadang terdapat *action* di komponen Anda yang tidak memiliki efek samping (*side effects*) yang akan mengubah tampilan Blade saat *action* tersebut dipanggil. Jika demikian, Anda dapat melewatkan bagian `render` dari siklus hidup Livewire dengan menambahkan atribut `#[Renderless]` di atas method *action* tersebut.
 
-To demonstrate, in the `ShowPost` component below, the "view count" is logged when the user has scrolled to the bottom of the post:
+Untuk mendemonstrasikannya, pada komponen `ShowPost` di bawah ini, "jumlah tampilan" dicatat ketika pengguna telah menggulir ke bagian bawah postingan:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -686,6 +600,7 @@ new class extends Component {
         $this->post->incrementViewCount();
     }
 };
+
 ```
 
 ```blade
@@ -695,227 +610,97 @@ new class extends Component {
 
     <div wire:intersect="incrementViewCount"></div>
 </div>
+
 ```
 
-The example above uses `wire:intersect` to call the action when the element enters the viewport (typically used to detect when a user scrolls to an element further down the page).
+Contoh di atas menggunakan `wire:intersect` untuk memanggil *action* ketika elemen memasuki area pandang (*viewport*). Karena `#[Renderless]` ditambahkan, log tampilan dicatat, tetapi *template* tidak melakukan render ulang dan tidak ada bagian halaman yang terpengaruh.
 
-As you can see, when a user scrolls to the bottom of the post, `incrementViewCount()` is invoked. Since `#[Renderless]` was added to the action, the view is logged, but the template doesn't re-render and no part of the page is affected.
-
-If you prefer to not utilize method attributes or need to conditionally skip rendering, you may invoke the `skipRender()` method in your component action:
+Jika Anda memilih untuk tidak menggunakan atribut method atau perlu melewatkan render secara kondisional, Anda dapat memanggil method `skipRender()` di dalam *action* komponen Anda:
 
 ```php
-<?php // resources/views/components/post/⚡show.blade.php
+public function incrementViewCount()
+{
+    $this->post->incrementViewCount();
 
-use Livewire\Component;
-use App\Models\Post;
+    $this->skipRender(); // [tl! highlight]
+}
 
-new class extends Component {
-    public Post $post;
-
-    public function mount(Post $post)
-    {
-        $this->post = $post;
-    }
-
-    public function incrementViewCount()
-    {
-        $this->post->incrementViewCount();
-
-        $this->skipRender(); // [tl! highlight]
-    }
-};
 ```
 
-You can also skip render from an element directly using the `.renderless` modifier:
+Anda juga dapat melewatkan render langsung dari elemen menggunakan pengubah `.renderless`:
 
 ```blade
 <button type="button" wire:click.renderless="incrementViewCount">
+
 ```
 
-## Parallel execution with async
+## Eksekusi Paralel dengan Async
 
-By default, Livewire serializes actions within the same component to ensure predictable state updates. If one action is in-flight, subsequent actions are queued and wait for it to finish. While this prevents race conditions and keeps your component's state consistent, there are times when you want actions to run immediately without waiting—in parallel rather than sequentially.
+Secara default, Livewire menjalankan *actions* secara berurutan (*sequential*) dalam komponen yang sama untuk memastikan pembaruan *state* yang dapat diprediksi. Jika satu *action* sedang berjalan, *action* berikutnya akan masuk antrean. Namun, terkadang Anda ingin *action* berjalan segera tanpa menunggu—secara paralel.
 
-The `#[Async]` attribute and `wire:click.async` modifier tell Livewire to execute an action in parallel, bypassing the normal request queue.
+Atribut `#[Async]` dan pengubah `wire:click.async` memberitahu Livewire untuk mengeksekusi *action* secara paralel, melewati antrean permintaan normal.
 
-### Using the async modifier
+### Menggunakan pengubah async
 
-You can make any action async by adding the `.async` modifier to your event listener:
+Anda dapat membuat *action* apa pun menjadi asinkron dengan menambahkan pengubah `.async` pada *event listener* Anda:
 
 ```blade
 <button wire:click.async="logActivity">Track Event</button>
+
 ```
 
-When this button is clicked, the `logActivity` action will fire immediately, even if other requests are in-flight. It won't block subsequent requests, and other requests won't block it.
+### Menggunakan atribut Async
 
-### Using the Async attribute
-
-Alternatively, you can mark a method as async using the `#[Async]` attribute. This makes the action async regardless of where it's called from:
+Atau, Anda dapat menandai sebuah method sebagai asinkron menggunakan atribut `#[Async]`. Ini membuat *action* tersebut selalu asinkron dari mana pun ia dipanggil:
 
 ```php
-<?php // resources/views/components/post/⚡show.blade.php
+#[Async]
+public function logActivity()
+{
+    Activity::log('post-viewed', $this->post);
+}
 
-use Livewire\Attributes\Async;
-use Livewire\Component;
-
-new class extends Component {
-    public Post $post;
-
-    #[Async]
-    public function logActivity()
-    {
-        Activity::log('post-viewed', $this->post);
-    }
-
-    // ...
-};
 ```
 
-```blade
-<div wire:intersect="logActivity">
-    <!-- ... -->
-</div>
-```
+### Kapan menggunakan async actions
 
-In this example, when the element enters the viewport, `logActivity()` is called asynchronously without blocking any other in-flight requests.
+*Async actions* berguna untuk operasi "tembak dan lupakan" (*fire-and-forget*) di mana hasilnya tidak memengaruhi apa yang ditampilkan di halaman. Kasus penggunaan umum meliputi:
 
-### When to use async actions
+* **Analitik dan Logging:** Melacak perilaku pengguna atau tampilan halaman.
+* **Operasi Latar Belakang:** Memicu *job*, mengirim notifikasi, atau memperbarui layanan eksternal.
+* **Hasil Khusus JavaScript:** Mengambil data via `await $wire.getData()` yang akan dikonsumsi murni oleh JavaScript.
 
-Async actions are useful for fire-and-forget operations where the result doesn't affect what's displayed on the page. Common use cases include:
+### Kapan TIDAK menggunakan async actions
 
-- **Analytics and logging:** Tracking user behavior, page views, or interactions
-- **Background operations:** Triggering jobs, sending notifications, or updating external services
-- **JavaScript-only results:** Fetching data via `await $wire.getData()` that will be consumed purely by JavaScript
+> [!warning] Async actions dan mutasi state tidak boleh dicampur
+> **Jangan pernah menggunakan async actions jika mereka mengubah state komponen yang tercermin di UI Anda.** Karena berjalan secara paralel, Anda bisa berakhir dengan kondisi balapan (*race conditions*) yang tidak terduga di mana *state* komponen Anda menjadi tidak sinkron antar permintaan yang simultan.
 
-Here's an example of tracking when a user clicks on an external link:
+**Aturan praktisnya:** Hanya gunakan *async* untuk *actions* yang melakukan efek samping murni—operasi yang tidak mengubah properti apa pun yang memengaruhi tampilan komponen Anda.
 
-```php
-<?php
+## Mempertahankan Posisi Scroll (Preserving scroll position)
 
-use Livewire\Attributes\Async;
-use Livewire\Component;
-
-new class extends Component {
-    public $url;
-
-    #[Async]
-    public function trackClick()
-    {
-        Analytics::track('external-link-clicked', [
-            'url' => $this->url,
-            'user_id' => auth()->id(),
-        ]);
-    }
-
-    // ...
-};
-```
-
-```blade
-<a href="{{ $url }}" target="_blank" wire:click.async="trackClick">
-    Visit External Site
-</a>
-```
-
-Because the tracking happens asynchronously, the user's click isn't delayed by the network request.
-
-### When NOT to use async actions
-
-> [!warning] Async actions and state mutations don't mix
-> **Never use async actions if they modify component state that's reflected in your UI.** Because async actions run in parallel, you can end up with unpredictable race conditions where your component's state diverges across multiple simultaneous requests.
-
-Consider this dangerous example:
-
-```php
-// Warning: This snippet demonstrates what NOT to do...
-
-<?php // resources/views/components/⚡counter.blade.php
-
-use Livewire\Attributes\Async;
-use Livewire\Component;
-
-new class extends Component {
-    public $count = 0;
-
-    #[Async] // Don't do this!
-    public function increment()
-    {
-        $this->count++; // State mutation in an async action
-    }
-
-    // ...
-};
-```
-
-If a user rapidly clicks the increment button, multiple async requests will fire simultaneously. Each request starts with the same initial `$count` value, leading to lost updates. You might click 5 times but only see the counter increment by 1.
-
-**The rule of thumb:** Only use async for actions that perform pure side effects—operations that don't change any properties that affect your component's view.
-
-### Fetching data for JavaScript
-
-Another valid use case is fetching data from the server that will be consumed entirely by JavaScript, without affecting your component's rendered state:
-
-```php
-<?php
-
-use Livewire\Attributes\Async;
-use Livewire\Component;
-
-new class extends Component {
-    #[Async]
-    public function fetchSuggestions($query)
-    {
-        return Post::where('title', 'like', "%{$query}%")
-            ->limit(5)
-            ->pluck('title');
-    }
-
-    // ...
-};
-```
-
-```blade
-<div x-data="{ suggestions: [] }">
-    <input
-        type="text"
-        x-on:input.debounce="suggestions = await $wire.fetchSuggestions($event.target.value)"
-    >
-
-    <template x-for="suggestion in suggestions">
-        <div x-text="suggestion"></div>
-    </template>
-</div>
-```
-
-Because the suggestions are stored purely in Alpine's `suggestions` data and never in Livewire's component state, it's safe to fetch them asynchronously.
-
-## Preserving scroll position
-
-When updating content, the browser may jump to a different scroll position. The `.preserve-scroll` modifier maintains the current scroll position during updates:
+Saat memperbarui konten, browser mungkin melompat ke posisi gulir (*scroll*) yang berbeda. Pengubah `.preserve-scroll` mempertahankan posisi gulir saat ini selama pembaruan:
 
 ```blade
 <button wire:click.preserve-scroll="loadMore">Load More</button>
 
-<select wire:model.live.preserve-scroll="category">...</select>
 ```
 
-This is useful for infinite scroll, filters, and dynamic content updates where you don't want the page to jump.
+Ini sangat berguna untuk *infinite scroll*, filter, dan pembaruan konten dinamis agar halaman tidak "melompat".
 
-## Security concerns
+## Masalah Keamanan (Security concerns)
 
-Remember that any public method in your Livewire component can be called from the client-side, even without an associated `wire:click` handler that invokes it. In these scenarios, users can still trigger the action from the browser's DevTools.
+Ingatlah bahwa **setiap method publik** dalam komponen Livewire Anda dapat dipanggil dari sisi klien, bahkan tanpa adanya handler `wire:click` yang terkait. Pengguna yang jahat dapat memicu *action* tersebut melalui DevTools browser.
 
-Below are three examples of easy-to-miss vulnerabilities in Livewire components. Each will show the vulnerable component first and the secure component after. As an exercise, try spotting the vulnerabilities in the first example before viewing the solution.
+Selalu terapkan otorisasi di dalam method Anda. Jika Anda menganggap method komponen sebagai proksi untuk method *controller*, dan parameternya sebagai proksi untuk *input* permintaan, Anda dapat menerapkan pengetahuan keamanan aplikasi standar Anda pada kode Livewire.
 
-If you are having difficulty spotting the vulnerabilities and that makes you concerned about your ability to keep your own applications secure, remember all these vulnerabilities apply to standard web applications that use requests and controllers. If you use a component method as a proxy for a controller method, and its parameters as a proxy for request input, you should be able to apply your existing application security knowledge to your Livewire code.
+### Selalu otorisasi parameter action
 
-### Always authorize action parameters
+Sama seperti input permintaan (*request*) pada controller, sangat penting untuk mengotorisasi parameter action karena parameter tersebut merupakan input pengguna yang bersifat arbitrer.
 
-Just like controller request input, it's imperative to authorize action parameters since they are arbitrary user input.
+Di bawah ini adalah komponen `ShowPosts` di mana pengguna dapat melihat semua postingan mereka dalam satu halaman. Mereka dapat menghapus postingan apa pun yang mereka inginkan menggunakan salah satu tombol "Delete" pada postingan tersebut.
 
-Below is a `ShowPosts` component where users can view all their posts on one page. They can delete any post they like using one of the post's "Delete" buttons.
-
-Here is a vulnerable version of the component:
+Berikut adalah versi komponen yang rentan (*vulnerable*):
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -939,6 +724,7 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
 ```blade
@@ -952,11 +738,12 @@ new class extends Component {
         </div>
     @endforeach
 </div>
+
 ```
 
-Remember that a malicious user can call `delete()` directly from a JavaScript console, passing any parameters they would like to the action. This means that a user viewing one of their posts can delete another user's post by passing the un-owned post ID to `delete()`.
+Ingatlah bahwa pengguna jahat dapat memanggil `delete()` secara langsung dari konsol JavaScript, mengirimkan parameter apa pun yang mereka inginkan ke action tersebut. Ini berarti pengguna yang sedang melihat salah satu postingan mereka dapat menghapus postingan milik pengguna lain dengan mengirimkan ID postingan yang bukan miliknya ke `delete()`.
 
-To protect against this, we need to authorize that the user owns the post about to be deleted:
+Untuk melindungi dari hal ini, kita perlu mengotorisasi bahwa pengguna tersebut memiliki postingan yang akan dihapus:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -982,13 +769,14 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
-### Always authorize server-side
+### Selalu otorisasi di sisi server
 
-Like standard Laravel controllers, Livewire actions can be called by any user, even if there isn't an affordance for invoking the action in the UI.
+Seperti controller standar Laravel, action Livewire dapat dipanggil oleh pengguna mana pun, bahkan jika tidak ada fasilitas (*affordance*) untuk memanggil action tersebut di UI.
 
-Consider the following `BrowsePosts` component where any user can view all the posts in the application, but only administrators can delete a post:
+Perhatikan komponen `BrowsePosts` berikut di mana pengguna mana pun dapat melihat semua postingan dalam aplikasi, tetapi hanya administrator yang dapat menghapus postingan:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -1012,6 +800,7 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
 ```blade
@@ -1027,11 +816,12 @@ new class extends Component {
         </div>
     @endforeach
 </div>
+
 ```
 
-As you can see, only administrators can see the "Delete" button; however, any user can call `deletePost()` on the component from the browser's DevTools.
+Seperti yang Anda lihat, hanya administrator yang dapat melihat tombol "Delete"; namun, pengguna mana pun dapat memanggil `deletePost()` pada komponen dari DevTools browser.
 
-To patch this vulnerability, we need to authorize the action on the server like so:
+Untuk menambal kerentanan ini, kita perlu mengotorisasi action di server seperti berikut:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -1059,18 +849,19 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
-With this change, only administrators can delete a post from this component.
+Dengan perubahan ini, hanya administrator yang dapat menghapus postingan dari komponen ini.
 
-### Keep dangerous methods protected or private
+### Jaga agar metode berbahaya tetap protected atau private
 
-Every public method inside your Livewire component is callable from the client. Even methods you haven't referenced inside a `wire:click` handler. To prevent a user from calling a method that isn't intended to be callable client-side, you should mark them as `protected` or `private`. By doing so, you restrict the visibility of that sensitive method to the component's class and its subclasses, ensuring they cannot be called from the client-side.
+Setiap metode `public` di dalam komponen Livewire Anda dapat dipanggil dari sisi klien (*client-side*). Bahkan metode yang tidak Anda referensikan di dalam handler `wire:click`. Untuk mencegah pengguna memanggil metode yang tidak dimaksudkan untuk dipanggil dari sisi klien, Anda harus menandainya sebagai `protected` atau `private`. Dengan melakukan itu, Anda membatasi visibilitas metode sensitif tersebut hanya untuk kelas komponen itu sendiri dan subkelasnya, memastikan metode tersebut tidak dapat dipanggil dari sisi klien.
 
-Consider the `BrowsePosts` example that we previously discussed, where users can view all posts in your application, but only administrators can delete posts. In the [Always authorize server-side](/docs/4.x/actions#always-authorize-server-side) section, we made the action secure by adding server-side authorization. Now imagine we refactor the actual deletion of the post into a dedicated method like you might do in order to simplify your code:
+Pertimbangkan contoh `BrowsePosts` yang kita bahas sebelumnya, di mana pengguna dapat melihat semua postingan dalam aplikasi Anda, tetapi hanya administrator yang dapat menghapus postingan. Pada bagian [Selalu otorisasi di sisi server](https://www.google.com/search?q=/docs/4.x/actions%23always-authorize-server-side), kita telah membuat action tersebut aman dengan menambahkan otorisasi sisi server. Sekarang bayangkan kita melakukan refaktor pada proses penghapusan postingan ke dalam metode khusus seperti yang mungkin Anda lakukan untuk menyederhanakan kode Anda:
 
 ```php
-// Warning: This snippet demonstrates what NOT to do...
+// Peringatan: Cuplikan kode ini menunjukkan apa yang TIDAK boleh dilakukan...
 <?php // resources/views/components/post/⚡index.blade.php
 
 use Illuminate\Support\Facades\Auth;
@@ -1091,9 +882,11 @@ new class extends Component {
             abort(403);
         }
 
+        // Memanggil metode pembantu di bawah ini
         $this->delete($id); // [tl! highlight]
     }
 
+    // Metode ini bersifat publik secara default jika tidak ditentukan aksesnya
     public function delete($postId)  // [tl! highlight:5]
     {
         $post = Post::find($postId);
@@ -1101,6 +894,7 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
 ```blade
@@ -1114,11 +908,12 @@ new class extends Component {
         </div>
     @endforeach
 </div>
+
 ```
 
-As you can see, we refactored the post deletion logic into a dedicated method named `delete()`. Even though this method isn't referenced anywhere in our template, if a user gained knowledge of its existence, they would be able to call it from the browser's DevTools because it is `public`.
+Seperti yang Anda lihat, kita merefaktorkan logika penghapusan postingan ke dalam metode khusus bernama `delete()`. Meskipun metode ini tidak direferensikan di mana pun dalam template kita, jika seorang pengguna mengetahui keberadaannya, mereka akan dapat memanggilnya dari DevTools browser karena metode tersebut bersifat `public`.
 
-To remedy this, we can mark the method as `protected` or `private`. Once the method is marked as `protected` or `private`, an error will be thrown if a user tries to invoke it:
+Untuk mengatasi hal ini, kita dapat menandai metode tersebut sebagai `protected` atau `private`. Setelah metode ditandai sebagai `protected` atau `private`, sebuah kesalahan (*error*) akan muncul jika pengguna mencoba memanggilnya:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -1144,6 +939,7 @@ new class extends Component {
         $this->delete($id);
     }
 
+    // Menandai metode sebagai protected mencegah akses dari browser
     protected function delete($postId) // [tl! highlight]
     {
         $post = Post::find($postId);
@@ -1151,49 +947,13 @@ new class extends Component {
         $post->delete();
     }
 };
+
 ```
 
-<!--
-## Applying middleware
+## Lihat juga
 
-By default, Livewire re-applies authentication and authorization related middleware on subsequent requests if those middleware were applied on the initial page load request.
-
-For example, imagine your component is loaded inside a route that is assigned the `auth` middleware and a user's session ends. When the user triggers another action, the `auth` middleware will be re-applied and the user will receive an error.
-
-If there are specific middleware that you would like to apply to a specific action, you may do so with the `#[Middleware]` attribute. For example, we could apply a `LogPostCreation` middleware to an action that creates posts:
-
-```php
-<?php
-
-namespace App\Livewire;
-
-use App\Http\Middleware\LogPostCreation;
-use Livewire\Component;
-
-class CreatePost extends Component
-{
-    public $title;
-
-    public $content;
-
-    #[Middleware(LogPostCreation::class)] // [tl! highlight]
-    public function save()
-    {
-        // Create the post...
-    }
-
-    // ...
-}
-```
-
-Now, the `LogPostCreation` middleware will be applied only to the `createPost` action, ensuring that the activity is only being logged when users create a new post.
-
--->
-
-## See also
-
-- **[Events](/docs/4.x/events)** — Communicate between components using events
-- **[Forms](/docs/4.x/forms)** — Handle form submissions with actions
-- **[Loading States](/docs/4.x/loading-states)** — Show feedback while actions are processing
-- **[wire:click](/docs/4.x/wire-click)** — Trigger actions from button clicks
-- **[Validation](/docs/4.x/validation)** — Validate data before processing actions
+* **[Events](https://www.google.com/search?q=/docs/4.x/events)** — Berkomunikasi antar komponen menggunakan events
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Menangani pengiriman formulir dengan actions
+* **[Loading States](https://www.google.com/search?q=/docs/4.x/loading-states)** — Menampilkan umpan balik saat actions sedang diproses
+* **[wire:click](https://www.google.com/search?q=/docs/4.x/wire-click)** — Memicu actions dari klik tombol
+* **[Validation](https://www.google.com/search?q=/docs/4.x/validation)** — Memvalidasi data sebelum memproses actions
