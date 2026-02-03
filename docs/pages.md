@@ -1,33 +1,32 @@
-
-Livewire components can be used as entire pages by assigning them directly to routes. This allows you to build complete application pages using Livewire components, with additional capabilities like custom layouts, page titles, and route parameters.
+Livewire **components** dapat digunakan sebagai halaman utuh dengan menetapkannya langsung ke **routes**. Hal ini memungkinkan Anda membangun halaman aplikasi yang lengkap menggunakan Livewire **components**, dengan kemampuan tambahan seperti **custom layouts**, **page titles**, dan **route parameters**.
 
 ## Routing to components
 
-To route to a component, use the `Route::livewire()` method in your `routes/web.php` file:
+Untuk melakukan **routing** ke sebuah **component**, gunakan **method** `Route::livewire()` di file `routes/web.php` Anda:
 
 ```php
 Route::livewire('/posts/create', 'pages::post.create');
+
 ```
 
-When you visit the specified URL, the component will be rendered as a complete page using your application's layout.
+Saat Anda mengunjungi URL yang ditentukan, **component** tersebut akan di-**render** sebagai halaman lengkap menggunakan **layout** aplikasi Anda.
 
 ## Layouts
 
-Components rendered via routes will use your application's layout file. By default, Livewire looks for a layout called `layouts::app` located at `resources/views/layouts/app.blade.php`.
+**Components** yang di-**render** melalui **routes** akan menggunakan **layout file** aplikasi Anda. Secara **default**, Livewire mencari **layout** bernama `layouts::app` yang berlokasi di `resources/views/layouts/app.blade.php`.
 
-You may create this file if it doesn't already exist by running the following command:
+Anda dapat membuat file ini jika belum ada dengan menjalankan **command** berikut:
 
 ```shell
 php artisan livewire:layout
+
 ```
 
-This command will generate a file called `resources/views/layouts/app.blade.php`.
+**Command** ini akan men-**generate** file bernama `resources/views/layouts/app.blade.php`.
 
-Ensure you have created a Blade file at this location and included a `{{ $slot }}` placeholder:
+Pastikan Anda telah membuat file Blade di lokasi tersebut dan menyertakan **placeholder** `{{ $slot }}`:
 
 ```blade
-<!-- resources/views/layouts/app.blade.php -->
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -46,17 +45,19 @@ Ensure you have created a Blade file at this location and included a `{{ $slot }
         @livewireScripts
     </body>
 </html>
+
 ```
 
-You may customize the default layout by updating the `component_layout` configuration option in your `config/livewire.php` file:
+Anda dapat menyesuaikan **default layout** dengan memperbarui opsi **configuration** `component_layout` di file `config/livewire.php` Anda:
 
 ```php
 'component_layout' => 'layouts::dashboard',
+
 ```
 
 ### Component-specific layouts
 
-To use a different layout for a specific component, you may place the `#[Layout]` attribute above your component class:
+Untuk menggunakan **layout** yang berbeda bagi **component** tertentu, Anda dapat menempatkan **attribute** `#[Layout]` di atas **component class** Anda:
 
 ```php
 <?php
@@ -64,12 +65,13 @@ To use a different layout for a specific component, you may place the `#[Layout]
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::dashboard')] class extends Component { // [tl! highlight]
+new #[Layout('layouts::dashboard')] class extends Component { 
 	// ...
 };
+
 ```
 
-Alternatively, you may use the `->layout()` method within your component's `render()` method:
+Alternatif lainnya, Anda dapat menggunakan **method** `->layout()` di dalam **method** `render()` pada **component** Anda:
 
 ```php
 <?php
@@ -82,24 +84,26 @@ new class extends Component {
     public function render()
     {
         return $this->view()
-            ->layout('layouts::dashboard'); // [tl! highlight]
+            ->layout('layouts::dashboard'); 
     }
 };
+
 ```
 
 ## Setting the page title
 
-Assigning unique page titles to each page in your application is helpful for both users and search engines.
+Menetapkan **page titles** yang unik untuk setiap halaman di aplikasi Anda sangat membantu bagi pengguna maupun mesin pencari (SEO).
 
-To set a custom page title for a page component, first, make sure your layout file includes a dynamic title:
+Untuk menetapkan **custom page title** pada sebuah **page component**, pertama-tama pastikan **layout file** Anda menyertakan judul yang dinamis:
 
 ```blade
 <head>
     <title>{{ $title ?? config('app.name') }}</title>
 </head>
+
 ```
 
-Next, above your Livewire component's class, add the `#[Title]` attribute and pass it your page title:
+Selanjutnya, di atas **Livewire component class** Anda, tambahkan **attribute** `#[Title]` dan masukkan judul halaman Anda:
 
 ```php
 <?php
@@ -107,73 +111,63 @@ Next, above your Livewire component's class, add the `#[Title]` attribute and pa
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Create post')] class extends Component { // [tl! highlight]
+new #[Title('Create post')] class extends Component { 
 	// ...
 };
+
 ```
 
-This will set the page title for the component. In this example, the page title will be "Create Post" when the component is rendered.
+Ini akan mengatur **page title** untuk **component** tersebut. Dalam contoh ini, judul halaman akan menjadi "Create Post" saat **component** di-**render**.
 
-If you need to pass a dynamic title, such as a title that uses a component property, you can use the `->title()` fluent method in the component's `render()` method:
+Jika Anda perlu mengirimkan judul yang dinamis, seperti judul yang menggunakan **component property**, Anda dapat menggunakan **fluent method** `->title()` di dalam **method** `render()` pada **component**:
 
 ```php
 public function render()
 {
     return $this->view()
-	     ->title('Create Post'); // [tl! highlight]
+         ->title('Create Post'); 
 }
+
 ```
 
 ## Setting additional layout file slots
 
-If your layout file has any named slots in addition to `$slot`, you can set their content in your Blade view by defining `<x-slot>` outside your root element. For example, if you want to be able to set the page language for each component individually, you can add a dynamic `$lang` slot into the opening HTML tag in your layout file:
+Jika **layout file** Anda memiliki **named slots** selain `$slot`, Anda dapat menetapkan kontennya di dalam Blade **view** Anda dengan mendefinisikan `<x-slot>` di luar **root element**. Sebagai contoh, jika Anda ingin mengatur bahasa halaman (**page language**) untuk setiap **component** secara individu, Anda dapat menambahkan **slot** `$lang` yang dinamis ke dalam tag HTML pembuka di **layout file** Anda:
 
 ```blade
-<!-- resources/views/layouts/app.blade.php -->
-
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', $lang ?? app()->getLocale()) }}"> <!-- [tl! highlight] -->
+<html lang="{{ str_replace('_', '-', $lang ?? app()->getLocale()) }}">
     <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        <title>{{ $title ?? config('app.name') }}</title>
-
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        @livewireStyles
-    </head>
+        </head>
     <body>
         {{ $slot }}
-
-        @livewireScripts
-    </body>
+        </body>
 </html>
+
 ```
 
-Then, in your component view, define an `<x-slot>` element outside the root element:
+Kemudian, di dalam **component view** Anda, definisikan elemen `<x-slot>` di luar **root element**:
 
 ```blade
-<x-slot:lang>fr</x-slot> // This component is in French <!-- [tl! highlight] -->
+<x-slot:lang>fr</x-slot> <div>
+    </div>
 
-<div>
-    // French content goes here...
-</div>
 ```
 
 ## Accessing route parameters
 
-When working with page components, you may need to access route parameters within your Livewire component.
+Saat bekerja dengan **page components**, Anda mungkin perlu mengakses **route parameters** di dalam Livewire **component** Anda.
 
-To demonstrate, first, define a route with a parameter in your `routes/web.php` file:
+Sebagai demonstrasi, pertama, definisikan sebuah **route** dengan parameter di file `routes/web.php` Anda:
 
 ```php
 Route::livewire('/posts/{id}', 'pages::show-post');
+
 ```
 
-Here, we've defined a route with an `id` parameter which represents a post's ID.
+Di sini, kita mendefinisikan **route** dengan parameter `id` yang merepresentasikan ID dari sebuah **post**.
 
-Next, update your Livewire component to accept the route parameter in the `mount()` method:
+Selanjutnya, perbarui Livewire **component** Anda untuk menerima **route parameter** di dalam **method** `mount()`:
 
 ```php
 <?php
@@ -184,26 +178,28 @@ use Livewire\Component;
 new class extends Component {
     public Post $post;
 
-    public function mount($id) // [tl! highlight]
+    public function mount($id) 
     {
         $this->post = Post::findOrFail($id);
     }
 };
+
 ```
 
-In this example, because the parameter name `$id` matches the route parameter `{id}`, if the `/posts/1` URL is visited, Livewire will pass the value of "1" as `$id`.
+Dalam contoh ini, karena nama parameter `$id` sesuai dengan **route parameter** `{id}`, jika URL `/posts/1` dikunjungi, Livewire akan mengirimkan nilai "1" sebagai `$id`.
 
 ## Using route model binding
 
-Laravel's route model binding allows you to automatically resolve Eloquent models from route parameters.
+Laravel **route model binding** memungkinkan Anda secara otomatis me-**resolve** Eloquent **models** dari **route parameters**.
 
-After defining a route with a model parameter in your `routes/web.php` file:
+Setelah mendefinisikan **route** dengan parameter **model** di file `routes/web.php` Anda:
 
 ```php
 Route::livewire('/posts/{post}', 'pages::show-post');
+
 ```
 
-You can now accept the route model parameter through the `mount()` method of your component:
+Anda sekarang dapat menerima **route model parameter** melalui **method** `mount()` pada **component** Anda:
 
 ```php
 <?php
@@ -214,16 +210,17 @@ use Livewire\Component;
 new class extends Component {
     public Post $post;
 
-    public function mount(Post $post) // [tl! highlight]
+    public function mount(Post $post) 
     {
         $this->post = $post;
     }
 };
+
 ```
 
-Livewire knows to use "route model binding" because the `Post` type-hint is prepended to the `$post` parameter in `mount()`.
+Livewire tahu untuk menggunakan "**route model binding**" karena **type-hint** `Post` ditambahkan pada parameter `$post` di dalam `mount()`.
 
-Like before, you can reduce boilerplate by omitting the `mount()` method:
+Seperti sebelumnya, Anda dapat mengurangi kode **boilerplate** dengan mengabaikan **method** `mount()`:
 
 ```php
 <?php
@@ -232,16 +229,19 @@ use Livewire\Component;
 use App\Models\Post;
 
 new class extends Component {
-    public Post $post; // [tl! highlight]
+    public Post $post; 
 };
+
 ```
 
-The `$post` property will automatically be assigned to the model bound via the route's `{post}` parameter.
+**Property** `$post` akan secara otomatis diisi dengan **model** yang di-**bound** melalui **route parameter** `{post}`.
 
-## See also
+---
 
-- **[Components](/docs/4.x/components)** — Learn about creating and organizing components
-- **[Navigate](/docs/4.x/navigate)** — Build SPA-like navigation between pages
-- **[Redirecting](/docs/4.x/redirecting)** — Redirect users after form submissions or actions
-- **[Layout Attribute](/docs/4.x/attribute-layout)** — Specify layouts for full-page components
-- **[Title Attribute](/docs/4.x/attribute-title)** — Set page titles dynamically
+## See also (Lihat juga)
+
+* **[Components](https://www.google.com/search?q=/docs/4.x/components)** — Pelajari tentang cara membuat dan mengorganisir komponen.
+* **[Navigate](https://www.google.com/search?q=/docs/4.x/navigate)** — Membangun navigasi seperti SPA antar halaman.
+* **[Redirecting](https://www.google.com/search?q=/docs/4.x/redirecting)** — Mengalihkan pengguna setelah pengiriman formulir atau aksi.
+* **[Layout Attribute](https://www.google.com/search?q=/docs/4.x/attribute-layout)** — Menentukan layout untuk komponen halaman penuh.
+* **[Title Attribute](https://www.google.com/search?q=/docs/4.x/attribute-title)** — Mengatur judul halaman secara dinamis.
