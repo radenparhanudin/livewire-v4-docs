@@ -1,26 +1,26 @@
-Livewire provides a variety of lifecycle hooks that allow you to execute code at specific points during a component's lifecycle. These hooks enable you to perform actions before or after particular events, such as initializing the component, updating properties, or rendering the template.
+Livewire menyediakan berbagai **lifecycle hooks** yang memungkinkan Anda menjalankan kode pada titik tertentu selama siklus hidup sebuah **component**. **Hooks** ini memungkinkan Anda untuk melakukan **actions** sebelum atau sesudah peristiwa tertentu, seperti menginisialisasi **component**, memperbarui properti, atau merender **template**.
 
-Here's a list of all the available component lifecycle hooks:
+Berikut adalah daftar semua **component lifecycle hooks** yang tersedia:
 
-| Hook Method      | Description                                                                     |
-|------------------|---------------------------------------------------------------------------------|
-| `mount()`        | Called when a component is created                                              |
-| `hydrate()`      | Called when a component is re-hydrated at the beginning of a subsequent request |
-| `boot()`         | Called at the beginning of every request. Both initial, and subsequent          |
-| `updating()`     | Called before updating a component property                                     |
-| `updated()`      | Called after updating a property                                                |
-| `rendering()`    | Called before `render()` is called                                              |
-| `rendered()`     | Called after `render()` is called                                               |
-| `dehydrate()`    | Called at the end of every component request                                    |
-| `exception($e, $stopPropagation)` | Called when an exception is thrown                     |                    |
+| Hook Method | Deskripsi |
+| --- | --- |
+| `mount()` | Dipanggil saat sebuah **component** dibuat |
+| `hydrate()` | Dipanggil saat sebuah **component** di-**re-hydrated** pada awal **request** berikutnya |
+| `boot()` | Dipanggil pada awal setiap **request**. Baik awal (initial), maupun berikutnya |
+| `updating()` | Dipanggil sebelum memperbarui sebuah properti **component** |
+| `updated()` | Dipanggil setelah memperbarui sebuah properti |
+| `rendering()` | Dipanggil sebelum `render()` dipanggil |
+| `rendered()` | Dipanggil setelah `render()` dipanggil |
+| `dehydrate()` | Dipanggil pada akhir setiap **request** **component** |
+| `exception($e, $stopPropagation)` | Dipanggil ketika sebuah **exception** dilemparkan |
 
 ## Mount
 
-In a standard PHP class, a constructor (`__construct()`) takes in outside parameters and initializes the object's state. However, in Livewire, you use the `mount()` method for accepting parameters and initializing the state of your component.
+Dalam kelas PHP standar, sebuah **constructor** (`__construct()`) menerima parameter luar dan menginisialisasi **state** objek. Namun, di Livewire, Anda menggunakan metode `mount()` untuk menerima parameter dan menginisialisasi **state** dari **component** Anda.
 
-Livewire components don't use `__construct()` because Livewire components are _re-constructed_ on subsequent network requests, and we only want to initialize the component once when it is first created.
+**Components** Livewire tidak menggunakan `__construct()` karena **components** Livewire di-**re-constructed** pada **network requests** berikutnya, dan kita hanya ingin menginisialisasi **component** satu kali saat pertama kali dibuat.
 
-Here's an example of using the `mount()` method to initialize the `name` and `email` properties of a `profile.edit` component:
+Berikut adalah contoh penggunaan metode `mount()` untuk menginisialisasi properti `name` dan `email` dari sebuah **component** `profile.edit`:
 
 ```php
 <?php // resources/views/components/profile/⚡edit.blade.php
@@ -42,9 +42,10 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-As mentioned earlier, the `mount()` method receives data passed into the component as method parameters:
+Seperti yang disebutkan sebelumnya, metode `mount()` menerima data yang diteruskan ke dalam **component** sebagai parameter metode:
 
 ```php
 <?php // resources/views/components/post/⚡edit.blade.php
@@ -66,24 +67,25 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-> [!tip] You can use dependency injection with all hook methods
-> Livewire allows you to resolve dependencies out of [Laravel's service container](https://laravel.com/docs/container#automatic-injection) by type-hinting method parameters on lifecycle hooks.
+> [!tip] Anda dapat menggunakan dependency injection dengan semua metode hook
+> Livewire memungkinkan Anda untuk menyelesaikan dependensi dari [Laravel's service container](https://laravel.com/docs/container#automatic-injection) dengan melakukan **type-hinting** pada parameter metode di **lifecycle hooks**.
 
-The `mount()` method is a crucial part of using Livewire. The following documentation provides further examples of using the `mount()` method to accomplish common tasks:
+Metode `mount()` adalah bagian krusial dalam menggunakan Livewire. Dokumentasi berikut menyediakan contoh lebih lanjut penggunaan metode `mount()` untuk menyelesaikan tugas-tugas umum:
 
-* [Initializing properties](/docs/4.x/properties#initializing-properties)
-* [Receiving data from parent components](/docs/4.x/nesting#passing-props-to-children)
-* [Accessing route parameters](/docs/4.x/pages#accessing-route-parameters)
+* [Initializing properties](https://www.google.com/search?q=/docs/4.x/properties%23initializing-properties)
+* [Receiving data from parent components](https://www.google.com/search?q=/docs/4.x/nesting%23passing-props-to-children)
+* [Accessing route parameters](https://www.google.com/search?q=/docs/4.x/pages%23accessing-route-parameters)
 
 ## Boot
 
-As helpful as `mount()` is, it only runs once per component lifecycle, and you may want to run logic at the beginning of every single request to the server for a given component.
+Meskipun `mount()` sangat membantu, ia hanya berjalan satu kali per siklus hidup **component**, dan Anda mungkin ingin menjalankan logika pada awal setiap **request** ke server untuk **component** tertentu.
 
-For these cases, Livewire provides a `boot()` method where you can write component setup code that you intend to run every single time the component class is booted: both on initialization and on subsequent requests.
+Untuk kasus ini, Livewire menyediakan metode `boot()` di mana Anda dapat menulis kode pengaturan **component** yang ingin Anda jalankan setiap kali kelas **component** di-**boot**: baik saat inisialisasi maupun pada **requests** berikutnya.
 
-The `boot()` method can be useful for things like initializing protected properties, which are not persisted between requests. Below is an example of initializing a protected property as an Eloquent model:
+Metode `boot()` dapat berguna untuk hal-hal seperti menginisialisasi properti **protected**, yang tidak dipertahankan (**persisted**) di antara **requests**. Di bawah ini adalah contoh menginisialisasi properti **protected** sebagai **Eloquent model**:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -105,28 +107,27 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-You can use this technique to have complete control over initializing a component property in your Livewire component.
+Anda dapat menggunakan teknik ini untuk memiliki kontrol penuh atas inisialisasi properti **component** di dalam **component** Livewire Anda.
 
-> [!tip] Most of the time, you can use a computed property instead
-> The technique used above is powerful; however, it's often better to use [Livewire's computed properties](/docs/4.x/computed-properties) to solve this use case.
+> [!tip] Seringkali, Anda dapat menggunakan computed property sebagai gantinya
+> Teknik yang digunakan di atas memang kuat; namun, seringkali lebih baik menggunakan [Livewire's computed properties](https://www.google.com/search?q=/docs/4.x/computed-properties) untuk menyelesaikan kasus penggunaan ini.
 
-> [!warning] Always lock sensitive public properties
-> As you can see above, we are using the `#[Locked]` attribute on the `$postId` property. In a scenario like the above, where you want to ensure the `$postId` property isn't tampered with by users on the client-side, it's important to authorize the property's value before using it or add `#[Locked]` to the property ensure it is never changed.
->
-> For more information, check out the [documentation on the Locked attribute](/docs/4.x/attribute-locked).
-
+> [!warning] Selalu kunci (lock) properti publik yang sensitif
+> Seperti yang Anda lihat di atas, kita menggunakan atribut `#[Locked]` pada properti `$postId`. Dalam skenario seperti di atas, di mana Anda ingin memastikan properti `$postId` tidak dirusak oleh pengguna di sisi klien, penting untuk mengotorisasi nilai properti sebelum menggunakannya atau menambahkan `#[Locked]` ke properti tersebut untuk memastikan nilainya tidak pernah diubah.
+> Untuk informasi lebih lanjut, lihat [dokumentasi atribut Locked](https://www.google.com/search?q=/docs/4.x/attribute-locked).
 
 ## Update
 
-Client-side users can update public properties in many different ways, most commonly by modifying an input with `wire:model` on it.
+Pengguna di sisi klien dapat memperbarui properti publik dengan berbagai cara, paling umum dengan memodifikasi **input** yang memiliki `wire:model` di atasnya.
 
-Livewire provides convenient hooks to intercept the updating of a public property so that you can validate or authorize a value before it's set, or ensure a property is set in a given format.
+Livewire menyediakan **hooks** yang nyaman untuk mencegat pembaruan properti publik sehingga Anda dapat memvalidasi atau mengotorisasi sebuah nilai sebelum ditetapkan, atau memastikan sebuah properti ditetapkan dalam format tertentu.
 
-Below is an example of using `updating` to prevent the modification of the `$postId` property.
+Di bawah ini adalah contoh penggunaan `updating` untuk mencegah modifikasi properti `$postId`.
 
-It's worth noting that for this particular example, in an actual application, you should use the [`#[Locked]` attribute](/docs/4.x/attribute-locked) instead, like in the above example.
+Perlu dicatat bahwa untuk contoh khusus ini, dalam aplikasi yang sebenarnya, Anda seharusnya menggunakan [atribut `#[Locked]](https://www.google.com/search?q=/docs/4.x/attribute-locked)` sebagai gantinya, seperti pada contoh di atas.
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -139,8 +140,8 @@ new class extends Component {
 
     public function updating($property, $value)
     {
-        // $property: The name of the current property being updated
-        // $value: The value about to be set to the property
+        // $property: Nama properti saat ini yang sedang diperbarui
+        // $value: Nilai yang akan ditetapkan ke properti tersebut
 
         if ($property === 'postId') {
             throw new Exception;
@@ -149,9 +150,10 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-The above `updating()` method runs before the property is updated, allowing you to catch invalid input and prevent the property from updating. Below is an example of using `updated()` to ensure a property's value stays consistent:
+Metode `updating()` di atas berjalan sebelum properti diperbarui, memungkinkan Anda untuk menangkap **input** yang tidak valid dan mencegah properti diperbarui. Di bawah ini adalah contoh penggunaan `updated()` untuk memastikan nilai properti tetap konsisten:
 
 ```php
 <?php // resources/views/components/user/⚡create.blade.php
@@ -165,7 +167,7 @@ new class extends Component {
 
     public function updated($property)
     {
-        // $property: The name of the current property that was updated
+        // $property: Nama properti saat ini yang telah diperbarui
 
         if ($property === 'username') {
             $this->username = strtolower($this->username);
@@ -174,11 +176,12 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-Now, anytime the `$username` property is updated client-side, we will ensure that the value will always be lowercase.
+Sekarang, setiap kali properti `$username` diperbarui di sisi klien, kita akan memastikan bahwa nilainya akan selalu berupa huruf kecil.
 
-Because you are often targeting a specific property when using update hooks, Livewire allows you to specify the property name directly as part of the method name. Here's the same example from above but rewritten utilizing this technique:
+Karena Anda seringkali menargetkan properti tertentu saat menggunakan **update hooks**, Livewire memungkinkan Anda untuk menentukan nama properti secara langsung sebagai bagian dari nama metode. Berikut adalah contoh yang sama dari atas tetapi ditulis ulang menggunakan teknik ini:
 
 ```php
 <?php // resources/views/components/user/⚡create.blade.php
@@ -197,15 +200,16 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-Of course, you can also apply this technique to the `updating` hook.
+Tentu saja, Anda juga dapat menerapkan teknik ini pada **hook** `updating`.
 
 ### Arrays
 
-Array properties have an additional `$key` argument passed to these functions to specify the changing element.
+Properti **array** memiliki argumen tambahan `$key` yang diteruskan ke fungsi-fungsi ini untuk menentukan elemen yang berubah.
 
-Note that when the array itself is updated instead of a specific key, the `$key` argument is null.
+Perhatikan bahwa ketika **array** itu sendiri diperbarui alih-alih kunci tertentu, argumen `$key` bernilai **null**.
 
 ```php
 <?php // resources/views/components/preferences/⚡edit.blade.php
@@ -223,17 +227,18 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
 ## Hydrate & Dehydrate
 
-Hydrate and dehydrate are lesser-known and lesser-utilized hooks. However, there are specific scenarios where they can be powerful.
+**Hydrate** dan **dehydrate** adalah **hooks** yang kurang dikenal dan kurang dimanfaatkan. Namun, ada skenario tertentu di mana mereka bisa menjadi sangat kuat.
 
-The terms "dehydrate" and "hydrate" refer to a Livewire component being serialized to JSON for the client-side and then unserialized back into a PHP object on the subsequent request.
+Istilah "dehydrate" dan "hydrate" merujuk pada **component** Livewire yang diserialisasi menjadi JSON untuk sisi klien dan kemudian di-**unserialized** kembali menjadi objek PHP pada **request** berikutnya.
 
-We often use the terms "hydrate" and "dehydrate" to refer to this process throughout Livewire's codebase and the documentation. If you'd like more clarity on these terms, you can learn more by [consulting our hydration documentation](/docs/4.x/hydration).
+Kami sering menggunakan istilah "hydrate" dan "dehydrate" untuk merujuk pada proses ini di seluruh basis kode dan dokumentasi Livewire. Jika Anda ingin kejelasan lebih lanjut tentang istilah-istilah ini, Anda dapat mempelajari lebih lanjut dengan [berkonsultasi pada dokumentasi hidrasi kami](https://www.google.com/search?q=/docs/4.x/hydration).
 
-Let's look at an example that uses both `mount()` , `hydrate()`, and `dehydrate()` all together to support using a custom [data transfer object (DTO)](https://en.wikipedia.org/wiki/Data_transfer_object) instead of an Eloquent model to store the post data in the component:
+Mari kita lihat contoh yang menggunakan `mount()`, `hydrate()`, dan `dehydrate()` sekaligus untuk mendukung penggunaan **data transfer object (DTO)** kustom alih-alih **Eloquent model** untuk menyimpan data **post** di dalam **component**:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -245,7 +250,7 @@ new class extends Component {
 
     public function mount($title, $content)
     {
-        // Runs at the beginning of the first initial request...
+        // Berjalan pada awal request inisial pertama...
 
         $this->post = new PostDto([
             'title' => $title,
@@ -255,30 +260,31 @@ new class extends Component {
 
     public function hydrate()
     {
-        // Runs at the beginning of every "subsequent" request...
-        // This doesn't run on the initial request ("mount" does)...
+        // Berjalan pada awal setiap request "berikutnya"...
+        // Ini tidak berjalan pada request inisial ("mount" yang berjalan)...
 
         $this->post = new PostDto($this->post);
     }
 
     public function dehydrate()
     {
-        // Runs at the end of every single request...
+        // Berjalan pada akhir setiap request...
 
         $this->post = $this->post->toArray();
     }
 
     // ...
 };
+
 ```
 
-Now, from actions and other places inside your component, you can access the `PostDto` object instead of the primitive data.
+Sekarang, dari **actions** dan tempat lain di dalam **component** Anda, Anda dapat mengakses objek `PostDto` alih-alih data primitif.
 
-The above example mainly demonstrates the abilities and nature of the `hydrate()` and `dehydrate()` hooks. However, it is recommended that you use [Wireables or Synthesizers](/docs/4.x/properties#supporting-custom-types) to accomplish this instead.
+Contoh di atas terutama mendemonstrasikan kemampuan dan sifat dari **hooks** `hydrate()` dan `dehydrate()`. Namun, direkomendasikan agar Anda menggunakan [Wireables atau Synthesizers](https://www.google.com/search?q=/docs/4.x/properties%23supporting-custom-types) untuk mencapai hal ini sebagai gantinya.
 
 ## Render
 
-If you want to hook into the process of rendering a component's Blade view, you can do so using the `rendering()` and `rendered()` hooks:
+Jika Anda ingin masuk ke dalam proses perenderan **Blade view** sebuah **component**, Anda dapat melakukannya menggunakan **hooks** `rendering()` dan `rendered()`:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -296,28 +302,29 @@ new class extends Component {
 
     public function rendering($view, $data)
     {
-        // Runs BEFORE the provided view is rendered...
+        // Berjalan SEBELUM view yang disediakan dirender...
         //
-        // $view: The view about to be rendered
-        // $data: The data provided to the view
+        // $view: View yang akan dirender
+        // $data: Data yang disediakan untuk view tersebut
     }
 
     public function rendered($view, $html)
     {
-        // Runs AFTER the provided view is rendered...
+        // Berjalan SESUDAH view yang disediakan dirender...
         //
-        // $view: The rendered view
-        // $html: The final, rendered HTML
+        // $view: View yang telah dirender
+        // $html: HTML akhir yang telah dirender
     }
 
     // ...
 };
+
 ```
 
 ## Exception
 
-Sometimes it can be helpful to intercept and catch errors, eg: to customize the error message or ignore specific type of exceptions. The `exception()` hook allows you to do just that: you can perform check on the `$error`, and use the `$stopPropagation` parameter to catch the issue.
-This also unlocks powerful patterns when you want to stop further execution of code (return early), this is how internal methods like `validate()` works.
+Terkadang sangat membantu untuk mencegat dan menangkap kesalahan (**errors**), misalnya: untuk menyesuaikan pesan kesalahan atau mengabaikan jenis **exceptions** tertentu. **Hook** `exception()` memungkinkan Anda melakukan hal tersebut: Anda dapat melakukan pemeriksaan pada `$error`, dan menggunakan parameter `$stopPropagation` untuk menangkap masalahnya.
+Ini juga membuka pola yang kuat ketika Anda ingin menghentikan eksekusi kode lebih lanjut (**return early**), begitulah cara metode internal seperti `validate()` bekerja.
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -339,17 +346,18 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-## Using hooks inside a trait
+## Menggunakan hooks di dalam sebuah trait
 
-Traits are a helpful way to reuse code across components or extract code from a single component into a dedicated file.
+**Traits** adalah cara yang membantu untuk menggunakan kembali kode di berbagai **components** atau mengekstrak kode dari satu **component** ke dalam file khusus.
 
-To avoid multiple traits conflicting with each other when declaring lifecycle hook methods, Livewire supports prefixing hook methods with the _camelCased_ name of the current trait declaring them.
+Untuk menghindari konflik antar **traits** saat mendeklarasikan metode **lifecycle hook**, Livewire mendukung pemberian awalan (**prefixing**) pada metode **hook** dengan nama **camelCased** dari **trait** saat ini yang mendeklarasikannya.
 
-This way, you can have multiple traits using the same lifecycle hooks and avoid conflicting method definitions.
+Dengan cara ini, Anda dapat memiliki beberapa **traits** yang menggunakan **lifecycle hooks** yang sama dan menghindari definisi metode yang berkonflik.
 
-Below is an example of a component referencing a trait called `HasPostForm`:
+Di bawah ini adalah contoh sebuah **component** yang mereferensikan sebuah **trait** bernama `HasPostForm`:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -361,9 +369,10 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-Now here's the actual `HasPostForm` trait containing all the available prefixed hooks:
+Sekarang inilah **trait** `HasPostForm` yang sebenarnya berisi semua **prefixed hooks** yang tersedia:
 
 ```php
 trait HasPostForm
@@ -414,13 +423,14 @@ trait HasPostForm
 
     // ...
 }
+
 ```
 
-## Using hooks inside a form object
+## Menggunakan hooks di dalam sebuah form object
 
-Form objects in Livewire support property update hooks. These hooks work similarly to [component update hooks](#update), letting you perform actions when properties in the form object change.
+**Form objects** di Livewire mendukung **property update hooks**. **Hooks** ini bekerja mirip dengan [component update hooks](https://www.google.com/search?q=%23update), memungkinkan Anda melakukan **actions** ketika properti di dalam **form object** berubah.
 
-Below is an example of a component using a `PostForm` form object:
+Di bawah ini adalah contoh sebuah **component** yang menggunakan sebuah **form object** `PostForm`:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -432,9 +442,10 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-Here's the `PostForm` form object containing all the available hooks:
+Berikut adalah **form object** `PostForm` yang berisi semua **hooks** yang tersedia:
 
 ```php
 namespace App\Livewire\Forms;
@@ -480,11 +491,14 @@ class PostForm extends Form
 
     // ...
 }
+
 ```
+
+---
 
 ## See also
 
-- **[Properties](/docs/4.x/properties)** — Initialize properties in mount() and boot()
-- **[Components](/docs/4.x/components)** — Understand when hooks run during component creation
-- **[Pages](/docs/4.x/pages)** — Use mount() to receive route parameters
-- **[Hydration](/docs/4.x/hydration)** — Understand the hydrate() and dehydrate() hooks
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Menginisialisasi properti di dalam `mount()` dan `boot()`
+* **[Components](https://www.google.com/search?q=/docs/4.x/components)** — Memahami kapan **hooks** berjalan selama pembuatan **component**
+* **[Pages](https://www.google.com/search?q=/docs/4.x/pages)** — Menggunakan `mount()` untuk menerima parameter **route**
+* **[Hydration](https://www.google.com/search?q=/docs/4.x/hydration)** — Memahami **hooks** `hydrate()` dan `dehydrate()`
