@@ -1,13 +1,12 @@
+Banyak aplikasi web modern dibangun sebagai "single page applications" (SPAs). Dalam aplikasi ini, setiap halaman yang dirender oleh aplikasi tidak lagi memerlukan pemuatan ulang halaman browser secara penuh (*full page reload*), menghindari beban pengunduhan ulang aset JavaScript dan CSS pada setiap permintaan.
 
-Many modern web applications are built as "single page applications" (SPAs). In these applications, each page rendered by the application no longer requires a full browser page reload, avoiding the overhead of re-downloading JavaScript and CSS assets on every request.
+Alternatif dari *single page application* adalah *multi-page application*. Dalam aplikasi ini, setiap kali pengguna mengklik tautan, halaman HTML yang sepenuhnya baru diminta dan dirender di browser.
 
-The alternative to a *single page application* is a *multi-page application*. In these applications, every time a user clicks a link, an entirely new HTML page is requested and rendered in the browser.
-
-While most PHP applications have traditionally been multi-page applications, Livewire offers a single page application experience via a simple attribute you can add to links in your application: `wire:navigate`.
+Meskipun kebanyakan aplikasi PHP secara tradisional adalah *multi-page applications*, Livewire menawarkan pengalaman *single page application* melalui atribut sederhana yang dapat Anda tambahkan ke tautan di aplikasi Anda: `wire:navigate`.
 
 ## Basic usage
 
-Let's explore an example of using `wire:navigate`. Below is a typical Laravel routes file (`routes/web.php`) with three Livewire components defined as routes:
+Mari kita pelajari contoh penggunaan `wire:navigate`. Di bawah ini adalah file rute Laravel tipikal (`routes/web.php`) dengan tiga Livewire **components** yang didefinisikan sebagai rute:
 
 ```php
 use App\Livewire\Dashboard;
@@ -19,9 +18,10 @@ Route::livewire('/', 'pages::dashboard');
 Route::livewire('/posts', 'pages::show-posts');
 
 Route::livewire('/users', 'pages::show-users');
+
 ```
 
-By adding `wire:navigate` to each link in a navigation menu on each page, Livewire will prevent the standard handling of the link click and replace it with its own, faster version:
+Dengan menambahkan `wire:navigate` ke setiap tautan di menu navigasi pada setiap halaman, Livewire akan mencegah penanganan standar dari klik tautan dan menggantinya dengan versi miliknya sendiri yang lebih cepat:
 
 ```blade
 <nav>
@@ -29,72 +29,74 @@ By adding `wire:navigate` to each link in a navigation menu on each page, Livewi
     <a href="/posts" wire:navigate>Posts</a>
     <a href="/users" wire:navigate>Users</a>
 </nav>
+
 ```
 
-Below is a breakdown of what happens when a `wire:navigate` link is clicked:
+Berikut adalah rincian tentang apa yang terjadi ketika tautan `wire:navigate` diklik:
 
-* User clicks a link
-* Livewire prevents the browser from visiting the new page
-* Instead, Livewire requests the page in the background and shows a loading bar at the top of the page
-* When the HTML for the new page has been received, Livewire replaces the current page's URL, `<title>` tag and `<body>` contents with the elements from the new page
+* Pengguna mengklik sebuah tautan
+* Livewire mencegah browser mengunjungi halaman baru tersebut
+* Sebaliknya, Livewire meminta halaman tersebut di latar belakang dan menampilkan **loading bar** di bagian atas halaman
+* Ketika HTML untuk halaman baru telah diterima, Livewire mengganti URL halaman saat ini, tag `<title>` dan konten `<body>` dengan elemen-elemen dari halaman baru tersebut
 
-This technique results in much faster page load times — often twice as fast — and makes the application "feel" like a JavaScript powered single page application.
+Teknik ini menghasilkan waktu muat halaman yang jauh lebih cepat — seringkali dua kali lebih cepat — dan membuat aplikasi "terasa" seperti *single page application* yang ditenagai JavaScript.
 
 ## Redirects
 
-When one of your Livewire components redirects users to another URL within your application, you can also instruct Livewire to use its `wire:navigate` functionality to load the new page. To accomplish this, provide the `navigate` argument to the `redirect()` method:
+Ketika salah satu Livewire **components** Anda melakukan **redirect** pengguna ke URL lain di dalam aplikasi Anda, Anda juga dapat menginstruksikan Livewire untuk menggunakan fungsionalitas `wire:navigate` untuk memuat halaman baru tersebut. Untuk mencapai ini, berikan argumen `Maps` ke **method** `redirect()`:
 
 ```php
 return $this->redirect('/posts', navigate: true);
+
 ```
 
-Now, instead of a full page request being used to redirect the user to the new URL, Livewire will replace the contents and URL of the current page with the new one.
+Sekarang, alih-alih permintaan halaman penuh yang digunakan untuk **redirect** pengguna ke URL baru, Livewire akan mengganti konten dan URL halaman saat ini dengan yang baru.
 
 ## Prefetching links
 
-By default, Livewire includes a gentle strategy to _prefetch_ pages before a user clicks on a link:
+Secara **default**, Livewire menyertakan strategi halus untuk *prefetch* halaman sebelum pengguna mengklik tautan:
 
-* A user presses down on their mouse button
-* Livewire starts requesting the page
-* They lift up on the mouse button to complete the _click_
-* Livewire finishes the request and navigates to the new page
+* Pengguna menekan tombol mouse mereka (**mouse down**)
+* Livewire mulai meminta halaman tersebut
+* Mereka mengangkat tombol mouse untuk menyelesaikan klik (**click**)
+* Livewire menyelesaikan permintaan tersebut dan menavigasi ke halaman baru
 
-Surprisingly, the time between a user pressing down and lifting up on the mouse button is often enough time to load half or even an entire page from the server.
+Mengejutkan bahwa waktu antara pengguna menekan dan mengangkat tombol mouse seringkali cukup waktu untuk memuat setengah atau bahkan seluruh halaman dari server.
 
-If you want an even more aggressive approach to prefetching, you may use the `.hover` modifier on a link:
+Jika Anda menginginkan pendekatan yang lebih agresif untuk *prefetching*, Anda dapat menggunakan **modifier** `.hover` pada tautan:
 
 ```blade
 <a href="/posts" wire:navigate.hover>Posts</a>
+
 ```
 
-The `.hover` modifier will instruct Livewire to prefetch the page after a user has hovered over the link for `60` milliseconds.
+**Modifier** `.hover` akan menginstruksikan Livewire untuk melakukan *prefetch* halaman setelah pengguna mengarahkan kursor (**hover**) ke atas tautan selama `60` milidetik.
 
-> [!warning] Prefetching on hover increases server usage
-> Because not all users will click a link they hover over, adding `.hover` will request pages that may not be needed, though Livewire attempts to mitigate some of this overhead by waiting `60` milliseconds before prefetching the page.
+> [!warning] Prefetching on hover meningkatkan penggunaan server
+> Karena tidak semua pengguna akan mengklik tautan yang mereka soroti, menambahkan `.hover` akan meminta halaman yang mungkin tidak dibutuhkan, meskipun Livewire mencoba memitigasi sebagian beban ini dengan menunggu `60` milidetik sebelum melakukan *prefetch* halaman.
 
 ## Persisting elements across page visits
 
-Sometimes, there are parts of a user interface that you need to persist between page loads, such as audio or video players. For example, in a podcasting application, a user may want to keep listening to an episode as they browse other pages.
+Terkadang, ada bagian dari antarmuka pengguna yang perlu Anda pertahankan di antara pemuatan halaman, seperti pemutar audio atau video. Misalnya, dalam aplikasi *podcast*, pengguna mungkin ingin terus mendengarkan sebuah episode saat mereka menelusuri halaman lain.
 
-You can achieve this in Livewire with the `@persist` directive.
+Anda dapat mencapai ini di Livewire dengan **directive** `@persist`.
 
-By wrapping an element with `@persist` and providing it with a name, when a new page is requested using `wire:navigate`, Livewire will look for an element on the new page that has a matching `@persist`. Instead of replacing the element like normal, Livewire will use the existing DOM element from the previous page in the new page, preserving any state within the element.
+Dengan membungkus elemen dengan `@persist` dan memberikannya sebuah nama, saat halaman baru diminta menggunakan `wire:navigate`, Livewire akan mencari elemen pada halaman baru yang memiliki `@persist` yang cocok. Alih-alih mengganti elemen tersebut seperti biasa, Livewire akan menggunakan elemen DOM yang sudah ada dari halaman sebelumnya ke halaman baru, menjaga **state** apa pun di dalam elemen tersebut.
 
-Here is an example of an `<audio>` player element being persisted across pages using `@persist`:
+Berikut adalah contoh elemen pemutar `<audio>` yang dipertahankan di seluruh halaman menggunakan `@persist`:
 
 ```blade
 @persist('player')
     <audio src="{{ $episode->file }}" controls></audio>
 @endpersist
+
 ```
 
-If the above HTML appears on both pages — the current page, and the next one — the original element will be re-used on the new page. In the case of an audio player, the audio playback won't be interrupted when navigating from one page to another.
+Jika HTML di atas muncul di kedua halaman — halaman saat ini dan halaman berikutnya — elemen aslinya akan digunakan kembali pada halaman baru. Dalam kasus pemutar audio, pemutaran audio tidak akan terputus saat menavigasi dari satu halaman ke halaman lainnya.
 
-Please be aware that the persisted element must be placed outside your Livewire components. A common practice is to position the persisted element in your main layout, such as `resources/views/layouts/app.blade.php`.
+Harap diperhatikan bahwa elemen yang dipertahankan harus diletakkan di luar Livewire **components** Anda. Praktik umum adalah menempatkan elemen yang dipertahankan di **layout** utama Anda, seperti `resources/views/layouts/app.blade.php`.
 
 ```html
-<!-- resources/views/layouts/app.blade.php -->
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -112,18 +114,18 @@ Please be aware that the persisted element must be placed outside your Livewire 
             {{ $slot }}
         </main>
 
-        @persist('player') <!-- [tl! highlight:2] -->
-            <audio src="{{ $episode->file }}" controls></audio>
+        @persist('player') <audio src="{{ $episode->file }}" controls></audio>
         @endpersist
 
         @livewireScripts
     </body>
 </html>
+
 ```
 
 ### Highlighting active links
 
-You might be used to highlighting the currently active page link in a navbar using server-side Blade like so:
+Anda mungkin terbiasa menyoroti tautan halaman yang sedang aktif di **navbar** menggunakan Blade di sisi server seperti ini:
 
 ```blade
 <nav>
@@ -131,13 +133,14 @@ You might be used to highlighting the currently active page link in a navbar usi
     <a href="/posts" class="@if (request->is('/posts')) font-bold text-zinc-800 @endif">Posts</a>
     <a href="/users" class="@if (request->is('/users')) font-bold text-zinc-800 @endif">Users</a>
 </nav>
+
 ```
 
-However, this will not work inside persisted elements as they are re-used between page loads. Instead, you have two options for highlighting active links during navigation:
+Namun, ini tidak akan bekerja di dalam elemen yang dipertahankan karena mereka digunakan kembali di antara pemuatan halaman. Sebaliknya, Anda memiliki dua opsi untuk menyoroti tautan aktif selama navigasi:
 
-#### Using the `data-current` attribute
+#### Menggunakan atribut `data-current`
 
-Livewire automatically adds a `data-current` attribute to any `wire:navigate` link that matches the current page. This allows you to style active links with CSS or Tailwind without any additional directives:
+Livewire secara otomatis menambahkan atribut `data-current` ke tautan `wire:navigate` apa pun yang cocok dengan halaman saat ini. Ini memungkinkan Anda untuk memberikan gaya pada tautan aktif dengan CSS atau Tailwind tanpa **directives** tambahan apa pun:
 
 ```blade
 <nav>
@@ -145,28 +148,31 @@ Livewire automatically adds a `data-current` attribute to any `wire:navigate` li
     <a href="/posts" wire:navigate class="data-current:font-bold data-current:text-zinc-800">Posts</a>
     <a href="/users" wire:navigate class="data-current:font-bold data-current:text-zinc-800">Users</a>
 </nav>
+
 ```
 
-When the `/posts` page is visited, the "Posts" link will automatically receive the `data-current` attribute and be styled accordingly.
+Ketika halaman `/posts` dikunjungi, tautan "Posts" akan secara otomatis menerima atribut `data-current` dan diberikan gaya yang sesuai.
 
-You can also use plain CSS to style active links:
+Anda juga dapat menggunakan CSS biasa untuk menata tautan aktif:
 
 ```css
 [data-current] {
     font-weight: bold;
     color: #18181b;
 }
+
 ```
 
-If you would like to disable this behavior while still using `wire:navigate`, you may add the `wire:current.ignore` directive:
+Jika Anda ingin menonaktifkan perilaku ini sambil tetap menggunakan `wire:navigate`, Anda dapat menambahkan **directive** `wire:current.ignore`:
 
 ```blade
 <a href="/posts" wire:navigate wire:current.ignore>Posts</a>
+
 ```
 
-#### Using the `wire:current` directive
+#### Menggunakan directive `wire:current`
 
-Alternatively, you can use Livewire's `wire:current` directive to add CSS classes to the currently active link:
+Atau, Anda dapat menggunakan **directive** `wire:current` milik Livewire untuk menambahkan **CSS classes** ke tautan yang sedang aktif:
 
 ```blade
 <nav>
@@ -174,100 +180,102 @@ Alternatively, you can use Livewire's `wire:current` directive to add CSS classe
     <a href="/posts" ... wire:current="font-bold text-zinc-800">Posts</a>
     <a href="/users" ... wire:current="font-bold text-zinc-800">Users</a>
 </nav>
+
 ```
 
-Now, when the `/posts` page is visited, the "Posts" link will have a stronger font treatment than the other links.
+Sekarang, ketika halaman `/posts` dikunjungi, tautan "Posts" akan memiliki perlakuan *font* yang lebih kuat daripada tautan lainnya.
 
-> [!tip] Prefer data-current for simplicity
-> While both approaches work well, using the `data-current` attribute is often simpler and more flexible since it doesn't require an additional directive and works seamlessly with Tailwind's data attribute variants.
+> [!tip] Pilih data-current untuk kesederhanaan
+> Meskipun kedua pendekatan bekerja dengan baik, menggunakan atribut `data-current` seringkali lebih sederhana dan lebih fleksibel karena tidak memerlukan **directive** tambahan dan bekerja secara mulus dengan varian atribut data milik Tailwind.
 
-Read more in the [`wire:current` documentation](/docs/4.x/wire-current).
+Baca lebih lanjut di [dokumentasi `wire:current](https://www.google.com/search?q=/docs/4.x/wire-current)`.
 
 ### Preserving scroll position
 
-By default, Livewire will preserve the scroll position of a page when navigating back and forth between pages. However, sometimes you may want to preserve the scroll position of an individual element you are persisting between page loads.
+Secara **default**, Livewire akan mempertahankan posisi gulir (**scroll position**) sebuah halaman saat menavigasi bolak-balik antar halaman. Namun, terkadang Anda mungkin ingin mempertahankan posisi gulir dari elemen individual yang Anda pertahankan di antara pemuatan halaman.
 
-To do this, you must add `wire:navigate:scroll` to the element containing a scrollbar like so:
+Untuk melakukan ini, Anda harus menambahkan `wire:navigate:scroll` ke elemen yang berisi **scrollbar** seperti ini:
 
 ```html
 @persist('sidebar')
-<div class="overflow-y-scroll" wire:navigate:scroll> <!-- [tl! highlight] -->
-    <!-- ... -->
-</div>
+<div class="overflow-y-scroll" wire:navigate:scroll> </div>
 @endpersist
+
 ```
 
 ## JavaScript hooks
 
-Each page navigation triggers three lifecycle hooks:
+Setiap navigasi halaman memicu tiga **lifecycle hooks**:
 
 * `livewire:navigate`
 * `livewire:navigating`
 * `livewire:navigated`
 
-It's important to note that these hooks events are dispatched on navigations of all types. This includes manual navigation using `Livewire.navigate()`, redirecting with navigation enabled, and back and forward button presses in the browser.
+Penting untuk dicatat bahwa **events** ini di-**dispatch** pada semua tipe navigasi. Ini termasuk navigasi manual menggunakan `Livewire.navigate()`, **redirect** dengan navigasi diaktifkan, serta penekanan tombol kembali (*back*) dan maju (*forward*) di browser.
 
-Here's an example of registering listeners for each of these events:
+Berikut adalah contoh mendaftarkan pendengar (**listeners**) untuk setiap **events** ini:
 
 ```js
 document.addEventListener('livewire:navigate', (event) => {
-    // Triggers when a navigation is triggered.
+    // Dipicu ketika sebuah navigasi dimulai.
 
-    // Can be "cancelled" (prevent the navigate from actually being performed):
+    // Dapat "dibatalkan" (mencegah navigasi benar-benar dilakukan):
     event.preventDefault()
 
-    // Contains helpful context about the navigation trigger:
+    // Berisi konteks yang berguna tentang pemicu navigasi:
     let context = event.detail
 
-    // A URL object of the intended destination of the navigation...
+    // Objek URL dari tujuan navigasi yang dimaksud...
     context.url
 
-    // A boolean [true/false] indicating whether or not this navigation
-    // was triggered by a back/forward (history state) navigation...
+    // Boolean [true/false] yang menunjukkan apakah navigasi ini
+    // dipicu oleh navigasi kembali/maju (history state)...
     context.history
 
-    // A boolean [true/false] indicating whether or not there is
-    // cached version of this page to be used instead of
-    // fetching a new one via a network round-trip...
+    // Boolean [true/false] yang menunjukkan apakah ada
+    // versi cache dari halaman ini untuk digunakan alih-alih
+    // mengambil yang baru via network round-trip...
     context.cached
 })
 
 document.addEventListener('livewire:navigating', (e) => {
-    // Triggered when new HTML is about to be swapped onto the page...
+    // Dipicu ketika HTML baru akan ditukar ke halaman...
 
-    // This is a good place to mutate any HTML before the page
-    // is navigated away from...
+    // Ini adalah tempat yang baik untuk mengubah HTML apa pun sebelum halaman
+    // dinavigasi pergi...
 
-    // You can register an onSwap callback to run code after the
-    // new HTML is swapped onto the page but before scripts are loaded.
-    // This is a good place to apply critical styles such as dark mode
-    // to prevent flickering...
+    // Anda dapat mendaftarkan callback onSwap untuk menjalankan kode setelah
+    // HTML baru ditukar ke halaman tetapi sebelum script dimuat.
+    // Ini adalah tempat yang baik untuk menerapkan gaya kritis seperti dark mode
+    // untuk mencegah flickering...
     e.detail.onSwap(() => {
         // ...
     })
 })
 
 document.addEventListener('livewire:navigated', () => {
-    // Triggered as the final step of any page navigation...
+    // Dipicu sebagai langkah terakhir dari navigasi halaman apa pun...
 
-    // Also triggered on page-load instead of "DOMContentLoaded"...
+    // Juga dipicu pada pemuatan halaman awal alih-alih "DOMContentLoaded"...
 })
+
 ```
 
-> [!warning] Event listeners will persist across pages
->
-> When you attach an event listener to the document it will not be removed when you navigate to a different page. This can lead to unexpected behaviour if you need code to run only after navigating to a specific page, or if you add the same event listener on every page. If you do not remove your event listener it may cause exceptions on other pages when it's looking for elements that do not exist, or you may end up with the event listener executing multiple times per navigation.
->
-> An easy method to remove an event listener after it runs is to pass the option `{once: true}` as a third parameter to the `addEventListener` function.
+> [!warning] Event listeners akan bertahan di seluruh halaman
+> Ketika Anda memasang **event listener** ke dokumen, ia tidak akan dihapus saat Anda menavigasi ke halaman yang berbeda. Ini dapat menyebabkan perilaku yang tidak terduga jika Anda memerlukan kode untuk berjalan hanya setelah menavigasi ke halaman tertentu, atau jika Anda menambahkan **event listener** yang sama di setiap halaman. Jika Anda tidak menghapus **event listener** Anda, hal itu dapat menyebabkan pengecualian pada halaman lain saat ia mencari elemen yang tidak ada, atau Anda mungkin berakhir dengan **event listener** yang dieksekusi berkali-kali per navigasi.
+> Cara mudah untuk menghapus **event listener** setelah berjalan adalah dengan meneruskan opsi `{once: true}` sebagai parameter ketiga ke fungsi `addEventListener`.
 > ```js
 > document.addEventListener('livewire:navigated', () => {
 >     // ...
 > }, { once: true })
+> 
 > ```
+> 
+> 
 
 ## Manually visiting a new page
 
-In addition to `wire:navigate`, you can manually call the `Livewire.navigate()` method to trigger a visit to a new page using JavaScript:
+Selain `wire:navigate`, Anda dapat secara manual memanggil **method** `Livewire.navigate()` untuk memicu kunjungan ke halaman baru menggunakan JavaScript:
 
 ```html
 <script>
@@ -275,171 +283,169 @@ In addition to `wire:navigate`, you can manually call the `Livewire.navigate()` 
 
     Livewire.navigate('/new/url')
 </script>
+
 ```
 
 ## Using with analytics software
 
-When navigating pages using `wire:navigate` in your app, any `<script>` tags in the `<head>` only evaluate when the page is initially loaded.
+Saat menavigasi halaman menggunakan `wire:navigate` di aplikasi Anda, tag `<script>` apa pun di dalam `<head>` hanya dievaluasi saat halaman awal dimuat.
 
-This creates a problem for analytics software such as [Fathom Analytics](https://usefathom.com/). These tools rely on a `<script>` snippet being evaluated on every single page change, not just the first.
+Ini menciptakan masalah bagi perangkat lunak analitik seperti [Fathom Analytics](https://usefathom.com/). Alat-alat ini mengandalkan cuplikan (**snippet**) `<script>` yang dievaluasi pada setiap perubahan halaman, bukan hanya yang pertama.
 
-Tools like [Google Analytics](https://marketingplatform.google.com/about/analytics/) are smart enough to handle this automatically, however, when using Fathom Analytics, you must add `data-spa="auto"` to your script tag to ensure each page visit is tracked properly:
+Alat seperti [Google Analytics](https://marketingplatform.google.com/about/analytics/) sudah cukup pintar untuk menangani ini secara otomatis, namun, saat menggunakan Fathom Analytics, Anda harus menambahkan `data-spa="auto"` ke tag script Anda untuk memastikan setiap kunjungan halaman dilacak dengan benar:
 
 ```blade
 <head>
-    <!-- ... -->
-
-    <!-- Fathom Analytics -->
     @if (! config('app.debug'))
-        <script src="https://cdn.usefathom.com/script.js" data-site="ABCDEFG" data-spa="auto" defer></script> <!-- [tl! highlight] -->
-    @endif
+        <script src="https://cdn.usefathom.com/script.js" data-site="ABCDEFG" data-spa="auto" defer></script> @endif
 </head>
+
 ```
 
 ## Script evaluation
 
-When navigating to a new page using `wire:navigate`, it _feels_ like the browser has changed pages; however, from the browser's perspective, you are technically still on the original page.
+Saat menavigasi ke halaman baru menggunakan `wire:navigate`, tampilannya *terasa* seolah browser telah berpindah halaman; namun, dari sudut pandang browser, secara teknis Anda masih berada di halaman asli.
 
-Because of this, styles and scripts are executed normally on the first page, but on subsequent pages, you may have to tweak the way you normally write JavaScript.
+Karena hal ini, **styles** dan **scripts** dijalankan secara normal pada halaman pertama, tetapi pada halaman-halaman berikutnya, Anda mungkin harus menyesuaikan cara Anda menulis JavaScript yang biasanya.
 
-Here are a few caveats and scenarios you should be aware of when using `wire:navigate`.
+Berikut adalah beberapa peringatan dan skenario yang harus Anda ketahui saat menggunakan `wire:navigate`.
 
-### Don't rely on `DOMContentLoaded`
+### Jangan mengandalkan `DOMContentLoaded`
 
-It's common practice to place JavaScript inside a `DOMContentLoaded` event listener so that the code you want to run only executes after the page has fully loaded.
+Merupakan praktik umum untuk menempatkan JavaScript di dalam **event listener** `DOMContentLoaded` agar kode yang ingin Anda jalankan hanya dieksekusi setelah halaman dimuat sepenuhnya.
 
-When using `wire:navigate`, `DOMContentLoaded` is only fired on the first page visit, not subsequent visits.
+Saat menggunakan `wire:navigate`, `DOMContentLoaded` hanya dipicu pada kunjungan halaman pertama, bukan pada kunjungan berikutnya.
 
-To run code on every page visit, swap every instance of `DOMContentLoaded` with `livewire:navigated`:
+Untuk menjalankan kode pada setiap kunjungan halaman, ganti setiap instansi `DOMContentLoaded` dengan `livewire:navigated`:
 
 ```js
 document.addEventListener('DOMContentLoaded', () => { // [tl! remove]
 document.addEventListener('livewire:navigated', () => { // [tl! add]
     // ...
 })
+
 ```
 
-Now, any code placed inside this listener will be run on the initial page visit, and also after Livewire has finished navigating to subsequent pages.
+Sekarang, kode apa pun yang ditempatkan di dalam **listener** ini akan dijalankan pada kunjungan halaman awal, dan juga setelah Livewire selesai menavigasi ke halaman-halaman berikutnya.
 
-Listening to this event is useful for things like initializing third-party libraries.
+Mendengarkan **event** ini sangat berguna untuk hal-hal seperti inisialisasi **third-party libraries**.
 
-### Scripts in `<head>` are loaded once
+### Scripts di dalam `<head>` dimuat satu kali
 
-If two pages include the same `<script>` tag in the `<head>`, that script will only be run on the initial page visit and not on subsequent page visits.
+Jika dua halaman menyertakan tag `<script>` yang sama di dalam `<head>`, **script** tersebut hanya akan dijalankan pada kunjungan halaman awal dan tidak pada kunjungan halaman berikutnya.
 
 ```blade
-<!-- Page one -->
 <head>
     <script src="/app.js"></script>
 </head>
 
-<!-- Page two -->
 <head>
     <script src="/app.js"></script>
 </head>
+
 ```
 
-### New `<head>` scripts are evaluated
+### Scripts `<head>` baru dievaluasi
 
-If a subsequent page includes a new `<script>` tag in the `<head>` that was not present in the `<head>` of the initial page visit, Livewire will run the new `<script>` tag.
+Jika halaman berikutnya menyertakan tag `<script>` baru di dalam `<head>` yang tidak ada di dalam `<head>` pada kunjungan halaman awal, Livewire akan menjalankan tag `<script>` baru tersebut.
 
-In the below example, _page two_ includes a new JavaScript library for a third-party tool. When the user navigates to _page two_, that library will be evaluated.
+Dalam contoh di bawah ini, *halaman dua* menyertakan **JavaScript library** baru untuk alat pihak ketiga. Saat pengguna menavigasi ke *halaman dua*, **library** tersebut akan dievaluasi.
 
 ```blade
-<!-- Page one -->
 <head>
     <script src="/app.js"></script>
 </head>
 
-<!-- Page two -->
 <head>
     <script src="/app.js"></script>
     <script src="/third-party.js"></script>
 </head>
+
 ```
 
-> [!info] Head assets are blocking
-> If you are navigating to a new page that contains an asset like `<script src="...">` in the head tag. That asset will be fetched and processed before the navigation is complete and the new page is swapped in. This might be surprising behavior, but it ensures any scripts that depend on those assets will have immediate access to them.
+> [!info] Head assets bersifat blocking
+> Jika Anda menavigasi ke halaman baru yang berisi **asset** seperti `<script src="...">` di dalam tag **head**, **asset** tersebut akan diambil dan diproses sebelum navigasi selesai dan halaman baru ditukar (**swapped in**). Ini mungkin perilaku yang mengejutkan, tetapi ini memastikan bahwa setiap **scripts** yang bergantung pada **assets** tersebut akan memiliki akses langsung ke mereka.
 
-### Reloading when assets change
+### Reloading saat assets berubah
 
-It's common practice to include a version hash in an application's main JavaScript file name. This ensures that after deploying a new version of your application, users will receive the fresh JavaScript asset, and not an old version served from the browser's cache.
+Merupakan praktik umum untuk menyertakan **version hash** dalam nama file JavaScript utama aplikasi. Ini memastikan bahwa setelah melakukan **deploy** versi baru aplikasi Anda, pengguna akan menerima **JavaScript asset** yang segar, dan bukan versi lama yang disajikan dari **browser cache**.
 
-But, now that you are using `wire:navigate` and each page visit is no longer a fresh browser page load, your users may still be receiving stale JavaScript after deployments.
+Namun, karena sekarang Anda menggunakan `wire:navigate` dan setiap kunjungan halaman bukan lagi pemuatan halaman browser yang baru, pengguna Anda mungkin masih menerima JavaScript yang basi setelah **deployments**.
 
-To prevent this, you may add `data-navigate-track` to a `<script>` tag in `<head>`:
+Untuk mencegah hal ini, Anda dapat menambahkan `data-navigate-track` ke tag `<script>` di dalam `<head>`:
 
 ```blade
-<!-- Page one -->
 <head>
     <script src="/app.js?id=123" data-navigate-track></script>
 </head>
 
-<!-- Page two -->
 <head>
     <script src="/app.js?id=456" data-navigate-track></script>
 </head>
+
 ```
 
-When a user visits _page two_, Livewire will detect a fresh JavaScript asset and trigger a full browser page reload.
+Saat pengguna mengunjungi *halaman dua*, Livewire akan mendeteksi **JavaScript asset** yang baru dan memicu **full browser page reload**.
 
-If you are using [Laravel's Vite plug-in](https://laravel.com/docs/vite#loading-your-scripts-and-styles) to bundle and serve your assets, Livewire adds `data-navigate-track` to the rendered HTML asset tags automatically. You can continue referencing your assets and scripts like normal:
+Jika Anda menggunakan [Vite plug-in milik Laravel](https://laravel.com/docs/vite#loading-your-scripts-and-styles) untuk membungkus (**bundle**) dan menyajikan **assets** Anda, Livewire menambahkan `data-navigate-track` ke tag **HTML asset** yang dirender secara otomatis. Anda dapat terus mereferensikan **assets** dan **scripts** Anda seperti biasa:
 
 ```blade
 <head>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 ```
 
-Livewire will automatically inject `data-navigate-track` onto the rendered HTML tags.
+Livewire akan secara otomatis menyuntikkan `data-navigate-track` ke tag HTML yang dirender.
 
-> [!warning] Only query string changes are tracked
-> Livewire will only reload a page if a `[data-navigate-track]` element's query string (`?id="456"`) changes, not the URI itself (`/app.js`).
+> [!warning] Hanya perubahan query string yang dilacak
+> Livewire hanya akan memuat ulang halaman jika **query string** elemen `[data-navigate-track]` (`?id="456"`) berubah, bukan URI itu sendiri (`/app.js`).
 
-### Scripts in the `<body>` are re-evaluated
+### Scripts di dalam `<body>` dievaluasi ulang
 
-Because Livewire replaces the entire contents of the `<body>` on every new page, all `<script>` tags on the new page will be run:
+Karena Livewire mengganti seluruh konten `<body>` pada setiap halaman baru, semua tag `<script>` di halaman baru akan dijalankan:
 
 ```blade
-<!-- Page one -->
 <body>
     <script>
-        console.log('Runs on page one')
+        console.log('Berjalan di halaman satu')
     </script>
 </body>
 
-<!-- Page two -->
 <body>
     <script>
-        console.log('Runs on page two')
+        console.log('Berjalan di halaman dua')
     </script>
 </body>
+
 ```
 
-If you have a `<script>` tag in the body that you only want to be run once, you can add the `data-navigate-once` attribute to the `<script>` tag and Livewire will only run it on the initial page visit:
+Jika Anda memiliki tag `<script>` di dalam **body** yang hanya ingin dijalankan sekali, Anda dapat menambahkan atribut `data-navigate-once` ke tag `<script>` tersebut dan Livewire hanya akan menjalankannya pada kunjungan halaman awal:
 
 ```blade
 <script data-navigate-once>
-    console.log('Runs only on page one')
+    console.log('Hanya berjalan di halaman satu')
 </script>
+
 ```
 
 ## Customizing the progress bar
 
-When a page takes longer than 150ms to load, Livewire will show a progress bar at the top of the page.
+Ketika halaman membutuhkan waktu lebih dari 150ms untuk dimuat, Livewire akan menampilkan **progress bar** di bagian atas halaman.
 
-You can customize the color of this bar or disable it all together inside Livewire's config file (`config/livewire.php`):
+Anda dapat menyesuaikan warna bilah ini atau menonaktifkannya sama sekali di dalam file **config** Livewire (`config/livewire.php`):
 
 ```php
 'navigate' => [
     'show_progress_bar' => false,
     'progress_bar_color' => '#2299dd',
 ],
+
 ```
 
 ## See also
 
-- **[Pages](/docs/4.x/pages)** — Create routable page components
-- **[Redirecting](/docs/4.x/redirecting)** — Navigate programmatically from actions
-- **[@persist](/docs/4.x/directive-persist)** — Persist elements across page navigations
-- **[wire:navigate](/docs/4.x/wire-navigate)** — Add SPA navigation to links
+* **[Pages](https://www.google.com/search?q=/docs/4.x/pages)** — Buat **routable page components**
+* **[Redirecting](https://www.google.com/search?q=/docs/4.x/redirecting)** — Navigasi secara programatik dari **actions**
+* **[@persist](https://www.google.com/search?q=/docs/4.x/directive-persist)** — Pertahankan elemen di seluruh navigasi halaman
+* **[wire:navigate](https://www.google.com/search?q=/docs/4.x/wire-navigate)** — Tambahkan navigasi SPA ke tautan
