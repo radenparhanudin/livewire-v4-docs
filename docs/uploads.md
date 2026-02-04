@@ -1,8 +1,8 @@
-Livewire offers powerful support for uploading files within your components.
+Livewire menawarkan dukungan yang sangat kuat untuk menangani unggahan file di dalam **components** Anda.
 
-First, add the `WithFileUploads` trait to your component. Once this trait has been added to your component, you can use `wire:model` on file inputs as if they were any other input type and Livewire will take care of the rest.
+Pertama, tambahkan **trait** `WithFileUploads` ke dalam **component** Anda. Setelah **trait** ini ditambahkan, Anda dapat menggunakan `wire:model` pada input file seolah-olah itu adalah tipe input lainnya, dan Livewire akan menangani sisanya.
 
-Here's an example of a simple component that handles uploading a photo:
+Berikut adalah contoh **component** sederhana yang menangani pengunggahan foto:
 
 ```php
 <?php // resources/views/components/⚡upload-photo.blade.php
@@ -14,7 +14,7 @@ use Livewire\Component;
 new class extends Component {
     use WithFileUploads;
 
-    #[Validate('image|max:1024')] // 1MB Max
+    #[Validate('image|max:1024')] // Maksimal 1MB
     public $photo;
 
     public function save()
@@ -22,6 +22,7 @@ new class extends Component {
         $this->photo->store(path: 'photos');
     }
 };
+
 ```
 
 ```blade
@@ -32,67 +33,67 @@ new class extends Component {
 
     <button type="submit">Save photo</button>
 </form>
+
 ```
 
-> [!warning] The "upload" method is reserved
-> Notice the above example uses a "save" method instead of an "upload" method. This is a common "gotcha". The term "upload" is reserved by Livewire. You cannot use it as a method or property name in your component.
+> [!warning] Metode "upload" sudah dipesan (reserved)
+> Perhatikan bahwa contoh di atas menggunakan metode "save", bukan metode "upload". Ini adalah "jebakan" umum. Istilah "upload" sudah dipesan oleh Livewire secara internal. Anda tidak dapat menggunakannya sebagai nama metode atau nama properti di dalam **component** Anda.
 
-From the developer's perspective, handling file inputs is no different than handling any other input type: Add `wire:model` to the `<input>` tag and everything else is taken care of for you.
+Dari sudut pandang pengembang, menangani input file tidak ada bedanya dengan menangani tipe input lainnya: Cukup tambahkan `wire:model` ke tag `<input>` dan semuanya akan diurus untuk Anda.
 
-However, more is happening under the hood to make file uploads work in Livewire. Here's a glimpse at what goes on when a user selects a file to upload:
+Namun, di balik layar, terdapat proses yang lebih kompleks agar unggah file dapat bekerja di Livewire. Berikut adalah gambaran apa yang terjadi saat pengguna memilih file untuk diunggah:
 
-1. When a new file is selected, Livewire's JavaScript makes an initial request to the component on the server to get a temporary "signed" upload URL.
-2. Once the URL is received, JavaScript does the actual "upload" to the signed URL, storing the upload in a temporary directory designated by Livewire and returning the new temporary file's unique hash ID.
-3. Once the file is uploaded and the unique hash ID is generated, Livewire's JavaScript makes a final request to the component on the server, telling it to "set" the desired public property to the new temporary file.
-4. Now, the public property (in this case, `$photo`) is set to the temporary file upload and is ready to be stored or validated at any point.
+1. Saat file baru dipilih, JavaScript Livewire membuat permintaan awal ke **component** di server untuk mendapatkan URL unggah sementara yang "ditandatangani" (**signed URL**).
+2. Setelah URL diterima, JavaScript melakukan pengunggahan (*upload*) yang sebenarnya ke **signed URL** tersebut, menyimpan file di direktori sementara yang ditentukan oleh Livewire, dan mengembalikan ID hash unik dari file sementara tersebut.
+3. Setelah file diunggah dan ID hash unik dibuat, JavaScript Livewire membuat permintaan terakhir ke **component** di server, memerintahkannya untuk mengisi (*set*) properti publik yang diinginkan dengan file sementara yang baru tersebut.
+4. Sekarang, properti publik (dalam kasus ini, `$photo`) sudah berisi file unggahan sementara dan siap untuk disimpan atau divalidasi kapan saja.
+
+---
 
 ## Storing uploaded files
 
-The previous example demonstrates the most basic storage scenario: moving the temporarily uploaded file to the "photos" directory on the application's default filesystem disk.
+Contoh sebelumnya menunjukkan skenario penyimpanan yang paling dasar: memindahkan file unggahan sementara ke direktori "photos" pada **disk** sistem file **default** aplikasi.
 
-However, you may want to customize the file name of the stored file or even specify a specific storage "disk" to keep the file on (such as S3).
+Namun, Anda mungkin ingin menyesuaikan nama file yang disimpan atau menentukan **disk** penyimpanan tertentu (seperti S3).
 
-> [!tip] Original file names
-> You can access the original file name of a temporary upload, by calling its `->getClientOriginalName()` method.
+> [!tip] Nama file asli
+> Anda dapat mengakses nama file asli dari unggahan sementara dengan memanggil metode `->getClientOriginalName()`.
 
-Livewire honors the same APIs Laravel uses for storing uploaded files, so feel free to consult [Laravel's file upload documentation](https://laravel.com/docs/filesystem#file-uploads). However, below are a few common storage scenarios and examples:
+Livewire mematuhi API yang sama dengan yang digunakan Laravel untuk menyimpan file yang diunggah, jadi silakan merujuk pada [dokumentasi file upload Laravel](https://laravel.com/docs/filesystem#file-uploads). Berikut adalah beberapa skenario penyimpanan yang umum:
 
 ```php
 public function save()
 {
-    // Store the file in the "photos" directory of the default filesystem disk
+    // Simpan file di direktori "photos" pada disk default
     $this->photo->store(path: 'photos');
 
-    // Store the file in the "photos" directory in a configured "s3" disk
+    // Simpan file di direktori "photos" pada disk "s3"
     $this->photo->store(path: 'photos', options: 's3');
 
-    // Store the file in the "photos" directory with the filename "avatar.png"
+    // Simpan file di direktori "photos" dengan nama "avatar.png"
     $this->photo->storeAs(path: 'photos', name: 'avatar');
 
-    // Store the file in the "photos" directory in a configured "s3" disk with the filename "avatar.png"
+    // Simpan file di direktori "photos" pada disk "s3" dengan nama "avatar.png"
     $this->photo->storeAs(path: 'photos', name: 'avatar', options: 's3');
 
-    // Store the file in the "photos" directory, with "public" visibility in a configured "s3" disk
+    // Simpan file secara publik di disk "s3"
     $this->photo->storePublicly(path: 'photos', options: 's3');
 
-    // Store the file in the "photos" directory, with the name "avatar.png", with "public" visibility in a configured "s3" disk
+    // Simpan secara publik dengan nama tertentu di disk "s3"
     $this->photo->storePubliclyAs(path: 'photos', name: 'avatar', options: 's3');
 }
+
 ```
+
+---
 
 ## Handling multiple files
 
-Livewire automatically handles multiple file uploads by detecting the `multiple` attribute on the `<input>` tag.
+Livewire secara otomatis menangani pengunggahan banyak file dengan mendeteksi atribut `multiple` pada tag `<input>`.
 
-For example, below is a component with an array property named `$photos`. By adding `multiple` to the form's file input, Livewire will automatically append new files to this array:
+Contoh di bawah ini adalah **component** dengan properti array bernama `$photos`. Dengan menambahkan `multiple` pada input file, Livewire akan secara otomatis memasukkan file-file baru ke dalam array ini:
 
 ```php
-<?php // resources/views/components/⚡upload-photos.blade.php
-
-use Livewire\Attributes\Validate;
-use Livewire\WithFileUploads;
-use Livewire\Component;
-
 new class extends Component {
     use WithFileUploads;
 
@@ -106,6 +107,7 @@ new class extends Component {
         }
     }
 };
+
 ```
 
 ```blade
@@ -116,48 +118,36 @@ new class extends Component {
 
     <button type="submit">Save photo</button>
 </form>
+
 ```
+
+---
 
 ## File validation
 
-Like we've discussed, validating file uploads with Livewire is the same as handling file uploads from a standard Laravel controller.
+Seperti yang telah dibahas, memvalidasi unggahan file dengan Livewire sama dengan menangani validasi file dari **controller** Laravel standar.
 
-> [!warning] Ensure S3 is properly configured
-> Many of the validation rules relating to files require access to the file. When [uploading directly to S3](#uploading-directly-to-amazon-s3), these validation rules will fail if the S3 file object is not publicly accessible.
+> [!warning] Pastikan S3 dikonfigurasi dengan benar
+> Banyak aturan validasi file memerlukan akses langsung ke file tersebut. Saat menggunakan fitur **Direct Uploads** ke S3, aturan validasi ini akan gagal jika objek file di S3 tidak dapat diakses secara publik.
 
-For more information on file validation, consult [Laravel's file validation documentation](https://laravel.com/docs/validation#available-validation-rules).
+Untuk informasi lebih lanjut tentang validasi file, lihat [dokumentasi validasi Laravel](https://laravel.com/docs/validation#available-validation-rules).
+
+---
 
 ## Temporary preview URLs
 
-After a user chooses a file, you should typically show them a preview of that file before they submit the form and store the file.
+Setelah pengguna memilih file, biasanya Anda perlu menampilkan pratinjau (*preview*) file tersebut sebelum mereka mengirim formulir.
 
-Livewire makes this trivial by using the `->temporaryUrl()` method on uploaded files.
+Livewire mempermudah hal ini dengan menggunakan metode `->temporaryUrl()` pada file yang diunggah.
 
-> [!info] Temporary URLs are restricted to images
-> For security reasons, temporary preview URLs are only supported on files with image MIME types.
+> [!info] Temporary URL terbatas untuk gambar
+> Untuk alasan keamanan, pratinjau URL sementara hanya didukung pada file dengan tipe MIME gambar.
 
-Let's explore an example of a file upload with an image preview:
-
-```php
-<?php // resources/views/components/⚡upload-photo.blade.php
-
-use Livewire\Attributes\Validate;
-use Livewire\WithFileUploads;
-use Livewire\Component;
-
-new class extends Component {
-    use WithFileUploads;
-
-    #[Validate('image|max:1024')]
-    public $photo;
-
-    // ...
-};
-```
+Berikut contoh pengunggahan file dengan pratinjau gambar:
 
 ```blade
 <form wire:submit="save">
-    @if ($photo) <!-- [tl! highlight:2] -->
+    @if ($photo) 
         <img src="{{ $photo->temporaryUrl() }}">
     @endif
 
@@ -167,59 +157,41 @@ new class extends Component {
 
     <button type="submit">Save photo</button>
 </form>
+
 ```
 
-As previously discussed, Livewire stores temporary files in a non-public directory; therefore, typically there's no simple way to expose a temporary, public URL to your users for image previewing.
-
-However, Livewire solves this issue by providing a temporary, signed URL that pretends to be the uploaded image so your page can show an image preview to your users.
-
-This URL is protected against showing files in directories above the temporary directory. And, because it's signed, users can't abuse this URL to preview other files on your system.
+Karena Livewire menyimpan file sementara di direktori non-publik, ia menyediakan **signed URL** sementara yang "berpura-pura" menjadi gambar agar halaman Anda dapat menampilkan pratinjau kepada pengguna tanpa mengekspos direktori sistem.
 
 > [!tip] S3 temporary signed URLs
-> If you've configured Livewire to use S3 for temporary file storage, calling `->temporaryUrl()` will generate a temporary, signed URL to S3 directly so that image previews aren't loaded from your Laravel application server.
+> Jika Anda mengonfigurasi Livewire untuk menggunakan S3 sebagai penyimpanan sementara, memanggil `->temporaryUrl()` akan menghasilkan **signed URL** langsung ke S3 sehingga beban server Laravel Anda berkurang.
+
+---
 
 ## Testing file uploads
 
-You can use Laravel's existing file upload testing helpers to test file uploads.
+Anda dapat menggunakan **testing helpers** Laravel yang sudah ada untuk menguji pengunggahan file.
 
-Below is a complete example of testing the `UploadPhoto` component with Livewire:
+Berikut adalah contoh lengkap pengujian **component** `UploadPhoto` dengan Livewire:
 
 ```php
-<?php
-
-namespace Tests\Feature\Livewire;
-
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use App\Livewire\UploadPhoto;
-use Livewire\Livewire;
-use Tests\TestCase;
-
-class UploadPhotoTest extends TestCase
+public function test_can_upload_photo()
 {
-    public function test_can_upload_photo()
-    {
-        Storage::fake('avatars');
+    Storage::fake('avatars');
 
-        $file = UploadedFile::fake()->image('avatar.png');
+    $file = UploadedFile::fake()->image('avatar.png');
 
-        Livewire::test(UploadPhoto::class)
-            ->set('photo', $file)
-            ->call('upload', 'uploaded-avatar.png');
+    Livewire::test(UploadPhoto::class)
+        ->set('photo', $file)
+        ->call('upload', 'uploaded-avatar.png');
 
-        Storage::disk('avatars')->assertExists('uploaded-avatar.png');
-    }
+    Storage::disk('avatars')->assertExists('uploaded-avatar.png');
 }
+
 ```
 
-Below is an example of the `upload-photo` component required to make the previous test pass:
+Berikut adalah bagian fungsional dari **component** tersebut agar pengujian di atas berhasil:
 
 ```php
-<?php // resources/views/components/⚡upload-photo.blade.php
-
-use Livewire\WithFileUploads;
-use Livewire\Component;
-
 new class extends Component {
     use WithFileUploads;
 
@@ -229,60 +201,62 @@ new class extends Component {
     {
         $this->photo->storeAs('/', $name, disk: 'avatars');
     }
-
-    // ...
 };
+
 ```
 
-For more information on testing file uploads, please consult [Laravel's file upload testing documentation](https://laravel.com/docs/http-tests#testing-file-uploads).
+Untuk informasi lebih lanjut mengenai pengujian unggahan file, silakan merujuk pada [dokumentasi pengujian unggahan file Laravel](https://laravel.com/docs/http-tests#testing-file-uploads).
 
 ## Uploading directly to Amazon S3
 
-As previously discussed, Livewire stores all file uploads in a temporary directory until the developer permanently stores the file.
+Seperti yang telah dibahas sebelumnya, Livewire menyimpan semua unggahan file di direktori sementara sampai pengembang menyimpannya secara permanen.
 
-By default, Livewire uses the default filesystem disk configuration (usually `local`) and stores the files within a `livewire-tmp/` directory.
+Secara *default*, Livewire menggunakan konfigurasi **disk** sistem file bawaan (biasanya `local`) dan menyimpan file-file tersebut di dalam direktori `livewire-tmp/`.
 
-Consequently, file uploads are always utilizing your application server, even if you choose to store the uploaded files in an S3 bucket later.
+Akibatnya, unggahan file akan selalu menggunakan server aplikasi Anda, meskipun Anda memilih untuk menyimpan file tersebut ke dalam **S3 bucket** nantinya.
 
-If you wish to bypass your application server and instead store Livewire's temporary uploads in an S3 bucket, set the `LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK` environment variable in your `.env` file to `s3` (or another custom disk that uses the `s3` driver):
+Jika Anda ingin melewati server aplikasi dan langsung menyimpan unggahan sementara Livewire ke dalam **S3 bucket**, atur **environment variable** `LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK` di file `.env` Anda menjadi `s3` (atau **disk** kustom lainnya yang menggunakan **driver** `s3`):
 
 ```env
 LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK=s3
+
 ```
 
-Now, when a user uploads a file, the file will never actually be stored on your server. Instead, it will be uploaded directly to your S3 bucket within the `livewire-tmp/` sub-directory.
+Sekarang, saat pengguna mengunggah file, file tersebut tidak akan pernah benar-benar disimpan di server Anda. Sebaliknya, file akan diunggah langsung ke **S3 bucket** Anda di dalam sub-direktori `livewire-tmp/`.
 
 > [!tip]
-> Alternatively, you can publish Livewire's configuration file with `php artisan livewire:config` for full control over the `temporary_file_upload` config.
+> Sebagai alternatif, Anda dapat mempublikasikan file konfigurasi Livewire dengan `php artisan livewire:config` untuk kontrol penuh atas konfigurasi `temporary_file_upload`.
 
-### Configuring automatic file cleanup
+### Mengonfigurasi pembersihan file otomatis
 
-Livewire's temporary upload directory will fill up with files quickly; therefore, it's essential to configure S3 to clean up files older than 24 hours.
+Direktori unggahan sementara Livewire akan terisi file dengan cepat; oleh karena itu, sangat penting untuk mengonfigurasi S3 agar membersihkan file yang lebih tua dari 24 jam.
 
-To configure this behavior, run the following Artisan command from the environment that is utilizing an S3 bucket for file uploads:
+Untuk mengonfigurasi perilaku ini, jalankan perintah Artisan berikut dari lingkungan yang menggunakan **S3 bucket** untuk unggahan file:
 
 ```shell
 php artisan livewire:configure-s3-upload-cleanup
+
 ```
 
-Now, any temporary files older than 24 hours will be cleaned up by S3 automatically.
+Sekarang, setiap file sementara yang lebih tua dari 24 jam akan dibersihkan oleh S3 secara otomatis.
 
 > [!info]
-> If you are not using S3 for file storage, Livewire will handle file cleanup automatically and there is no need to run the command above.
+> Jika Anda tidak menggunakan S3 untuk penyimpanan file, Livewire akan menangani pembersihan file secara otomatis dan tidak perlu menjalankan perintah di atas.
 
 ## Loading indicators
 
-Although `wire:model` for file uploads works differently than other `wire:model` input types under the hood, the interface for showing loading indicators remains the same.
+Meskipun di balik layar `wire:model` untuk unggahan file bekerja secara berbeda dari tipe input `wire:model` lainnya, antarmuka untuk menampilkan **loading indicators** tetap sama.
 
-You can display a loading indicator scoped to the file upload using `wire:loading`:
+Anda dapat menampilkan indikator pemuatan yang dikhususkan untuk unggahan file menggunakan `wire:loading`:
 
 ```blade
 <input type="file" wire:model="photo">
 
 <div wire:loading wire:target="photo">Uploading...</div>
+
 ```
 
-Or more simply using Livewire's automatic `data-loading` attribute:
+Atau lebih sederhana lagi menggunakan atribut otomatis `data-loading` milik Livewire:
 
 ```blade
 <div>
@@ -290,25 +264,26 @@ Or more simply using Livewire's automatic `data-loading` attribute:
 
     <div class="not-data-loading:hidden">Uploading...</div>
 </div>
+
 ```
 
-Now, while the file is uploading, the "Uploading..." message will be shown and then hidden when the upload is finished.
+Kini, saat file sedang diunggah, pesan "Uploading..." akan ditampilkan dan kemudian disembunyikan saat unggahan selesai.
 
-[Learn more about loading states →](/docs/4.x/loading-states)
+[Pelajari lebih lanjut tentang loading states →](https://www.google.com/search?q=/docs/4.x/loading-states)
 
 ## Progress indicators
 
-Every Livewire file upload operation dispatches JavaScript events on the corresponding `<input>` element, allowing custom JavaScript to intercept the events:
+Setiap operasi unggah file Livewire mengirimkan **JavaScript events** pada elemen `<input>` yang bersangkutan, memungkinkan JavaScript kustom untuk menangkap **events** tersebut:
 
-Event | Description
---- | ---
-`livewire-upload-start` | Dispatched when the upload starts
-`livewire-upload-finish` | Dispatched if the upload is successfully finished
-`livewire-upload-cancel` | Dispatched if the upload was cancelled prematurely
-`livewire-upload-error` | Dispatched if the upload fails
-`livewire-upload-progress` | An event containing the upload progress percentage as the upload progresses
+| Event | Deskripsi |
+| --- | --- |
+| `livewire-upload-start` | Dikirim saat unggahan dimulai |
+| `livewire-upload-finish` | Dikirim jika unggahan berhasil diselesaikan |
+| `livewire-upload-cancel` | Dikirim jika unggahan dibatalkan sebelum waktunya |
+| `livewire-upload-error` | Dikirim jika unggahan gagal |
+| `livewire-upload-progress` | Event yang berisi persentase progres unggahan seiring berjalannya proses |
 
-Below is an example of wrapping a Livewire file upload in an Alpine component to display an upload progress bar:
+Berikut adalah contoh membungkus unggahan file Livewire di dalam **Alpine component** untuk menampilkan **upload progress bar**:
 
 ```blade
 <form wire:submit="save">
@@ -320,122 +295,125 @@ Below is an example of wrapping a Livewire file upload in an Alpine component to
         x-on:livewire-upload-error="uploading = false"
         x-on:livewire-upload-progress="progress = $event.detail.progress"
     >
-        <!-- File Input -->
         <input type="file" wire:model="photo">
 
-        <!-- Progress Bar -->
         <div x-show="uploading">
             <progress max="100" x-bind:value="progress"></progress>
         </div>
     </div>
 
-    <!-- ... -->
-</form>
+    </form>
+
 ```
 
 ## Cancelling an upload
 
-If an upload is taking a long time, a user may want to cancel it. You can provide this functionality with Livewire's `$cancelUpload()` function in JavaScript.
+Jika pengunggahan memakan waktu lama, pengguna mungkin ingin membatalkannya. Anda dapat menyediakan fungsionalitas ini dengan fungsi `$cancelUpload()` Livewire di JavaScript.
 
-Here's an example of creating a "Cancel Upload" button in a Livewire component using `wire:click` to handle the click event:
+Berikut adalah contoh membuat tombol "Cancel Upload" dalam **Livewire component** menggunakan `wire:click` untuk menangani **event** klik:
 
 ```blade
 <form wire:submit="save">
-    <!-- File Input -->
     <input type="file" wire:model="photo">
 
-    <!-- Cancel upload button -->
     <button type="button" wire:click="$cancelUpload('photo')">Cancel Upload</button>
 
-    <!-- ... -->
-</form>
+    </form>
+
 ```
 
-When "Cancel upload" is pressed, the file upload will request will be aborted and the file input will be cleared. The user can now attempt another upload with a different file.
+Ketika "Cancel upload" ditekan, permintaan unggah file akan dihentikan dan input file akan dikosongkan. Pengguna kini dapat mencoba unggahan lain dengan file yang berbeda.
 
-Alternatively, you can call `cancelUpload(...)` from Alpine like so:
+Alternatifnya, Anda dapat memanggil `cancelUpload(...)` dari Alpine seperti berikut:
 
 ```blade
 <button type="button" x-on:click="$wire.cancelUpload('photo')">Cancel Upload</button>
+
 ```
 
 ## JavaScript upload API
 
-Integrating with third-party file-uploading libraries often requires more control than a simple `<input type="file" wire:model="...">` element.
+Mengintegrasikan pustaka unggah file pihak ketiga sering kali memerlukan kontrol lebih besar daripada elemen `<input type="file" wire:model="...">` sederhana.
 
-For these scenarios, Livewire exposes dedicated JavaScript functions.
+Untuk skenario ini, Livewire menyediakan fungsi JavaScript khusus.
 
-These functions exist on a JavaScript component object, which can be accessed using Livewire's convenient `$wire` object from within your Livewire component's template:
+Fungsi-fungsi ini berada pada objek **JavaScript component**, yang dapat diakses menggunakan objek `$wire` yang praktis dari dalam **template component** Livewire Anda:
 
 ```blade
 <script>
     let file = $wire.el.querySelector('input[type="file"]').files[0]
 
-    // Upload a file...
+    // Unggah satu file...
     $wire.upload('photo', file, (uploadedFilename) => {
         // Success callback...
     }, () => {
         // Error callback...
     }, (event) => {
         // Progress callback...
-        // event.detail.progress contains a number between 1 and 100 as the upload progresses
+        // event.detail.progress berisi angka antara 1 dan 100
     }, () => {
         // Cancelled callback...
     })
 
-    // Upload multiple files...
+    // Unggah banyak file...
     $wire.uploadMultiple('photos', [file], successCallback, errorCallback, progressCallback, cancelledCallback)
 
-    // Remove single file from multiple uploaded files...
+    // Hapus satu file dari beberapa file yang diunggah...
     $wire.removeUpload('photos', uploadedFilename, successCallback)
 
-    // Cancel an upload...
+    // Batalkan unggahan...
     $wire.cancelUpload('photos')
 </script>
+
 ```
 
 ## Configuration
 
-Because Livewire stores all file uploads temporarily before the developer can validate or store them, it assumes some default handling behavior for all file uploads.
+Karena Livewire menyimpan semua unggahan file secara sementara sebelum pengembang dapat memvalidasi atau menyimpannya, Livewire menetapkan beberapa perilaku penanganan **default**.
 
 ### Global validation
 
-By default, Livewire will validate all temporary file uploads with the following rules: `file|max:12288` (Must be a file less than 12MB).
+Secara *default*, Livewire akan memvalidasi semua unggahan file sementara dengan aturan berikut: `file|max:12288` (Harus berupa file dan berukuran kurang dari 12MB).
 
-If you wish to customize these rules, you can do so inside your application's `config/livewire.php` file:
+Jika Anda ingin menyesuaikan aturan ini, Anda dapat melakukannya di dalam file `config/livewire.php` aplikasi Anda:
 
 ```php
 'temporary_file_upload' => [
     // ...
-    'rules' => 'file|mimes:png,jpg,pdf|max:102400', // (100MB max, and only accept PNGs, JPEGs, and PDFs)
+    'rules' => 'file|mimes:png,jpg,pdf|max:102400', // (Maks 100MB, dan hanya menerima PNG, JPEG, dan PDF)
 ],
+
 ```
 
 ### Global middleware
 
-The temporary file upload endpoint is assigned a throttling middleware by default. You can customize exactly what middleware this endpoint uses via the following configuration option:
+**Endpoint** unggahan file sementara diberikan **throttling middleware** secara *default*. Anda dapat menyesuaikan **middleware** apa yang digunakan **endpoint** ini melalui opsi konfigurasi berikut:
 
 ```php
 'temporary_file_upload' => [
     // ...
-    'middleware' => 'throttle:5,1', // Only allow 5 uploads per user per minute
+    'middleware' => 'throttle:5,1', // Hanya izinkan 5 unggahan per pengguna per menit
 ],
+
 ```
 
 ### Temporary upload directory
 
-Temporary files are uploaded to the specified disk's `livewire-tmp/` directory. You can customize this directory via the following configuration option:
+File sementara diunggah ke direktori `livewire-tmp/` pada **disk** yang ditentukan. Anda dapat menyesuaikan direktori ini melalui opsi konfigurasi berikut:
 
 ```php
 'temporary_file_upload' => [
     // ...
     'directory' => 'tmp',
 ],
+
 ```
+
+---
 
 ## See also
 
-- **[Forms](/docs/4.x/forms)** — Handle file uploads in forms
-- **[Validation](/docs/4.x/validation)** — Validate uploaded files
-- **[Loading States](/docs/4.x/loading-states)** — Show upload progress indicators
-- **[wire:model](/docs/4.x/wire-model)** — Bind file inputs to properties
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Menangani unggahan file dalam formulir
+* **[Validation](https://www.google.com/search?q=/docs/4.x/validation)** — Memvalidasi file yang diunggah
+* **[Loading States](https://www.google.com/search?q=/docs/4.x/loading-states)** — Menampilkan indikator progres unggahan
+* **[wire:model](https://www.google.com/search?q=/docs/4.x/wire-model)** — Menghubungkan input file ke properti
