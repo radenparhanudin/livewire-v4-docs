@@ -1,8 +1,8 @@
-Livewire allows you to store component properties in the URL's query string. For example, you may want a `$search` property in your component to be included in the URL: `https://example.com/users?search=bob`. This is particularly useful for things like filtering, sorting, and pagination, as it allows users to share and bookmark specific states of a page.
+Livewire memungkinkan Anda menyimpan properti **component** di dalam **URL query string**. Sebagai contoh, Anda mungkin ingin properti `$search` di dalam **component** Anda disertakan dalam URL: `https://example.com/users?search=bob`. Hal ini sangat berguna untuk fitur-fitur seperti penyaringan (*filtering*), pengurutan (*sorting*), dan **pagination**, karena memungkinkan pengguna untuk membagikan atau menyimpan tautan (*bookmark*) status tertentu dari suatu halaman.
 
-## Basic usage
+## Penggunaan dasar
 
-Below is a `show-users` component that allows you to search users by their name via a simple text input:
+Di bawah ini adalah **component** `show-users` yang memungkinkan Anda mencari pengguna berdasarkan nama melalui input teks sederhana:
 
 ```php
 <?php // resources/views/components/⚡show-users.blade.php
@@ -20,6 +20,7 @@ new class extends Component {
         return User::search($this->search)->get();
     }
 };
+
 ```
 
 ```blade
@@ -32,13 +33,14 @@ new class extends Component {
         @endforeach
     </ul>
 </div>
+
 ```
 
-As you can see, because the text input uses `wire:model.live="search"`, as a user types into the field, network requests will be sent to update the `$search` property and show a filtered set of users on the page.
+Seperti yang Anda lihat, karena input teks menggunakan `wire:model.live="search"`, saat pengguna mengetik, permintaan jaringan akan dikirim untuk memperbarui properti `$search` dan menampilkan daftar pengguna yang telah difilter di halaman.
 
-However, if the visitor refreshes the page, the search value and results will be lost.
+Namun, jika pengunjung memuat ulang (*refresh*) halaman, nilai pencarian dan hasilnya akan hilang.
 
-To preserve the search value across page loads so that a visitor can refresh the page or share the URL, we can store the search value in the URL's query string by adding the `#[Url]` attribute above the `$search` property like so:
+Untuk mempertahankan nilai pencarian saat halaman dimuat ulang agar pengunjung dapat membagikan URL tersebut, kita dapat menyimpan nilai pencarian di **URL query string** dengan menambahkan atribut `#[Url]` di atas properti `$search` seperti berikut:
 
 ```php
 <?php // resources/views/components/⚡show-users.blade.php
@@ -58,21 +60,25 @@ new class extends Component {
         return User::search($this->search)->get();
     }
 };
+
 ```
 
-Now, if a user types "bob" into the search field, the URL bar in the browser will show:
+Sekarang, jika pengguna mengetik "bob" ke dalam kolom pencarian, bilah URL di browser akan menampilkan:
 
 ```
 https://example.com/users?search=bob
+
 ```
 
-If they now load this URL from a new browser window, "bob" will be filled in the search field, and the user results will be filtered accordingly.
+Jika mereka memuat URL ini dari jendela browser baru, "bob" akan otomatis terisi di kolom pencarian, dan hasil pengguna akan difilter sesuai dengan nilai tersebut.
 
-## Initializing properties from the URL
+---
 
-As you saw in the previous example, when a property uses `#[Url]`, not only does it store its updated value in the query string of the URL, it also references any existing query string values on page load.
+## Menginisialisasi properti dari URL
 
-For example, if a user visits the URL `https://example.com/users?search=bob`, Livewire will set the initial value of `$search` to "bob".
+Seperti yang Anda lihat pada contoh sebelumnya, ketika sebuah properti menggunakan `#[Url]`, ia tidak hanya menyimpan nilainya yang diperbarui ke dalam **query string**, tetapi juga mengambil nilai **query string** yang sudah ada saat halaman dimuat.
+
+Sebagai contoh, jika pengguna mengunjungi URL `https://example.com/users?search=bob`, Livewire akan mengatur nilai awal `$search` menjadi "bob".
 
 ```php
 use Livewire\Attributes\Url;
@@ -81,17 +87,18 @@ use Livewire\Component;
 class ShowUsers extends Component
 {
     #[Url]
-    public $search = ''; // Will be set to "bob"...
+    public $search = ''; // Akan diatur menjadi "bob"...
 
     // ...
 }
+
 ```
 
 ### Nullable properties
 
-By default, if a page is loaded with an empty query string entry like `?search=`, Livewire will treat that value as an empty string. In many cases, this is expected, however there are times when you want `?search=` to be treated as `null`.
+Secara default, jika sebuah halaman dimuat dengan entri **query string** kosong seperti `?search=`, Livewire akan menganggap nilai tersebut sebagai string kosong (`""`). Dalam banyak kasus ini sudah sesuai, namun terkadang Anda ingin `?search=` dianggap sebagai `null`.
 
-In these cases, you can use a nullable typehint like so:
+Dalam kasus tersebut, Anda dapat menggunakan **nullable typehint** seperti ini:
 
 ```php
 use Livewire\Attributes\Url;
@@ -104,17 +111,20 @@ class ShowUsers extends Component
 
     // ...
 }
+
 ```
 
-Because `?` is present in the above typehint, Livewire will see `?search=` and set `$search` to `null` instead of an empty string.
+Karena adanya tanda `?` pada **typehint** di atas, Livewire akan melihat `?search=` dan mengatur `$search` menjadi `null` alih-alih string kosong.
 
-This works the other way around as well, if you set `$this->search = null` in your application, it will be represented in the query string as `?search=`.
+Ini juga berlaku sebaliknya: jika Anda mengatur `$this->search = null` di dalam aplikasi, hal tersebut akan direpresentasikan di **query string** sebagai `?search=`.
 
-## Using an alias
+---
 
-Livewire gives you full control over what name displays in the URL's query string. For example, you may have a `$search` property but want to either obfuscate the actual property name or shorten it to `q`.
+## Menggunakan alias
 
-You can specify a query string alias by providing the `as` parameter to the `#[Url]` attribute:
+Livewire memberi Anda kontrol penuh atas nama apa yang ditampilkan di **URL query string**. Misalnya, Anda memiliki properti `$search` tetapi ingin menyamarkan nama properti aslinya atau menyingkatnya menjadi `q`.
+
+Anda dapat menentukan alias **query string** dengan memberikan parameter `as` pada atribut `#[Url]`:
 
 ```php
 use Livewire\Attributes\Url;
@@ -127,15 +137,18 @@ class ShowUsers extends Component
 
     // ...
 }
+
 ```
 
-Now, when a user types "bob" into the search field, the URL will show: `https://example.com/users?q=bob` instead of `?search=bob`.
+Sekarang, saat pengguna mengetik "bob", URL akan menampilkan `?q=bob` alih-alih `?search=bob`.
 
-## Excluding certain values
+---
 
-By default, Livewire will only put an entry in the query string when it's value has changed from what it was at initialization. Most of the time, this is the desired behavior, however, there are certain scenarios where you may want more control over which value Livewire excludes from the query string. In these cases you can use the `except` parameter.
+## Mengecualikan nilai tertentu
 
-For example, in the component below, the initial value of `$search` is modified in `mount()`. To ensure the browser will only ever exclude `search` from the query string if the `search` value is an empty string, the `except` parameter has been added to `#[Url]`:
+Secara default, Livewire hanya akan memasukkan entri ke dalam **query string** ketika nilainya telah berubah dari nilai saat inisialisasi. Namun, ada skenario di mana Anda ingin kontrol lebih lanjut tentang nilai mana yang dikecualikan Livewire dari **query string**. Dalam kasus ini, Anda dapat menggunakan parameter `except`.
+
+Contohnya, pada **component** di bawah, nilai awal `$search` diubah di dalam `mount()`. Untuk memastikan browser hanya akan mengecualikan `search` dari **query string** jika nilainya adalah string kosong, parameter `except` telah ditambahkan ke `#[Url]`:
 
 ```php
 use Livewire\Attributes\Url;
@@ -152,85 +165,72 @@ class ShowUsers extends Component
 
     // ...
 }
+
 ```
 
-Without `except` in the above example, Livewire would remove the `search` entry from the query string any time the value of `search` is equal to the initial value of `auth()->user()->username`. Instead, because `except: ''` has been used, Livewire will preserve all query string values except when `search` is an empty string.
+Tanpa `except`, Livewire akan menghapus entri `search` dari URL setiap kali nilainya sama dengan nilai awal dari `auth()->user()->username`. Dengan menggunakan `except: ''`, Livewire akan tetap menampilkan nilai di URL kecuali jika `search` benar-benar kosong.
 
-## Display on page load
+---
 
-By default, Livewire will only display a value in the query string after the value has been changed on the page. For example, if the default value for `$search` is an empty string: `""`, when the actual search input is empty, no value will appear in the URL.
+## Menampilkan saat halaman dimuat
 
-If you want the `?search` entry to always be included in the query string, even when the value is empty, you can provide the `keep` parameter to the `#[Url]` attribute:
+Secara default, Livewire hanya akan menampilkan nilai di **query string** setelah nilai tersebut diubah di halaman. Jika nilai default `$search` adalah string kosong `""`, maka saat kolom pencarian kosong, tidak ada nilai yang muncul di URL.
+
+Jika Anda ingin entri `?search` selalu disertakan dalam URL bahkan saat nilainya kosong, Anda dapat menggunakan parameter `keep`:
 
 ```php
-use Livewire\Attributes\Url;
-use Livewire\Component;
+#[Url(keep: true)]
+public $search = '';
 
-class ShowUsers extends Component
-{
-    #[Url(keep: true)]
-    public $search = '';
-
-    // ...
-}
 ```
 
-Now, when the page loads, the URL will be changed to the following: `https://example.com/users?search=`
+Sekarang, saat halaman dimuat, URL akan otomatis berubah menjadi: `https://example.com/users?search=`
 
-## Storing in history
+---
 
-By default, Livewire uses [`history.replaceState()`](https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState) to modify the URL instead of [`history.pushState()`](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState). This means that when Livewire updates the query string, it modifies the current entry in the browser's history state instead of adding a new one.
+## Menyimpan dalam riwayat (history)
 
-Because Livewire "replaces" the current history, pressing the "back" button in the browser will go to the previous page rather than the previous `?search=` value.
+Secara default, Livewire menggunakan [`history.replaceState()`](https://www.google.com/search?q=%5Bhttps://developer.mozilla.org/en-US/docs/Web/API/History/replaceState%5D(https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState)) untuk mengubah URL. Artinya, saat Livewire memperbarui **query string**, ia memodifikasi entri saat ini di riwayat browser alih-alih menambahkannya sebagai entri baru.
 
-To force Livewire to use `history.pushState` when updating the URL, you can provide the `history` parameter to the `#[Url]` attribute:
+Karena Livewire "mengganti" (*replace*) riwayat saat ini, menekan tombol "kembali" (*back*) di browser akan membawa pengguna ke halaman sebelumnya, bukan ke nilai `?search=` sebelumnya.
+
+Untuk memaksa Livewire menggunakan `history.pushState`, Anda dapat memberikan parameter `history: true`:
 
 ```php
-use Livewire\Attributes\Url;
-use Livewire\Component;
+#[Url(history: true)]
+public $search = '';
 
-class ShowUsers extends Component
-{
-    #[Url(history: true)]
-    public $search = '';
-
-    // ...
-}
 ```
 
-In the example above, when a user changes the search value from "bob" to "frank" and then clicks the browser's back button, the search value (and the URL) will be set back to "bob" instead of navigating to the previously visited page.
+Dengan ini, jika pengguna mengubah pencarian dari "bob" ke "frank" lalu menekan tombol kembali, nilai pencarian (dan URL) akan kembali ke "bob".
 
-## Using the queryString method
+---
 
-The query string can also be defined as a method on the component. This can be useful if some properties have dynamic options.
+## Menggunakan metode queryString
+
+**Query string** juga dapat didefinisikan sebagai metode di dalam **component**. Ini berguna jika beberapa properti memiliki opsi yang dinamis.
 
 ```php
-use Livewire\Component;
-
-class ShowUsers extends Component
+protected function queryString()
 {
-    // ...
-
-    protected function queryString()
-    {
-        return [
-            'search' => [
-                'as' => 'q',
-            ],
-        ];
-    }
+    return [
+        'search' => [
+            'as' => 'q',
+        ],
+    ];
 }
+
 ```
+
+---
 
 ## Trait hooks
 
-Livewire offers [hooks](/docs/4.x/lifecycle-hooks) for query strings as well.
+Livewire juga menawarkan [hooks](https://www.google.com/search?q=/docs/4.x/lifecycle-hooks) untuk **query strings** di dalam **trait**.
 
 ```php
 trait WithSorting
 {
-    // ...
-
     protected function queryStringWithSorting()
     {
         return [
@@ -239,11 +239,14 @@ trait WithSorting
         ];
     }
 }
+
 ```
+
+---
 
 ## See also
 
-- **[Properties](/docs/4.x/properties)** — Sync properties with URL parameters
-- **[Navigate](/docs/4.x/navigate)** — Maintain URL state during SPA navigation
-- **[Url Attribute](/docs/4.x/attribute-url)** — Bind properties to URL query strings
-- **[Pages](/docs/4.x/pages)** — Work with route parameters
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Sinkronisasi properti dengan parameter URL
+* **[Navigate](https://www.google.com/search?q=/docs/4.x/navigate)** — Mempertahankan status URL selama navigasi SPA
+* **[Url Attribute](https://www.google.com/search?q=/docs/4.x/attribute-url)** — Menghubungkan properti ke URL query strings
+* **[Pages](https://www.google.com/search?q=/docs/4.x/pages)** — Bekerja dengan parameter route
