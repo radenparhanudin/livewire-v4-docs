@@ -1,15 +1,15 @@
-Laravel's pagination feature allows you to query a subset of data and provides your users with the ability to navigate between *pages* of those results.
+Fitur pagination Laravel memungkinkan Anda untuk mengambil sebagian data dari database dan memberikan kemampuan bagi pengguna untuk menavigasi di antara *pages* (halaman) dari hasil tersebut.
 
-Because Laravel's paginator was designed for static applications, in a non-Livewire app, each page navigation triggers a full browser visit to a new URL containing the desired page (`?page=2`).
+Karena paginator Laravel awalnya dirancang untuk aplikasi statis, pada aplikasi non-Livewire, setiap navigasi halaman memicu kunjungan browser penuh ke URL baru yang berisi halaman yang diinginkan (`?page=2`).
 
-However, when you use pagination inside a Livewire component, users can navigate between pages while remaining on the same page. Livewire will handle everything behind the scenes, including updating the URL query string with the current page.
+Namun, ketika Anda menggunakan pagination di dalam komponen Livewire, pengguna dapat berpindah antar halaman sambil tetap berada di halaman yang sama. Livewire akan menangani semuanya di balik layar, termasuk memperbarui URL query string dengan halaman saat ini.
 
-## Basic usage
+## Penggunaan dasar
 
-Below is the most basic example of using pagination inside a `show-posts` component to only show ten posts at a time:
+Berikut adalah contoh paling dasar penggunaan pagination di dalam komponen `show-posts` untuk hanya menampilkan sepuluh postingan sekaligus:
 
-> [!warning] You must use the `WithPagination` trait
-> To take advantage of Livewire's pagination features, each component containing pagination must use the `Livewire\WithPagination` trait.
+> [!warning] Anda harus menggunakan trait `WithPagination`
+> Untuk memanfaatkan fitur pagination Livewire, setiap komponen yang berisi pagination harus menggunakan trait `Livewire\WithPagination`.
 
 ```php
 <?php // resources/views/components/⚡show-posts.blade.php
@@ -28,29 +28,30 @@ new class extends Component {
         return Post::paginate(10);
     }
 };
+
 ```
 
 ```blade
 <div>
     <div>
         @foreach ($this->posts as $post)
-            <!-- ... -->
-        @endforeach
+            @endforeach
     </div>
 
     {{ $this->posts->links() }}
 </div>
+
 ```
 
-As you can see, in addition to limiting the number of posts shown via the `Post::paginate()` method, we will also use `$this->posts->links()` to render page navigation links.
+Seperti yang Anda lihat, selain membatasi jumlah postingan yang ditampilkan melalui metode `Post::paginate()`, kita juga menggunakan `$this->posts->links()` untuk merender tautan navigasi halaman.
 
-For more information on pagination using Laravel, check out [Laravel's comprehensive pagination documentation](https://laravel.com/docs/pagination).
+Untuk informasi lebih lanjut tentang pagination menggunakan Laravel, silakan lihat [dokumentasi pagination Laravel yang lengkap](https://laravel.com/docs/pagination).
 
-## Disabling URL query string tracking
+## Menonaktifkan pelacakan URL query string
 
-By default, Livewire's paginator tracks the current page in the browser URL's query string like so: `?page=2`.
+Secara default, paginator Livewire melacak halaman saat ini di dalam URL query string browser seperti berikut: `?page=2`.
 
-If you wish to still use Livewire's pagination utility, but disable query string tracking, you can do so using the `WithoutUrlPagination` trait:
+Jika Anda ingin tetap menggunakan utilitas pagination Livewire tetapi menonaktifkan pelacakan query string, Anda dapat melakukannya menggunakan trait `WithoutUrlPagination`:
 
 ```php
 use Livewire\WithoutUrlPagination;
@@ -63,33 +64,36 @@ class ShowPosts extends Component
 
     // ...
 }
+
 ```
 
-Now, pagination will work as expected, but the current page won't show up in the query string. This also means the current page won't be persisted across page changes.
+Sekarang, pagination akan berfungsi seperti yang diharapkan, tetapi halaman saat ini tidak akan muncul di query string. Ini juga berarti halaman saat ini tidak akan tersimpan jika terjadi perpindahan halaman browser secara penuh.
 
-## Customizing scroll behavior
+## Menyesuaikan perilaku gulir (scroll behavior)
 
-By default, Livewire's paginator scrolls to the top of the page after every page change.
+Secara default, paginator Livewire akan menggulir layar ke atas halaman setelah setiap perubahan halaman.
 
-You can disable this behavior by passing `false` to the `scrollTo` parameter of the `links()` method like so:
+Anda dapat menonaktifkan perilaku ini dengan meneruskan `false` ke parameter `scrollTo` pada metode `links()` seperti berikut:
 
 ```blade
 {{ $posts->links(data: ['scrollTo' => false]) }}
+
 ```
 
-Alternatively, you can provide any CSS selector to the `scrollTo` parameter, and Livewire will find the nearest element matching that selector and scroll to it after each navigation:
+Alternatifnya, Anda dapat memberikan pemilih CSS (CSS selector) apa pun ke parameter `scrollTo`, dan Livewire akan mencari elemen terdekat yang cocok dengan pemilih tersebut dan menggulir layar ke arahnya setelah setiap navigasi:
 
 ```blade
 {{ $posts->links(data: ['scrollTo' => '#paginated-posts']) }}
+
 ```
 
-## Resetting the page
+## Mereset halaman
 
-When sorting or filtering results, it is common to want to reset the page number back to `1`.
+Saat melakukan pengurutan (*sorting*) atau penyaringan (*filtering*) hasil, sangat umum bagi kita untuk ingin mereset nomor halaman kembali ke `1`.
 
-For this reason, Livewire provides the `$this->resetPage()` method, allowing you to reset the page number from anywhere in your component.
+Untuk alasan ini, Livewire menyediakan metode `$this->resetPage()`, yang memungkinkan Anda mereset nomor halaman dari mana saja di dalam komponen Anda.
 
-The following component demonstrates using this method to reset the page after the search form is submitted:
+Komponen berikut menunjukkan penggunaan metode ini untuk mereset halaman setelah formulir pencarian dikirimkan:
 
 ```php
 <?php // resources/views/components/⚡search-posts.blade.php
@@ -115,6 +119,7 @@ new class extends Component {
         return Post::where('title', 'like', '%'.$this->query.'%')->paginate(10);
     }
 };
+
 ```
 
 ```blade
@@ -127,32 +132,32 @@ new class extends Component {
 
     <div>
         @foreach ($this->posts as $post)
-            <!-- ... -->
-        @endforeach
+            @endforeach
     </div>
 
     {{ $this->posts->links() }}
 </div>
+
 ```
 
-Now, if a user was on page `5` of the results and then filtered the results further by pressing "Search posts", the page would be reset back to `1`.
+Sekarang, jika pengguna sedang berada di halaman `5` dan kemudian menyaring hasil lebih lanjut dengan menekan tombol "Search posts", halaman akan direset kembali ke `1`.
 
-### Available page navigation methods
+### Metode navigasi halaman yang tersedia
 
-In addition to `$this->resetPage()`, Livewire provides other useful methods for navigating between pages programmatically from your component:
+Selain `$this->resetPage()`, Livewire menyediakan metode berguna lainnya untuk menavigasi antar halaman secara terprogram dari komponen Anda:
 
-| Method        | Description                               |
-|-----------------|-------------------------------------------|
-| `$this->setPage($page)`    | Set the paginator to a specific page number |
-| `$this->resetPage()`    | Reset the page back to 1 |
-| `$this->nextPage()`    | Go to the next page |
-| `$this->previousPage()`    | Go to the previous page |
+| Metode | Deskripsi |
+| --- | --- |
+| `$this->setPage($page)` | Mengatur paginator ke nomor halaman tertentu |
+| `$this->resetPage()` | Mereset halaman kembali ke 1 |
+| `$this->nextPage()` | Pergi ke halaman berikutnya |
+| `$this->previousPage()` | Pergi ke halaman sebelumnya |
 
-## Multiple paginators
+## Paginator ganda (multiple paginators)
 
-Because both Laravel and Livewire use URL query string parameters to store and track the current page number, if a single page contains multiple paginators, it's important to assign them different names.
+Karena Laravel dan Livewire menggunakan parameter URL query string untuk menyimpan dan melacak nomor halaman saat ini, jika satu halaman berisi beberapa paginator, penting untuk memberikan nama yang berbeda kepada mereka.
 
-To demonstrate the problem more clearly, consider the following `show-clients` component:
+Untuk mendemonstrasikan masalah ini dengan lebih jelas, pertimbangkan komponen `show-clients` berikut:
 
 ```php
 <?php // resources/views/components/⚡show-clients.blade.php
@@ -171,15 +176,14 @@ new class extends Component {
         return Client::paginate(10);
     }
 };
-```
-
-As you can see, the above component contains a paginated set of *clients*. If a user were to navigate to page `2` of this result set, the URL might look like the following:
 
 ```
-http://application.test/?page=2
-```
 
-Suppose the page also contains a `show-invoices` component that also uses pagination. To independently track each paginator's current page, you need to specify a name for the second paginator like so:
+Seperti yang Anda lihat, komponen di atas berisi kumpulan data *clients* yang dipaginasi. Jika pengguna menavigasi ke halaman `2` dari kumpulan hasil ini, URL-nya mungkin akan terlihat seperti berikut:
+
+`http://application.test/?page=2`
+
+Misalkan halaman tersebut juga berisi komponen `show-invoices` yang juga menggunakan pagination. Untuk melacak halaman saat ini dari masing-masing paginator secara independen, Anda perlu menentukan nama untuk paginator kedua seperti berikut:
 
 ```php
 <?php // resources/views/components/⚡show-invoices.blade.php
@@ -198,15 +202,14 @@ new class extends Component {
         return Invoice::paginate(10, pageName: 'invoices-page');
     }
 };
-```
-
-Now, because of the `pageName` parameter that has been added to the `paginate` method, when a user visits page `2` of the *invoices*, the URL will contain the following:
 
 ```
-https://application.test/customers?page=2&invoices-page=2
-```
 
-When using Livewire's page navigation methods on a named paginator, you must provide the page name as an additional parameter:
+Sekarang, karena parameter `pageName` telah ditambahkan ke metode `paginate`, ketika pengguna mengunjungi halaman `2` dari *invoices*, URL akan berisi informasi berikut:
+
+`https://application.test/customers?page=2&invoices-page=2`
+
+Saat menggunakan metode navigasi halaman Livewire pada paginator yang bernama, Anda harus memberikan nama halaman tersebut sebagai parameter tambahan:
 
 ```php
 $this->setPage(2, pageName: 'invoices-page');
@@ -216,11 +219,12 @@ $this->resetPage(pageName: 'invoices-page');
 $this->nextPage(pageName: 'invoices-page');
 
 $this->previousPage(pageName: 'invoices-page');
+
 ```
 
 ## Hooking into page updates
 
-Livewire allows you to execute code before and after a page is updated by defining either of the following methods inside your component:
+Livewire memungkinkan Anda mengeksekusi kode sebelum dan sesudah halaman diperbarui dengan mendefinisikan salah satu metode berikut di dalam **component** Anda:
 
 ```php
 <?php // resources/views/components/⚡show-posts.blade.php
@@ -235,12 +239,12 @@ new class extends Component {
 
     public function updatingPage($page)
     {
-        // Runs before the page is updated for this component...
+        // Berjalan sebelum halaman diperbarui untuk component ini...
     }
 
     public function updatedPage($page)
     {
-        // Runs after the page is updated for this component...
+        // Berjalan setelah halaman diperbarui untuk component ini...
     }
 
     #[Computed]
@@ -249,42 +253,47 @@ new class extends Component {
         return Post::paginate(10);
     }
 };
+
 ```
 
 ### Named paginator hooks
 
-The previous hooks only apply to the default paginator. If you are using a named paginator, you must define the methods using the paginator's name.
+**Hooks** di atas hanya berlaku untuk **paginator** default. Jika Anda menggunakan **named paginator**, Anda harus mendefinisikan metode menggunakan nama **paginator** tersebut.
 
-For example, below is an example of what a hook for a paginator named `invoices-page` would look like:
+Sebagai contoh, di bawah ini adalah tampilan **hook** untuk **paginator** bernama `invoices-page`:
 
 ```php
 public function updatingInvoicesPage($page)
 {
     //
 }
+
 ```
 
 ### General paginator hooks
 
-If you prefer to not reference the paginator name in the hook method name, you can use the more generic alternatives and simply receive the `$pageName` as a second argument to the hook method:
+Jika Anda lebih suka tidak mereferensikan nama **paginator** dalam nama metode **hook**, Anda dapat menggunakan alternatif yang lebih umum dan menerima `$pageName` sebagai argumen kedua:
 
 ```php
 public function updatingPaginators($page, $pageName)
 {
-    // Runs before the page is updated for this component...
+    // Berjalan sebelum halaman diperbarui untuk component ini...
 }
 
 public function updatedPaginators($page, $pageName)
 {
-    // Runs after the page is updated for this component...
+    // Berjalan setelah halaman diperbarui untuk component ini...
 }
+
 ```
 
-## Using the simple theme
+---
 
-You can use Laravel's `simplePaginate()` method instead of `paginate()` for added speed and simplicity.
+## Menggunakan simple theme
 
-When paginating results using this method, only *next* and *previous* navigation links will be shown to the user instead of individual links for each page number:
+Anda dapat menggunakan metode `simplePaginate()` milik Laravel alih-alih `paginate()` untuk kecepatan dan kesederhanaan tambahan.
+
+Saat mempaginasi hasil menggunakan metode ini, hanya tautan navigasi *next* dan *previous* yang akan ditampilkan kepada pengguna, bukan tautan individu untuk setiap nomor halaman:
 
 ```php
 public function render()
@@ -293,13 +302,16 @@ public function render()
         'posts' => Post::simplePaginate(10),
     ]);
 }
+
 ```
 
-For more information on simple pagination, check out [Laravel's "simplePaginator" documentation](https://laravel.com/docs/pagination#simple-pagination).
+Untuk informasi lebih lanjut tentang **simple pagination**, silakan lihat [dokumentasi "simplePaginator" Laravel](https://laravel.com/docs/pagination#simple-pagination).
 
-## Using cursor pagination
+---
 
-Livewire also supports using Laravel's cursor pagination — a faster pagination method useful in large datasets:
+## Menggunakan cursor pagination
+
+Livewire juga mendukung penggunaan **cursor pagination** Laravel — metode pagination yang lebih cepat dan berguna untuk kumpulan data yang besar:
 
 ```php
 public function render()
@@ -308,71 +320,82 @@ public function render()
         'posts' => Post::cursorPaginate(10),
     ]);
 }
-```
-
-By using `cursorPaginate()` instead of `paginate()` or `simplePaginate()`, the query string in your application's URL will store an encoded *cursor* instead of a standard page number. For example:
 
 ```
-https://example.com/posts?cursor=eyJpZCI6MTUsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0
-```
 
-For more information on cursor pagination, check out [Laravel's cursor pagination documentation](https://laravel.com/docs/pagination#cursor-pagination).
+Dengan menggunakan `cursorPaginate()` alih-alih `paginate()` atau `simplePaginate()`, **query string** di URL aplikasi Anda akan menyimpan *cursor* yang terenkripsi alih-alih nomor halaman standar. Contohnya:
 
-## Using Bootstrap instead of Tailwind
+`https://example.com/posts?cursor=eyJpZCI6MTUsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0`
 
-If you are using [Bootstrap](https://getbootstrap.com/) instead of [Tailwind](https://tailwindcss.com/) as your application's CSS framework, you can configure Livewire to use Bootstrap styled pagination views instead of the default Tailwind views.
+Untuk informasi lebih lanjut tentang **cursor pagination**, silakan lihat [dokumentasi cursor pagination Laravel](https://laravel.com/docs/pagination#cursor-pagination).
 
-To accomplish this, set the `pagination_theme` configuration value in your application's `config/livewire.php` file:
+---
+
+## Menggunakan Bootstrap alih-alih Tailwind
+
+Jika Anda menggunakan [Bootstrap](https://getbootstrap.com/) alih-alih [Tailwind](https://tailwindcss.com/) sebagai framework CSS aplikasi Anda, Anda dapat mengonfigurasi Livewire untuk menggunakan **pagination views** bergaya Bootstrap alih-alih tampilan Tailwind bawaan.
+
+Untuk mencapainya, atur nilai konfigurasi `pagination_theme` di file `config/livewire.php` aplikasi Anda:
 
 ```php
 'pagination_theme' => 'bootstrap',
+
 ```
 
-> [!info] Publishing Livewire's configuration file
-> Before customizing the pagination theme, you must first publish Livewire's configuration file to your application's `/config` directory by running the following command:
+> [!info] Mempublikasikan file konfigurasi Livewire
+> Sebelum menyesuaikan tema pagination, Anda harus mempublikasikan file konfigurasi Livewire ke direktori `/config` aplikasi Anda dengan menjalankan perintah berikut:
 > ```shell
 > php artisan livewire:config
+> 
 > ```
+> 
+> 
 
-## Modifying the default pagination views
+---
 
-If you want to modify Livewire's pagination views to fit your application's style, you can do so by *publishing* them using the following command:
+## Memodifikasi default pagination views
+
+Jika Anda ingin memodifikasi **pagination views** Livewire agar sesuai dengan gaya aplikasi Anda, Anda dapat melakukannya dengan mempublikasikannya menggunakan perintah berikut:
 
 ```shell
 php artisan livewire:publish --pagination
+
 ```
 
-After running this command, the following four files will be inserted into the `resources/views/vendor/livewire` directory:
+Setelah menjalankan perintah ini, empat file berikut akan dimasukkan ke dalam direktori `resources/views/vendor/livewire`:
 
-| View file name        | Description                               |
-|-----------------|-------------------------------------------|
-| `tailwind.blade.php`    | The standard Tailwind pagination theme |
-| `tailwind-simple.blade.php`    | The *simple* Tailwind pagination theme |
-| `bootstrap.blade.php`    | The standard Bootstrap pagination theme |
-| `bootstrap-simple.blade.php`    | The *simple* Bootstrap pagination theme |
+| Nama File View | Deskripsi |
+| --- | --- |
+| `tailwind.blade.php` | Tema pagination Tailwind standar |
+| `tailwind-simple.blade.php` | Tema pagination Tailwind *simple* |
+| `bootstrap.blade.php` | Tema pagination Bootstrap standar |
+| `bootstrap-simple.blade.php` | Tema pagination Bootstrap *simple* |
 
-Once the files have been published, you have complete control over them. When rendering pagination links using the paginated result's `->links()` method inside your template, Livewire will use these files instead of its own.
+Setelah file dipublikasikan, Anda memiliki kontrol penuh atas file-file tersebut. Saat merender tautan pagination menggunakan metode `->links()` di dalam **template** Anda, Livewire akan menggunakan file-file ini alih-alih miliknya sendiri.
 
-## Using custom pagination views
+---
 
-If you wish to bypass Livewire's pagination views entirely, you can render your own in one of two ways:
+## Menggunakan custom pagination views
 
-1. The `->links()` method in your Blade view
-2. The `paginationView()` or `paginationSimpleView()` method in your component
+Jika Anda ingin melewati **pagination views** Livewire sepenuhnya, Anda dapat merender tampilan Anda sendiri dengan salah satu dari dua cara berikut:
 
-### Via `->links()`
+1. Metode `->links()` di **Blade view** Anda
+2. Metode `paginationView()` atau `paginationSimpleView()` di **component** Anda
 
-The first approach is to simply pass your custom pagination Blade view name to the `->links()` method directly:
+### Melalui `->links()`
+
+Pendekatan pertama adalah dengan meneruskan nama **Blade view** pagination kustom Anda langsung ke metode `->links()`:
 
 ```blade
 {{ $posts->links('custom-pagination-links') }}
+
 ```
 
-When rendering the pagination links, Livewire will now look for a view at `resources/views/custom-pagination-links.blade.php`.
+Saat merender tautan pagination, Livewire sekarang akan mencari **view** di `resources/views/custom-pagination-links.blade.php`.
 
-### Via `paginationView()` or `paginationSimpleView()`
+### Melalui `paginationView()` atau `paginationSimpleView()`
 
-The second approach is to declare a `paginationView` or `paginationSimpleView` method inside your component which returns the name of the view you would like to use:
+Pendekatan kedua adalah dengan mendeklarasikan metode `paginationView` atau `paginationSimpleView` di dalam **component** Anda yang mengembalikan nama **view** yang ingin Anda gunakan:
 
 ```php
 public function paginationView()
@@ -384,13 +407,14 @@ public function paginationSimpleView()
 {
     return 'custom-simple-pagination-links-view';
 }
+
 ```
 
-### Sample pagination view
+### Contoh pagination view
 
-Below is an unstyled sample of a simple Livewire pagination view for your reference.
+Di bawah ini adalah contoh sederhana **pagination view** Livewire tanpa gaya (*unstyled*) untuk referensi Anda.
 
-As you can see, you can use Livewire's page navigation helpers like `$this->nextPage()` directly inside your template by adding `wire:click="nextPage"` to buttons:
+Seperti yang Anda lihat, Anda dapat menggunakan **page navigation helpers** Livewire seperti `$this->nextPage()` langsung di dalam **template** Anda dengan menambahkan `wire:click="nextPage"` pada tombol:
 
 ```blade
 <div>
@@ -414,21 +438,24 @@ As you can see, you can use Livewire's page navigation helpers like `$this->next
         </nav>
     @endif
 </div>
+
 ```
 
-For visual-only loading states (like opacity changes), you can use Livewire's automatic `data-loading` attribute with Tailwind classes instead:
+Untuk **loading states** yang bersifat visual saja (seperti perubahan opasitas), Anda dapat menggunakan atribut otomatis `data-loading` milik Livewire dengan class Tailwind sebagai gantinya:
 
 ```blade
 <button wire:click="nextPage" class="data-loading:opacity-50" rel="next">
     Next
 </button>
+
 ```
 
-[Learn more about loading states →](/docs/4.x/loading-states)
+[Pelajari lebih lanjut tentang loading states →](https://www.google.com/search?q=/docs/4.x/loading-states)
+
+---
 
 ## See also
 
-- **[URL Query Parameters](/docs/4.x/url)** — Sync pagination state with URL
-- **[Loading States](/docs/4.x/loading-states)** — Show feedback during page changes
-- **[Computed Properties](/docs/4.x/computed-properties)** — Efficiently query paginated data
-
+* **[Query Parameters](https://www.google.com/search?q=/docs/4.x/url)** — Sinkronisasi status pagination dengan URL
+* **[Loading States](https://www.google.com/search?q=/docs/4.x/loading-states)** — Tampilkan umpan balik selama perubahan halaman
+* **[Computed Properties](https://www.google.com/search?q=/docs/4.x/computed-properties)** — Menanyakan data yang dipaginasi secara efisien
