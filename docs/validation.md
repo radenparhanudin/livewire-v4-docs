@@ -1,6 +1,6 @@
-Livewire aims to make validating a user's input and giving them feedback as pleasant as possible. By building on top of Laravel's validation features, Livewire leverages your existing knowledge while also providing you with robust, additional features like real-time validation.
+Livewire bertujuan untuk membuat proses memvalidasi input pengguna dan memberikan umpan balik kepada mereka semenyenangkan mungkin. Dengan membangun di atas fitur validasi Laravel, Livewire memanfaatkan pengetahuan Anda yang sudah ada sekaligus memberi Anda fitur tambahan yang kuat seperti validasi *real-time*.
 
-Here's an example `CreatePost` component that demonstrates the most basic validation workflow in Livewire:
+Berikut adalah contoh komponen `CreatePost` yang menunjukkan alur kerja validasi paling dasar di Livewire:
 
 ```php
 <?php
@@ -12,20 +12,20 @@ use App\Models\Post;
 
 class CreatePost extends Component
 {
-	public $title = '';
+    public $title = '';
 
     public $content = '';
 
     public function save()
     {
         $validated = $this->validate([ // [tl! highlight:3]
-			'title' => 'required|min:3',
-			'content' => 'required|min:3',
+            'title' => 'required|min:3',
+            'content' => 'required|min:3',
         ]);
 
-		Post::create($validated);
+        Post::create($validated);
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
 
     public function render()
@@ -33,31 +33,33 @@ class CreatePost extends Component
         return view('livewire.create-post');
     }
 }
+
 ```
 
 ```blade
 <form wire:submit="save">
-	<input type="text" wire:model="title">
+    <input type="text" wire:model="title">
     <div>@error('title') {{ $message }} @enderror</div>
 
-	<textarea wire:model="content"></textarea>
+    <textarea wire:model="content"></textarea>
     <div>@error('content') {{ $message }} @enderror</div>
 
-	<button type="submit">Save</button>
+    <button type="submit">Save</button>
 </form>
+
 ```
 
-As you can see, Livewire provides a `validate()` method that you can call to validate your component's properties. It returns the validated set of data that you can then safely insert into the database.
+Seperti yang Anda lihat, Livewire menyediakan metode `validate()` yang dapat Anda panggil untuk memvalidasi properti komponen Anda. Metode ini mengembalikan set data yang telah divalidasi sehingga Anda dapat memasukkannya dengan aman ke dalam database.
 
-On the frontend, you can use Laravel's existing Blade directives to show validation messages to your users.
+Di sisi *frontend*, Anda dapat menggunakan direktif Blade milik Laravel yang sudah ada untuk menampilkan pesan validasi kepada pengguna Anda.
 
-For more information, see [Laravel's documentation on rendering validation errors in Blade](https://laravel.com/docs/blade#validation-errors).
+Untuk informasi lebih lanjut, lihat [dokumentasi Laravel tentang merender kesalahan validasi di Blade](https://laravel.com/docs/blade#validation-errors).
 
 ## Validate attributes
 
-If you prefer to co-locate your component's validation rules with the properties directly, you can use Livewire's `#[Validate]` attribute.
+Jika Anda lebih suka menempatkan aturan validasi komponen langsung bersama propertinya, Anda dapat menggunakan atribut `#[Validate]` dari Livewire.
 
-By associating validation rules with properties using `#[Validate]`, Livewire will automatically run the properties validation rules before each update. However, you should still run `$this->validate()` before persisting data to a database so that properties that haven't been updated are also validated.
+Dengan menghubungkan aturan validasi dengan properti menggunakan `#[Validate]`, Livewire akan secara otomatis menjalankan aturan validasi properti tersebut sebelum setiap pembaruan (*update*). Namun, Anda tetap harus menjalankan `$this->validate()` sebelum menyimpan data ke database agar properti yang belum diperbarui juga ikut divalidasi.
 
 ```php
 use Livewire\Attributes\Validate;
@@ -67,7 +69,7 @@ use App\Models\Post;
 class CreatePost extends Component
 {
     #[Validate('required|min:3')] // [tl! highlight]
-	public $title = '';
+    public $title = '';
 
     #[Validate('required|min:3')] // [tl! highlight]
     public $content = '';
@@ -76,101 +78,81 @@ class CreatePost extends Component
     {
         $this->validate();
 
-		Post::create([
+        Post::create([
             'title' => $this->title,
             'content' => $this->content,
-		]);
+        ]);
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
 
     // ...
 }
+
 ```
 
-> [!info] Validate attributes don't support Rule objects
-> PHP Attributes are restricted to certain syntaxes like plain strings and arrays. If you find yourself wanting to use run-time syntaxes like Laravel's Rule objects (`Rule::exists(...)`) you should instead [define a `rules()` method](#defining-a-rules-method) in your component.
->
-> Learn more in the documentation on [using Laravel Rule objects with Livewire](#using-laravel-rule-objects).
+> [!info] Atribut Validate tidak mendukung objek Rule
+> PHP Attributes dibatasi pada sintaks tertentu seperti string biasa dan array. Jika Anda ingin menggunakan sintaks *run-time* seperti objek Rule Laravel (`Rule::exists(...)`), Anda harus [mendefinisikan metode `rules()](https://www.google.com/search?q=%23defining-a-rules-method)` di komponen Anda.
+> Pelajari lebih lanjut di dokumentasi tentang [menggunakan objek Laravel Rule dengan Livewire](https://www.google.com/search?q=%23using-laravel-rule-objects).
 
-If you prefer more control over when the properties are validated, you can pass a `onUpdate: false` parameter to the `#[Validate]` attribute. This will disable any automatic validation and instead assume you want to manually validate the properties using the `$this->validate()` method:
+Jika Anda menginginkan kontrol lebih besar kapan properti divalidasi, Anda dapat meneruskan parameter `onUpdate: false` ke atribut `#[Validate]`. Ini akan menonaktifkan validasi otomatis dan berasumsi Anda ingin memvalidasi properti secara manual menggunakan metode `$this->validate()`:
 
 ```php
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-use App\Models\Post;
+#[Validate('required|min:3', onUpdate: false)]
+public $title = '';
 
-class CreatePost extends Component
-{
-    #[Validate('required|min:3', onUpdate: false)]
-	public $title = '';
-
-    #[Validate('required|min:3', onUpdate: false)]
-    public $content = '';
-
-    public function save()
-    {
-        $validated = $this->validate();
-
-		Post::create($validated);
-
-		return redirect()->to('/posts');
-    }
-
-    // ...
-}
 ```
 
-### Custom attribute name
+### Nama atribut kustom
 
-If you wish to customize the attribute name injected into the validation message, you may do so using the `as: ` parameter:
+Jika Anda ingin menyesuaikan nama atribut yang dimasukkan ke dalam pesan validasi, Anda dapat menggunakan parameter `as: `:
 
 ```php
 use Livewire\Attributes\Validate;
 
-#[Validate('required', as: 'date of birth')]
+#[Validate('required', as: 'tanggal lahir')]
 public $dob;
+
 ```
 
-When validation fails in the above snippet, Laravel will use "date of birth" instead of "dob" as the name of the field in the validation message. The generated message will be "The date of birth field is required" instead of "The dob field is required".
+Ketika validasi gagal pada potongan kode di atas, Laravel akan menggunakan "tanggal lahir" alih-alih "dob" sebagai nama bidang dalam pesan validasi. Pesan yang dihasilkan akan menjadi "Isian tanggal lahir wajib diisi" alih-alih "Isian dob wajib diisi".
 
-### Custom validation message
+### Pesan validasi kustom
 
-To bypass Laravel's validation message and replace it with your own, you can use the `message: ` parameter in the `#[Validate]` attribute:
+Untuk melewati pesan validasi bawaan Laravel dan menggantinya dengan pesan Anda sendiri, Anda dapat menggunakan parameter `message: ` di atribut `#[Validate]`:
 
 ```php
-use Livewire\Attributes\Validate;
-
-#[Validate('required', message: 'Please provide a post title')]
+#[Validate('required', message: 'Mohon masukkan judul postingan')]
 public $title;
+
 ```
 
-Now, when the validation fails for this property, the message will be "Please provide a post title" instead of "The title field is required".
-
-If you wish to add different messages for different rules, you can simply provide multiple `#[Validate]` attributes:
+Jika Anda ingin menambahkan pesan yang berbeda untuk aturan yang berbeda, Anda cukup memberikan beberapa atribut `#[Validate]`:
 
 ```php
-#[Validate('required', message: 'Please provide a post title')]
-#[Validate('min:3', message: 'This title is too short')]
+#[Validate('required', message: 'Mohon masukkan judul postingan')]
+#[Validate('min:3', message: 'Judul ini terlalu pendek')]
 public $title;
+
 ```
 
-### Opting out of localization
+### Keluar dari lokalisasi (Localization)
 
-By default, Livewire rule messages and attributes are localized using Laravel's translate helper: `trans()`.
+Secara default, pesan aturan dan atribut Livewire dilokalisasi menggunakan pembantu terjemahan Laravel: `trans()`.
 
-You can opt-out of localization by passing the `translate: false` parameter to the `#[Validate]` attribute:
+Anda dapat memilih untuk tidak menggunakan lokalisasi dengan meneruskan parameter `translate: false` ke atribut `#[Validate]`:
 
 ```php
 #[Validate('required', message: 'Please provide a post title', translate: false)]
 public $title;
+
 ```
 
-### Custom key
+### Key kustom
 
-When applying validation rules directly to a property using the `#[Validate]` attribute, Livewire assumes the validation key should be the name of the property itself. However, there are times when you may want to customize the validation key.
+Saat menerapkan aturan validasi langsung ke properti menggunakan atribut `#[Validate]`, Livewire berasumsi bahwa *validation key* haruslah nama properti itu sendiri. Namun, terkadang Anda mungkin ingin menyesuaikan *validation key* tersebut.
 
-For example, you might want to provide separate validation rules for an array property and its children. In this case, instead of passing a validation rule as the first argument to the `#[Validate]` attribute, you can pass an array of key-value pairs instead:
+Contohnya, Anda mungkin ingin memberikan aturan validasi terpisah untuk properti array dan elemen-elemen di dalamnya. Dalam kasus ini, alih-alih meneruskan aturan validasi sebagai argumen pertama ke atribut `#[Validate]`, Anda dapat meneruskan array pasangan *key-value*:
 
 ```php
 #[Validate([
@@ -182,15 +164,14 @@ For example, you might want to provide separate validation rules for an array pr
     ],
 ])]
 public $todos = [];
-```
 
-Now, when a user updates `$todos`, or the `validate()` method is called, both of these validation rules will be applied.
+```
 
 ## Form objects
 
-As more properties and validation rules are added to a Livewire component, it can begin to feel too crowded. To alleviate this pain and also provide a helpful abstraction for code reuse, you can use Livewire's *Form Objects* to store your properties and validation rules.
+Seiring bertambahnya properti dan aturan validasi dalam sebuah komponen Livewire, komponen tersebut bisa mulai terasa terlalu penuh. Untuk meringankan hal ini dan menyediakan abstraksi yang membantu penggunaan kembali kode, Anda dapat menggunakan *Form Objects* Livewire untuk menyimpan properti dan aturan validasi Anda.
 
-Below is the same `CreatePost` example, but now the properties and rules have been extracted to a dedicated form object named `PostForm`:
+Di bawah ini adalah contoh `CreatePost` yang sama, tetapi sekarang properti dan aturannya telah dipisahkan ke *form object* khusus bernama `PostForm`:
 
 ```php
 <?php
@@ -203,91 +184,66 @@ use Livewire\Form;
 class PostForm extends Form
 {
     #[Validate('required|min:3')]
-	public $title = '';
+    public $title = '';
 
     #[Validate('required|min:3')]
     public $content = '';
 }
+
 ```
 
-The `PostForm` above can now be defined as a property on the `CreatePost` component:
+`PostForm` di atas sekarang dapat didefinisikan sebagai properti pada komponen `CreatePost`:
 
 ```php
-<?php
-
-namespace App\Livewire;
-
-use App\Livewire\Forms\PostForm;
-use Livewire\Component;
-use App\Models\Post;
-
 class CreatePost extends Component
 {
     public PostForm $form;
 
     public function save()
     {
-		Post::create(
-    		$this->form->all()
-    	);
+        Post::create(
+            $this->form->all()
+        );
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
-
-    // ...
 }
+
 ```
 
-As you can see, instead of listing out each property individually, we can retrieve all the property values using the `->all()` method on the form object.
+Seperti yang Anda lihat, alih-alih mencantumkan setiap properti satu per satu, kita dapat mengambil semua nilai properti menggunakan metode `->all()` pada objek form.
 
-Also, when referencing the property names in the template, you must prepend `form.` to each instance:
+Selain itu, saat mereferensikan nama properti di template, Anda harus menambahkan awalan `form.` pada setiap instansi:
 
 ```blade
-<form wire:submit="save">
-	<input type="text" wire:model="form.title">
-    <div>@error('form.title') {{ $message }} @enderror</div>
+<input type="text" wire:model="form.title">
+<div>@error('form.title') {{ $message }} @enderror</div>
 
-	<textarea wire:model="form.content"></textarea>
-    <div>@error('form.content') {{ $message }} @enderror</div>
-
-	<button type="submit">Save</button>
-</form>
 ```
 
-When using form objects, `#[Validate]` attribute validation will be run every time a property is updated. However, if you disable this behavior by specifying `onUpdate: false` on the attribute, you can manually run a form object's validation using `$this->form->validate()`:
+Saat menggunakan *form objects*, validasi atribut `#[Validate]` akan dijalankan setiap kali properti diperbarui. Namun, jika Anda menonaktifkan perilaku ini dengan menentukan `onUpdate: false` pada atribut, Anda dapat menjalankan validasi objek form secara manual menggunakan `$this->form->validate()`.
 
-```php
-public function save()
-{
-    Post::create(
-        $this->form->validate()
-    );
-
-    return redirect()->to('/posts');
-}
-```
-
-Form objects are a useful abstraction for most larger datasets and a variety of additional features that make them even more powerful. For more information, check out the comprehensive [form object documentation](/docs/4.x/forms#extracting-a-form-object).
+*Form objects* adalah abstraksi yang berguna untuk kumpulan data yang lebih besar dan memiliki berbagai fitur tambahan yang membuatnya lebih kuat. Untuk informasi lebih lanjut, lihat [dokumentasi form object](https://www.google.com/search?q=/docs/4.x/forms%23extracting-a-form-object) yang komprehensif.
 
 ## Real-time validation
 
-Real-time validation is the term used for when you validate a user's input as they fill out a form rather than waiting for the form submission.
+*Real-time validation* adalah istilah yang digunakan ketika Anda memvalidasi input pengguna saat mereka mengisi formulir, alih-alih menunggu hingga formulir tersebut dikirimkan (*submission*).
 
-By using `#[Validate]` attributes directly on Livewire properties, any time a network request is sent to update a property's value on the server, the provided validation rules will be applied.
+Dengan menggunakan atribut `#[Validate]` langsung pada properti Livewire, setiap kali ada *network request* yang dikirim untuk memperbarui nilai properti di server, aturan validasi yang diberikan akan langsung diterapkan.
 
-This means to provide a real-time validation experience for your users on a specific input, no extra backend work is required. The only thing that is required is using `wire:model.live` or `wire:model.live.blur` to instruct Livewire to trigger network requests as the fields are filled out.
+Ini berarti untuk menyediakan pengalaman *real-time validation* kepada pengguna pada input tertentu, tidak diperlukan pekerjaan *backend* tambahan. Satu-satunya hal yang diperlukan adalah menggunakan `wire:model.live` atau `wire:model.live.blur` untuk menginstruksikan Livewire agar memicu *network request* saat kolom diisi.
 
-In the below example, `wire:model.live.blur` has been added to the text input. Now, when a user types in the field and then tabs or clicks away from the field, a network request will be triggered with the updated value and the validation rules will run:
+Pada contoh di bawah ini, `wire:model.live.blur` telah ditambahkan ke input teks. Sekarang, ketika pengguna mengetik di kolom tersebut lalu menekan tab atau mengklik ke luar kolom, *network request* akan dipicu dengan nilai terbaru dan aturan validasi akan dijalankan:
 
 ```blade
 <form wire:submit="save">
     <input type="text" wire:model.live.blur="title">
 
-    <!-- -->
-</form>
+    </form>
+
 ```
 
-If you are using a `rules()` method to declare your validation rules for a property instead of the `#[Validate]` attribute, you can still include a #[Validate] attribute with no parameters to retain the real-time validating behavior:
+Jika Anda menggunakan metode `rules()` untuk mendeklarasikan aturan validasi properti alih-alih menggunakan atribut `#[Validate]`, Anda tetap bisa menyertakan atribut `#[Validate]` tanpa parameter untuk mempertahankan perilaku *real-time validation*:
 
 ```php
 use Livewire\Attributes\Validate;
@@ -297,7 +253,7 @@ use App\Models\Post;
 class CreatePost extends Component
 {
     #[Validate] // [tl! highlight]
-	public $title = '';
+    public $title = '';
 
     public $content = '';
 
@@ -313,57 +269,62 @@ class CreatePost extends Component
     {
         $validated = $this->validate();
 
-		Post::create($validated);
+        Post::create($validated);
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
+}
+
 ```
 
-Now, in the above example, even though `#[Validate]` is empty, it will tell Livewire to run the fields validation provided by `rules()` everytime the property is updated.
+Sekarang, pada contoh di atas, meskipun `#[Validate]` kosong, ia akan memberitahu Livewire untuk menjalankan validasi kolom yang disediakan oleh `rules()` setiap kali properti diperbarui.
 
-## Customizing error messages
+## Menyesuaikan pesan kesalahan (Customizing error messages)
 
-Out-of-the-box, Laravel provides sensible validation messages like "The title field is required." if the `$title` property has the `required` rule attached to it.
+Secara bawaan, Laravel menyediakan pesan validasi yang masuk akal seperti "The title field is required." jika properti `$title` memiliki aturan `required`.
 
-However, you may need to customize the language of these error messages to better suite your application and its users.
+Namun, Anda mungkin perlu menyesuaikan bahasa dari pesan kesalahan ini agar lebih sesuai dengan aplikasi dan pengguna Anda.
 
-### Custom attribute names
+### Nama atribut kustom
 
-Sometimes the property you are validating has a name that isn't suited for displaying to users. For example, if you have a database field in your app named `dob` that stands for "Date of birth", you would want to show your users "The date of birth field is required" instead of "The dob field is required".
+Terkadang properti yang Anda validasi memiliki nama yang tidak cocok untuk ditampilkan kepada pengguna. Misalnya, jika Anda memiliki kolom database bernama `dob` yang merupakan singkatan dari "Date of birth", Anda tentu ingin menampilkan "The date of birth field is required" alih-alih "The dob field is required".
 
-Livewire allows you to specify an alternative name for a property using the `as: ` parameter:
+Livewire memungkinkan Anda menentukan nama alternatif untuk properti menggunakan parameter `as: `:
 
 ```php
 use Livewire\Attributes\Validate;
 
-#[Validate('required', as: 'date of birth')]
+#[Validate('required', as: 'tanggal lahir')]
 public $dob = '';
+
 ```
 
-Now, if the `required` validation rule fails, the error message will state "The date of birth field is required." instead of "The dob field is required.".
+Kini, jika aturan validasi `required` gagal, pesan kesalahan akan menyatakan "The tanggal lahir field is required." (atau padanannya dalam bahasa Indonesia jika lokalisasi aktif).
 
-### Custom messages
+### Pesan kustom
 
-If customizing the property name isn't enough, you can customize the entire validation message using the `message: ` parameter:
+Jika menyesuaikan nama properti saja tidak cukup, Anda dapat menyesuaikan seluruh pesan validasi menggunakan parameter `message: `:
 
 ```php
 use Livewire\Attributes\Validate;
 
-#[Validate('required', message: 'Please fill out your date of birth.')]
+#[Validate('required', message: 'Mohon isi tanggal lahir Anda.')]
 public $dob = '';
+
 ```
 
-If you have multiple rules to customize the message for, it is recommended that you use entirely separate `#[Validate]` attributes for each, like so:
+Jika Anda memiliki beberapa aturan dan ingin menyesuaikan pesan untuk masing-masing aturan, direkomendasikan untuk menggunakan atribut `#[Validate]` yang terpisah untuk setiap aturan, seperti ini:
 
 ```php
 use Livewire\Attributes\Validate;
 
-#[Validate('required', message: 'Please enter a title.')]
-#[Validate('min:5', message: 'Your title is too short.')]
+#[Validate('required', message: 'Mohon masukkan judul.')]
+#[Validate('min:5', message: 'Judul Anda terlalu pendek.')]
 public $title = '';
+
 ```
 
-If you want to use the `#[Validate]` attribute's array syntax instead, you can specify custom attributes and messages like so:
+Jika Anda lebih suka menggunakan sintaks array pada atribut `#[Validate]`, Anda dapat menentukan atribut dan pesan kustom seperti berikut:
 
 ```php
 use Livewire\Attributes\Validate;
@@ -372,22 +333,23 @@ use Livewire\Attributes\Validate;
     'titles' => 'required',
     'titles.*' => 'required|min:5',
 ], message: [
-    'required' => 'The :attribute is missing.',
-    'titles.required' => 'The :attribute are missing.',
-    'min' => 'The :attribute is too short.',
+    'required' => ':attribute tidak boleh kosong.',
+    'titles.required' => ':attribute belum ada yang diisi.',
+    'min' => ':attribute terlalu pendek.',
 ], attribute: [
-    'titles.*' => 'title',
+    'titles.*' => 'judul',
 ])]
 public $titles = [];
+
 ```
 
-## Defining a `rules()` method
+## Mendefinisikan metode `rules()`
 
-As an alternative to Livewire's `#[Validate]` attributes, you can define a method in your component called `rules()` and return a list of fields and corresponding validation rules. This can be helpful if you are trying to use run-time syntaxes that aren't supported in PHP Attributes, for example, Laravel rule objects like `Rule::password()`.
+Sebagai alternatif dari atribut `#[Validate]`, Anda dapat mendefinisikan metode di dalam komponen Anda yang disebut `rules()` dan mengembalikan daftar kolom beserta aturan validasinya. Ini sangat membantu jika Anda ingin menggunakan sintaks *run-time* yang tidak didukung dalam PHP Attributes, misalnya objek aturan Laravel seperti `Rule::password()`.
 
-These rules will then be applied when you run `$this->validate()` inside the component. You also can define the `messages()` and `validationAttributes()` functions.
+Aturan-aturan ini kemudian akan diterapkan saat Anda menjalankan `$this->validate()` di dalam komponen. Anda juga dapat mendefinisikan fungsi `messages()` dan `validationAttributes()`.
 
-Here's an example:
+Berikut contohnya:
 
 ```php
 use Livewire\Component;
@@ -396,7 +358,7 @@ use Illuminate\Validation\Rule;
 
 class CreatePost extends Component
 {
-	public $title = '';
+    public $title = '';
 
     public $content = '';
 
@@ -411,15 +373,15 @@ class CreatePost extends Component
     protected function messages() // [tl! highlight:6]
     {
         return [
-            'content.required' => 'The :attribute are missing.',
-            'content.min' => 'The :attribute is too short.',
+            'content.required' => ':attribute harus diisi.',
+            'content.min' => ':attribute terlalu pendek.',
         ];
     }
 
     protected function validationAttributes() // [tl! highlight:6]
     {
         return [
-            'content' => 'description',
+            'content' => 'deskripsi',
         ];
     }
 
@@ -427,29 +389,28 @@ class CreatePost extends Component
     {
         $this->validate();
 
-		Post::create([
+        Post::create([
             'title' => $this->title,
             'content' => $this->content,
-		]);
+        ]);
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
-
-    // ...
 }
+
 ```
 
-> [!warning] The `rules()` method doesn't validate on data updates
-> When defining rules via the `rules()` method, Livewire will ONLY use these validation rules to validate properties when you run `$this->validate()`. This is different than standard `#[Validate]` attributes which are applied every time a field is updated via something like `wire:model`. To apply these validation rules to a property every time it's updated, you can still use `#[Validate]` with no extra parameters.
+> [!warning] Metode `rules()` tidak memvalidasi saat pembaruan data
+> Saat mendefinisikan aturan melalui metode `rules()`, Livewire HANYA akan menggunakan aturan validasi ini untuk memvalidasi properti saat Anda menjalankan `$this->validate()`. Ini berbeda dengan atribut `#[Validate]` standar yang diterapkan setiap kali sebuah kolom diperbarui melalui sesuatu seperti `wire:model`. Untuk menerapkan aturan validasi ini ke properti setiap kali diperbarui, Anda tetap bisa menggunakan `#[Validate]` tanpa parameter tambahan.
 
-> [!warning] Don't conflict with Livewire's mechanisms
-> While using Livewire's validation utilities, your component should **not** have properties or methods named `rules`, `messages`, `validationAttributes` or `validationCustomValues`, unless you're customizing the validation process. Otherwise, those will conflict with Livewire's mechanisms.
+> [!warning] Jangan berkonflik dengan mekanisme Livewire
+> Saat menggunakan utilitas validasi Livewire, komponen Anda **tidak boleh** memiliki properti atau metode bernama `rules`, `messages`, `validationAttributes`, atau `validationCustomValues`, kecuali Anda sedang menyesuaikan proses validasi tersebut. Jika tidak, nama-nama tersebut akan berkonflik dengan mekanisme internal Livewire.
 
-## Using Laravel Rule objects
+## Menggunakan objek Laravel Rule
 
-Laravel `Rule` objects are an extremely powerful way to add advanced validation behavior to your forms.
+Objek `Rule` Laravel adalah cara yang sangat ampuh untuk menambahkan perilaku validasi tingkat lanjut ke formulir Anda.
 
-Here is an example of using Rule objects in conjunction with Livewire's `rules()` method to achieve more sophisticated validation:
+Berikut adalah contoh penggunaan objek `Rule` bersama dengan metode `rules()` Livewire untuk mencapai validasi yang lebih canggih:
 
 ```php
 <?php
@@ -493,31 +454,30 @@ class UpdatePost extends Form
 
         $this->reset();
     }
-
-    // ...
 }
+
 ```
 
-## Manually controlling validation errors
+## Mengontrol validation errors secara manual
 
-Livewire's validation utilities should handle the most common validation scenarios; however, there are times when you may want full control over the validation messages in your component.
+Utilitas validasi Livewire seharusnya sudah menangani skenario validasi yang paling umum; namun, ada kalanya Anda mungkin ingin kontrol penuh atas pesan validasi di dalam **component** Anda.
 
-Below are all the available methods for manipulating the validation errors in your Livewire component:
+Berikut adalah semua metode yang tersedia untuk memanipulasi validation errors di dalam **component** Livewire Anda:
 
-Method | Description
---- | ---
-`$this->addError([key], [message])` | Manually add a validation message to the error bag
-`$this->resetValidation([?key])` | Reset the validation errors for the provided key, or reset all errors if no key is supplied
-`$this->getErrorBag()` | Retrieve the underlying Laravel error bag used in the Livewire component
+| Metode | Deskripsi |
+| --- | --- |
+| `$this->addError([key], [message])` | Menambahkan pesan validasi secara manual ke dalam **error bag** |
+| `$this->resetValidation([?key])` | Mereset validation errors untuk **key** yang diberikan, atau mereset semua **errors** jika tidak ada **key** yang disertakan |
+| `$this->getErrorBag()` | Mengambil **Laravel error bag** dasar yang digunakan di dalam **component** Livewire |
 
-> [!info] Using `$this->addError()` with Form Objects
-> When manually adding errors using `$this->addError` inside of a form object the key will automatically be prefixed with the name of the property the form is assigned to in the parent component. For example, if in your Component you assign the form to a property called `$data`, key will become `data.key`.
+> [!info] Menggunakan `$this->addError()` dengan Form Objects
+> Saat menambahkan **errors** secara manual menggunakan `$this->addError` di dalam sebuah **form object**, **key** akan secara otomatis diberi awalan (*prefix*) nama properti tempat **form** tersebut ditetapkan pada **parent component**. Contohnya, jika di dalam **Component** Anda menetapkan **form** ke properti bernama `$data`, maka **key** akan menjadi `data.key`.
 
-## Accessing the validator instance
+## Mengakses instance validator
 
-Sometimes you may want to access the Validator instance that Livewire uses internally in the `validate()` method. This is possible using the `withValidator` method. The closure you provide receives the fully constructed validator as an argument, allowing you to call any of its methods before the validation rules are actually evaluated.
+Terkadang Anda mungkin ingin mengakses **instance Validator** yang digunakan Livewire secara internal di dalam metode `validate()`. Hal ini memungkinkan dengan menggunakan metode `withValidator`. **Closure** yang Anda berikan menerima **validator** yang telah dikonstruksi sepenuhnya sebagai argumen, memungkinkan Anda memanggil metode apa pun sebelum aturan validasi benar-benar dievaluasi.
 
-Below is an example of intercepting Livewire's internal validator to manually check a condition and add an additional validation message:
+Berikut adalah contoh pencegatan (**intercepting**) **validator** internal Livewire untuk memeriksa kondisi secara manual dan menambahkan pesan validasi tambahan:
 
 ```php
 use Livewire\Attributes\Validate;
@@ -527,7 +487,7 @@ use App\Models\Post;
 class CreatePost extends Component
 {
     #[Validate('required|min:3')]
-	public $title = '';
+    public $title = '';
 
     #[Validate('required|min:3')]
     public $content = '';
@@ -537,7 +497,7 @@ class CreatePost extends Component
         $this->withValidator(function ($validator) {
             $validator->after(function ($validator) {
                 if (str($this->title)->startsWith('"')) {
-                    $validator->errors()->add('title', 'Titles cannot start with quotations');
+                    $validator->errors()->add('title', 'Judul tidak boleh diawali dengan tanda kutip');
                 }
             });
         });
@@ -545,20 +505,21 @@ class CreatePost extends Component
 
     public function save()
     {
-		Post::create($this->all());
+        Post::create($this->all());
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
 
     // ...
 }
+
 ```
 
-## Using custom validators
+## Menggunakan custom validators
 
-If you wish to use your own validation system in Livewire, that isn't a problem. Livewire will catch any `ValidationException` exceptions thrown inside of components and provide the errors to the view just as if you were using Livewire's own `validate()` method.
+Jika Anda ingin menggunakan sistem validasi Anda sendiri di Livewire, itu tidak masalah. Livewire akan menangkap setiap pengecualian `ValidationException` yang dilempar di dalam **components** dan menyediakan **errors** ke dalam **view** sama seperti jika Anda menggunakan metode `validate()` milik Livewire sendiri.
 
-Below is an example of the `CreatePost` component, but instead of using Livewire's validation features, a completely custom validator is being created and applied to the component properties:
+Berikut adalah contoh **component** `CreatePost`, tetapi alih-alih menggunakan fitur validasi Livewire, sebuah **validator** yang benar-benar kustom dibuat dan diterapkan pada properti **component**:
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -567,37 +528,38 @@ use App\Models\Post;
 
 class CreatePost extends Component
 {
-	public $title = '';
+    public $title = '';
 
     public $content = '';
 
     public function save()
     {
         $validated = Validator::make(
-            // Data to validate...
+            // Data untuk divalidasi...
             ['title' => $this->title, 'content' => $this->content],
 
-            // Validation rules to apply...
+            // Aturan validasi yang diterapkan...
             ['title' => 'required|min:3', 'content' => 'required|min:3'],
 
-            // Custom validation messages...
-            ['required' => 'The :attribute field is required'],
+            // Pesan validasi kustom...
+            ['required' => 'Isian :attribute wajib diisi'],
          )->validate();
 
-		Post::create($validated);
+        Post::create($validated);
 
-		return redirect()->to('/posts');
+        return redirect()->to('/posts');
     }
 
     // ...
 }
+
 ```
 
 ## Testing validation
 
-Livewire provides useful testing utilities for validation scenarios, such as the `assertHasErrors()` method.
+Livewire menyediakan utilitas pengujian (**testing utilities**) yang berguna untuk skenario validasi, seperti metode `assertHasErrors()`.
 
-Below is a basic test case that ensures validation errors are thrown if no input is set for the `title` property:
+Berikut adalah kasus uji (*test case*) dasar yang memastikan validation errors muncul jika tidak ada input yang diatur untuk properti `title`:
 
 ```php
 <?php
@@ -618,9 +580,10 @@ class CreatePostTest extends TestCase
             ->assertHasErrors('title');
     }
 }
+
 ```
 
-In addition to testing the presence of errors, `assertHasErrors` allows you to also narrow down the assertion to specific rules by passing the rules to assert against as the second argument to the method:
+Selain menguji keberadaan **errors**, `assertHasErrors` memungkinkan Anda untuk mempersempit asersi ke aturan tertentu dengan meneruskan aturan yang ingin ditegaskan sebagai argumen kedua:
 
 ```php
 public function test_cant_create_post_with_title_shorter_than_3_characters()
@@ -631,9 +594,10 @@ public function test_cant_create_post_with_title_shorter_than_3_characters()
         ->call('save')
         ->assertHasErrors(['title' => ['min:3']]);
 }
+
 ```
 
-You can also assert the presence of validation errors for multiple properties at the same time:
+Anda juga dapat menegaskan keberadaan validation errors untuk beberapa properti secara bersamaan:
 
 ```php
 public function test_cant_create_post_without_title_and_content()
@@ -642,13 +606,14 @@ public function test_cant_create_post_without_title_and_content()
         ->call('save')
         ->assertHasErrors(['title', 'content']);
 }
+
 ```
 
-For more information on other testing utilities provided by Livewire, check out the [testing documentation](/docs/4.x/testing).
+Untuk informasi lebih lanjut tentang utilitas pengujian lainnya yang disediakan oleh Livewire, silakan pelajari [dokumentasi testing](https://www.google.com/search?q=/docs/4.x/testing).
 
-## Accessing errors in JavaScript
+## Mengakses errors di JavaScript
 
-Livewire provides a `$errors` magic property for client-side access to validation errors:
+Livewire menyediakan **magic property** `$errors` untuk akses **validation errors** di sisi klien (*client-side*):
 
 ```blade
 <form wire:submit="save">
@@ -660,28 +625,31 @@ Livewire provides a `$errors` magic property for client-side access to validatio
 
     <button type="submit">Save</button>
 </form>
+
 ```
 
-### Available methods
+### Metode yang tersedia
 
-- `$errors.has('field')` - Check if a field has errors
-- `$errors.first('field')` - Get the first error message for a field
-- `$errors.get('field')` - Get all error messages for a field
-- `$errors.all()` - Get all errors for all fields
-- `$errors.clear()` - Clear all errors
-- `$errors.clear('field')` - Clear errors for a specific field
+* `$errors.has('field')` - Memeriksa apakah suatu kolom memiliki **errors**
+* `$errors.first('field')` - Mendapatkan pesan **error** pertama untuk suatu kolom
+* `$errors.get('field')` - Mendapatkan semua pesan **error** untuk suatu kolom
+* `$errors.all()` - Mendapatkan semua **errors** untuk semua kolom
+* `$errors.clear()` - Menghapus semua **errors**
+* `$errors.clear('field')` - Menghapus **errors** untuk kolom tertentu
 
-When using Alpine.js, access `$errors` through `$wire.$errors`.
+Saat menggunakan Alpine.js, akses `$errors` melalui `$wire.$errors`.
 
-## Deprecated `[#Rule]` attribute
+## Atribut `#[Rule]` yang sudah usang (Deprecated)
 
-When Livewire v3 first launched, it used the term "Rule" instead of "Validate" for it's validation attributes (`#[Rule]`).
+Saat Livewire v3 pertama kali diluncurkan, ia menggunakan istilah "Rule" alih-alih "Validate" untuk atribut validasinya (`#[Rule]`).
 
-Because of naming conflicts with Laravel rule objects, this has since been changed to `#[Validate]`. Both are supported in Livewire v3, however it is recommended that you change all occurrences of `#[Rule]` with `#[Validate]` to stay current.
+Karena konflik penamaan dengan **Laravel rule objects**, istilah ini telah diubah menjadi `#[Validate]`. Keduanya masih didukung di Livewire v3, namun sangat direkomendasikan agar Anda mengubah semua penggunaan `#[Rule]` menjadi `#[Validate]` agar tetap mutakhir.
+
+---
 
 ## See also
 
-- **[Forms](/docs/4.x/forms)** — Validate form inputs with real-time feedback
-- **[Properties](/docs/4.x/properties)** — Validate property values before persisting
-- **[Validate Attribute](/docs/4.x/attribute-validate)** — Use #[Validate] for property validation
-- **[Actions](/docs/4.x/actions)** — Validate data in action methods
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Validasi input form dengan umpan balik *real-time*
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Validasi nilai properti sebelum disimpan
+* **[Validate Attribute](https://www.google.com/search?q=/docs/4.x/attribute-validate)** — Menggunakan `#[Validate]` untuk validasi properti
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Validasi data di dalam metode **action**
