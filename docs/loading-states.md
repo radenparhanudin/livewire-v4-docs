@@ -1,59 +1,61 @@
+Saat pengguna berinteraksi dengan **components** Livewire Anda, memberikan umpan balik visual selama **network requests** sangat penting untuk pengalaman pengguna yang baik. Livewire secara otomatis menambahkan atribut `data-loading` ke elemen apa pun yang memicu **network request**, sehingga memudahkan Anda untuk mengatur gaya **loading states**.
 
-When a user interacts with your Livewire components, providing visual feedback during network requests is essential for a good user experience. Livewire automatically adds a `data-loading` attribute to any element that triggers a network request, making it easy to style loading states.
-
-> [!tip] Prefer data-loading over wire:loading
-> Livewire also provides the [`wire:loading`](/docs/4.x/wire-loading) directive for toggling elements during requests. While `wire:loading` is simpler for basic show/hide scenarios, it has more limitations (requiring `wire:target` for specificity, doesn't work well with events across components, etc.). For most use cases, you should prefer using `data-loading` selectors as demonstrated in this guide.
+> [!tip] Lebih baik menggunakan data-loading daripada wire:loading
+> Livewire juga menyediakan **directive** [`wire:loading`](https://www.google.com/search?q=/docs/4.x/wire-loading) untuk beralih elemen selama permintaan. Meskipun `wire:loading` lebih sederhana untuk skenario muncul/sembunyi dasar, ia memiliki lebih banyak batasan (memerlukan `wire:target` untuk spesifisitas, tidak bekerja dengan baik dengan **events** lintas **components**, dll.). Untuk sebagian besar kasus penggunaan, Anda sebaiknya lebih memilih menggunakan **selectors** `data-loading` seperti yang ditunjukkan dalam panduan ini.
 
 ## Basic usage
 
-Livewire automatically adds a `data-loading` attribute to any element that triggers a network request. This allows you to style loading states directly with CSS or Tailwind without using `wire:loading` directives.
+Livewire secara otomatis menambahkan atribut `data-loading` ke elemen apa pun yang memicu **network request**. Ini memungkinkan Anda untuk mengatur gaya **loading states** secara langsung dengan CSS atau Tailwind tanpa menggunakan **directives** `wire:loading`.
 
-Here's a simple example using a button with `wire:click`:
+Berikut adalah contoh sederhana menggunakan tombol dengan `wire:click`:
 
 ```blade
 <button wire:click="save" class="data-loading:opacity-50">
     Save Changes
 </button>
+
 ```
 
-When the button is clicked and the request is in-flight, it will automatically become semi-transparent thanks to the `data-loading` attribute being present on the element.
+Saat tombol diklik dan permintaan sedang berjalan, tombol tersebut akan otomatis menjadi semi-transparan berkat kehadiran atribut `data-loading` pada elemen tersebut.
 
 ## How it works
 
-The `data-loading` attribute is automatically added to elements that trigger network requests, including:
+Atribut `data-loading` secara otomatis ditambahkan ke elemen yang memicu **network requests**, termasuk:
 
-- Actions: `wire:click="save"`
-- Form submissions: `wire:submit="create"`
-- Property updates: `wire:model.live="search"`
-- Events: `wire:click="$dispatch('refresh')"`
+* **Actions**: `wire:click="save"`
+* **Form submissions**: `wire:submit="create"`
+* **Property updates**: `wire:model.live="search"`
+* **Events**: `wire:click="$dispatch('refresh')"`
 
-Importantly, the attribute is added even when dispatching events that are handled by other components:
+Yang penting, atribut ini ditambahkan bahkan saat mengirimkan **events** yang ditangani oleh **components** lain:
 
 ```blade
 <button wire:click="$dispatch('refresh-stats')">
     Refresh
 </button>
+
 ```
 
-Even though the event is picked up by a different component, the button that dispatched the event will still receive the `data-loading` attribute during the network request.
+Meskipun **event** tersebut diambil oleh **component** yang berbeda, tombol yang mengirimkan **event** tersebut akan tetap menerima atribut `data-loading` selama **network request** berlangsung.
 
 ## Styling with Tailwind
 
-Tailwind v4 and above provides powerful selectors for working with the `data-loading` attribute.
+Tailwind v4 ke atas menyediakan **selectors** yang kuat untuk bekerja dengan atribut `data-loading`.
 
 ### Basic styling
 
-Use Tailwind's `data-loading:` variant to apply styles when an element is loading:
+Gunakan varian `data-loading:` dari Tailwind untuk menerapkan gaya saat elemen sedang memuat:
 
 ```blade
 <button wire:click="save" class="data-loading:opacity-50">
     Save
 </button>
+
 ```
 
-### Showing elements during loading
+### Menampilkan elemen selama loading
 
-To show an element only while loading is active, use the `not-data-loading:hidden` variant:
+Untuk menampilkan elemen hanya saat pemuatan aktif, gunakan varian `not-data-loading:hidden`:
 
 ```blade
 <button wire:click="save">
@@ -63,39 +65,42 @@ To show an element only while loading is active, use the `not-data-loading:hidde
 <span class="not-data-loading:hidden">
     Saving...
 </span>
+
 ```
 
-This approach is preferred over `hidden data-loading:block` because it works regardless of the element's display type (flex, inline, grid, etc.).
+Pendekatan ini lebih disukai daripada `hidden data-loading:block` karena ia bekerja tanpa mempedulikan tipe tampilan elemen tersebut (**flex, inline, grid**, dll.).
 
 ### Styling children
 
-You can style child elements when a parent has the `data-loading` attribute using the `in-data-loading:` variant:
+Anda dapat mengatur gaya elemen anak saat induknya memiliki atribut `data-loading` menggunakan varian `in-data-loading:`:
 
 ```blade
 <button wire:click="save">
     <span class="in-data-loading:hidden">Save</span>
     <span class="not-in-data-loading:hidden">Saving...</span>
 </button>
+
 ```
 
-> [!warning] The in-data-loading variant applies to all ancestors
-> The `in-data-loading:` variant will trigger if **any** ancestor element (no matter how far up the tree) has the `data-loading` attribute. This can lead to unexpected behavior if you have nested loading states.
+> [!warning] Varian in-data-loading berlaku untuk semua leluhur
+> Varian `in-data-loading:` akan terpicu jika **leluhur** elemen mana pun (tidak peduli seberapa jauh di atas pohon DOM) memiliki atribut `data-loading`. Ini dapat menyebabkan perilaku yang tidak terduga jika Anda memiliki **loading states** yang bersarang.
 
 ### Styling parents
 
-Style parent elements when they contain a child with `data-loading` using the `has-data-loading:` variant:
+Atur gaya elemen induk saat mereka berisi anak dengan `data-loading` menggunakan varian `has-data-loading:`:
 
 ```blade
 <div class="has-data-loading:opacity-50">
     <button wire:click="save">Save</button>
 </div>
+
 ```
 
-When the button is clicked, the entire parent div will become semi-transparent.
+Saat tombol diklik, seluruh `div` induk akan menjadi semi-transparan.
 
 ### Styling siblings
 
-You can style sibling elements using Tailwind's `peer` utility with the `peer-data-loading:` variant:
+Anda dapat mengatur gaya elemen saudara (**siblings**) menggunakan utilitas `peer` Tailwind dengan varian `peer-data-loading:`:
 
 ```blade
 <div>
@@ -107,48 +112,45 @@ You can style sibling elements using Tailwind's `peer` utility with the `peer-da
         Saving...
     </span>
 </div>
+
 ```
 
 ### Complex selectors
 
-For more advanced styling needs, you can use arbitrary variants to target specific elements:
+Untuk kebutuhan gaya yang lebih tingkat lanjut, Anda dapat menggunakan varian arbitrer untuk menargetkan elemen tertentu:
 
 ```blade
-<!-- Style all direct children when loading -->
 <div class="[&[data-loading]>*]:opacity-50" wire:click="save">
     <span>Child 1</span>
     <span>Child 2</span>
 </div>
 
-<!-- Style specific descendant elements -->
 <button class="[&[data-loading]_.icon]:animate-spin" wire:click="save">
-    <svg class="icon"><!-- spinner --></svg>
+    <svg class="icon"></svg>
     Save
 </button>
+
 ```
 
-Learn more about Tailwind's state variants and arbitrary selectors in the [Tailwind CSS documentation](https://tailwindcss.com/docs/hover-focus-and-other-states).
+Pelajari lebih lanjut tentang varian **state** Tailwind dan **arbitrary selectors** di [dokumentasi Tailwind CSS](https://tailwindcss.com/docs/hover-focus-and-other-states).
 
 ## Advantages over wire:loading
 
-The `data-loading` attribute approach offers several advantages over the traditional `wire:loading` directive:
+Pendekatan atribut `data-loading` menawarkan beberapa keunggulan dibandingkan **directive** `wire:loading` tradisional:
 
-1. **No targeting needed**: Unlike `wire:loading` which often requires `wire:target` to specify which action to respond to, the `data-loading` attribute is automatically scoped to the element that triggered the request.
-
-2. **More elegant styling**: Tailwind's variant system provides a cleaner, more declarative way to style loading states directly in your markup.
-
-3. **Works with events**: The attribute is added even when dispatching events that are handled by other components, something that was previously difficult to achieve with `wire:loading`.
-
-4. **Better composition**: Styling with Tailwind variants composes better with other utility classes and states.
+1. **Tidak perlu targeting**: Tidak seperti `wire:loading` yang sering kali memerlukan `wire:target` untuk menentukan **action** mana yang harus direspon, atribut `data-loading` secara otomatis dibatasi lingkupnya pada elemen yang memicu permintaan.
+2. **Gaya yang lebih elegan**: Sistem varian Tailwind menyediakan cara yang lebih bersih dan deklaratif untuk mengatur gaya **loading states** secara langsung di dalam **markup** Anda.
+3. **Bekerja dengan events**: Atribut ini ditambahkan bahkan saat mengirimkan **events** yang ditangani oleh **components** lain, sesuatu yang sebelumnya sulit dicapai dengan `wire:loading`.
+4. **Komposisi yang lebih baik**: Pengaturan gaya dengan varian Tailwind berpadu lebih baik dengan **utility classes** dan **states** lainnya.
 
 ## Tailwind 4 requirement
 
-> [!info] Tailwind v4+ required for advanced variants
-> The `in-data-loading:`, `has-data-loading:`, `peer-data-loading:`, and `not-data-loading:` variants require Tailwind CSS v4 or above. If you're using an earlier version of Tailwind, you can still target the `data-loading` attribute using the `data-loading:` syntax or standard CSS.
+> [!info] Tailwind v4+ diperlukan untuk varian tingkat lanjut
+> Varian `in-data-loading:`, `has-data-loading:`, `peer-data-loading:`, dan `not-data-loading:` memerlukan Tailwind CSS v4 atau di atasnya. Jika Anda menggunakan versi Tailwind yang lebih lama, Anda tetap dapat menargetkan atribut `data-loading` menggunakan sintaks `data-loading:` atau CSS standar.
 
 ## Using with plain CSS
 
-If you're not using Tailwind, you can target the `data-loading` attribute with standard CSS:
+Jika Anda tidak menggunakan Tailwind, Anda dapat menargetkan atribut `data-loading` dengan CSS standar:
 
 ```css
 [data-loading] {
@@ -158,9 +160,10 @@ If you're not using Tailwind, you can target the `data-loading` attribute with s
 button[data-loading] {
     background-color: #ccc;
 }
+
 ```
 
-You can also use CSS to style child elements:
+Anda juga dapat menggunakan CSS untuk mengatur gaya elemen anak:
 
 ```css
 [data-loading] .loading-text {
@@ -170,11 +173,14 @@ You can also use CSS to style child elements:
 [data-loading] .default-text {
     display: none;
 }
+
 ```
+
+---
 
 ## See also
 
-- **[wire:loading](/docs/4.x/wire-loading)** — Show and hide elements during requests
-- **[Actions](/docs/4.x/actions)** — Display feedback during action processing
-- **[Forms](/docs/4.x/forms)** — Indicate form submission progress
-- **[Lazy Loading](/docs/4.x/lazy)** — Show loading states for lazy components
+* **[wire:loading](https://www.google.com/search?q=/docs/4.x/wire-loading)** — Menampilkan dan menyembunyikan elemen selama permintaan
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Menampilkan umpan balik selama pemrosesan **action**
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Menunjukkan progres pengiriman formulir
+* **[Lazy Loading](https://www.google.com/search?q=/docs/4.x/lazy)** — Menampilkan **loading states** untuk **lazy components**
