@@ -1,15 +1,15 @@
-Computed properties are a way to create "derived" properties in Livewire. Like accessors on an Eloquent model, computed properties allow you to access values and memoize them for future access during the request.
+**Computed properties** adalah cara untuk membuat properti "turunan" (*derived*) di Livewire. Seperti *accessors* pada model Eloquent, **computed properties** memungkinkan Anda mengakses nilai dan melakukan *memoize* (penyimpanan sementara) terhadap nilai tersebut untuk akses di masa mendatang selama satu **request**.
 
-Computed properties are particularly useful in combination with component's public properties.
+**Computed properties** sangat berguna jika dikombinasikan dengan properti publik **component**.
 
-## Basic usage
+## Penggunaan dasar
 
-To create a computed property, you can add the `#[Computed]` attribute above any method in your Livewire component. Once the attribute has been added to the method, you can access it like any other property.
+Untuk membuat **computed property**, Anda dapat menambahkan atribut `#[Computed]` di atas metode apa pun dalam **component** Livewire Anda. Setelah atribut ditambahkan ke metode tersebut, Anda dapat mengaksesnya seperti properti lainnya.
 
-> [!warning] Make sure you import attribute classes
-> Make sure you import any attribute classes. For example, the below `#[Computed]` attribute requires the following import `use Livewire\Attributes\Computed;`.
+> [!warning] Pastikan Anda mengimpor class attribute
+> Pastikan Anda mengimpor setiap class **attribute**. Sebagai contoh, atribut `#[Computed]` di bawah ini memerlukan impor berikut: `use Livewire\Attributes\Computed;`.
 
-For example, here's a `show-user` component that uses a computed property named `user()` to access a `User` Eloquent model based on a property named `$userId`:
+Sebagai contoh, berikut adalah **component** `show-user` yang menggunakan **computed property** bernama `user()` untuk mengakses model Eloquent `User` berdasarkan properti bernama `$userId`:
 
 ```php
 <?php // resources/views/components/⚡show-user.blade.php
@@ -33,6 +33,7 @@ new class extends Component {
         Auth::user()->follow($this->user);
     }
 };
+
 ```
 
 ```blade
@@ -43,37 +44,39 @@ new class extends Component {
 
     <button wire:click="follow">Follow</button>
 </div>
+
 ```
 
-Because the `#[Computed]` attribute has been added to the `user()` method, the value is accessible in other methods in the component and within the Blade template.
+Karena atribut `#[Computed]` telah ditambahkan ke metode `user()`, nilainya dapat diakses di metode lain dalam **component** tersebut maupun di dalam **template** Blade.
 
-> [!info] Must use `$this` in your template
-> Unlike normal properties, computed properties aren't directly available inside your component's template. Instead, you must access them on the `$this` object. For example, a computed property named `posts()` must be accessed via `$this->posts` inside your template.
+> [!info] Harus menggunakan `$this` di template Anda
+> Berbeda dengan properti biasa, **computed properties** tidak tersedia secara langsung di dalam **template component** Anda. Sebaliknya, Anda harus mengaksesnya melalui objek `$this`. Misalnya, **computed property** bernama `posts()` harus diakses melalui `$this->posts` di dalam **template** Anda.
 
-> [!warning] Computed properties are not supported on `Livewire\Form` objects.
-> Trying to use a Computed property within a [Form](https://livewire.laravel.com/docs/forms) will result in an error when you attempt to access the property in blade using $form->property syntax.
+> [!warning] Computed properties tidak didukung pada objek `Livewire\Form`.
+> Mencoba menggunakan **Computed property** di dalam [Form](https://livewire.laravel.com/docs/forms) akan menyebabkan error saat Anda mencoba mengakses properti tersebut di Blade menggunakan sintaks `$form->property`.
 
-## Performance advantage
+## Keunggulan performa
 
-You may be asking yourself: why use computed properties at all? Why not just call the method directly?
+Anda mungkin bertanya-tanya: mengapa harus menggunakan **computed properties**? Mengapa tidak memanggil metodenya secara langsung saja?
 
-Accessing a method as a computed property offers a performance advantage over calling a method. Internally, when a computed property is executed for the first time, Livewire memoizes the returned value. This way, any subsequent accesses in the request will return the memoized value instead of executing multiple times.
+Mengakses metode sebagai **computed property** menawarkan keunggulan performa dibandingkan memanggil metode biasa. Secara internal, saat **computed property** dijalankan untuk pertama kalinya, Livewire melakukan *memoize* terhadap nilai yang dikembalikan. Dengan cara ini, akses berikutnya dalam satu **request** yang sama akan mengembalikan nilai yang sudah disimpan tersebut alih-alih mengeksekusi metode berkali-kali.
 
-This allows you to freely access a derived value and not worry about the performance implications.
+Hal ini memungkinkan Anda bebas mengakses nilai turunan tanpa perlu khawatir tentang implikasi performanya.
 
-> [!warning] Computed properties are only memoized for a single request
-> It's a common misconception that Livewire memoizes computed properties for the entire lifespan of your Livewire component on a page. However, this isn't the case. Instead, Livewire only memoizes the result for the duration of a single component request (it does not persist between requests). This means that if your computed property method contains an expensive database query, it will be executed every time your Livewire component performs an update.
+> [!warning] Computed properties hanya di-memoize untuk satu request
+> Ada kesalahpahaman umum bahwa Livewire menyimpan (*memoize*) **computed properties** selama seluruh masa hidup **component** Livewire Anda di sebuah halaman. Namun, kenyataannya tidak demikian. Livewire hanya menyimpan hasilnya selama durasi satu **request component** saja (tidak bertahan di antara **requests**). Ini berarti jika metode **computed property** Anda berisi kueri database yang berat, kueri tersebut akan tetap dijalankan setiap kali **component** Livewire Anda melakukan pembaruan (*update*).
 
-### Clearing the memo
+### Membersihkan memo
 
-Consider the following problematic scenario:
-1) You access a computed property that depends on a certain property or database state
-2) The underlying property or database state changes
-3) The memoized value for the property becomes stale and needs to be re-computed
+Pertimbangkan skenario bermasalah berikut:
 
-To clear, or "bust", the stored memo, you can use PHP's `unset()` function.
+1. Anda mengakses **computed property** yang bergantung pada properti tertentu atau status database.
+2. Properti dasar atau status database tersebut berubah.
+3. Nilai yang tersimpan (*memoize*) untuk properti tersebut menjadi usang (*stale*) dan perlu dihitung ulang.
 
-Below is an example of an action called `createPost()` that, by creating a new post in the application, makes the `posts()` computed stale — meaning the computed property `posts()` needs to be re-computed to include the newly added post:
+Untuk membersihkan, atau melakukan "bust" pada memo yang tersimpan, Anda dapat menggunakan fungsi `unset()` bawaan PHP.
+
+Di bawah ini adalah contoh sebuah **action** bernama `createPost()` yang, dengan membuat postingan baru, menyebabkan **computed** `posts()` menjadi usang — artinya **computed property** `posts()` perlu dihitung ulang untuk menyertakan postingan yang baru ditambahkan:
 
 ```php
 <?php // resources/views/components/⚡show-posts.blade.php
@@ -102,18 +105,19 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-In the above component, the computed property is memoized before a new post is created because the `createPost()` method accesses `$this->posts` before the new post is created. To ensure that `$this->posts` contains the most up-to-date contents when accessed inside the view, the memo is cleared using `unset($this->posts)`.
+Pada **component** di atas, **computed property** sudah tersimpan sebelum postingan baru dibuat karena metode `createPost()` mengakses `$this->posts` sebelum pembuatan data. Untuk memastikan bahwa `$this->posts` berisi konten terbaru saat diakses di dalam **view**, memo dibersihkan menggunakan `unset($this->posts)`.
 
-### Caching between requests
+### Caching di antara requests
 
 > [!tip] Memoization vs Caching
-> The memoization we've discussed so far only lasts for a single request. If you need values to persist across multiple requests, you need actual Laravel caching.
+> *Memoization* yang kita bahas sejauh ini hanya bertahan selama satu **request**. Jika Anda membutuhkan nilai yang tetap ada di antara beberapa **requests**, Anda memerlukan fitur **caching** Laravel yang sesungguhnya.
 
-Sometimes you would like to cache the value of a computed property for the lifespan of a Livewire component, rather than it being cleared after every request. In these cases, you can use [Laravel's caching utilities](https://laravel.com/docs/cache#retrieve-store).
+Terkadang Anda ingin menyimpan (*cache*) nilai dari **computed property** selama masa hidup sebuah **component** Livewire, alih-alih dibersihkan setiap kali **request** selesai. Dalam kasus ini, Anda dapat menggunakan [utilitas caching Laravel](https://laravel.com/docs/cache#retrieve-store).
 
-Below is an example of a computed property named `user()`, where instead of executing the Eloquent query directly, we wrap the query in `Cache::remember()` to ensure that any future requests retrieve it from Laravel's cache instead of re-executing the query:
+Berikut adalah contoh **computed property** bernama `user()`, di mana alih-alih mengeksekusi kueri Eloquent secara langsung, kita membungkus kueri tersebut dalam `Cache::remember()` untuk memastikan bahwa **requests** di masa mendatang mengambilnya dari **cache** Laravel alih-alih mengeksekusi ulang kueri:
 
 ```php
 <?php // resources/views/components/⚡show-user.blade.php
@@ -130,7 +134,7 @@ new class extends Component {
     public function user()
     {
         $key = 'user'.$this->getId();
-        $seconds = 3600; // 1 hour...
+        $seconds = 3600; // 1 jam...
 
         return Cache::remember($key, $seconds, function () {
             return User::find($this->userId);
@@ -139,11 +143,12 @@ new class extends Component {
 
     // ...
 };
+
 ```
 
-Because each unique instance of a Livewire component has a unique ID, we can use `$this->getId()` to generate a unique cache key that will only be applied to future requests for this same component instance.
+Karena setiap instansi unik dari **component** Livewire memiliki ID yang unik, kita dapat menggunakan `$this->getId()` untuk menghasilkan **cache key** unik yang hanya akan diterapkan pada **requests** mendatang untuk instansi **component** yang sama ini.
 
-But, as you may have noticed, most of this code is predictable and can easily be abstracted. Because of this, Livewire's `#[Computed]` attribute provides a helpful `persist` parameter. By applying `#[Computed(persist: true)]` to a method, you can achieve the same result without any extra code:
+Namun, seperti yang mungkin Anda perhatikan, sebagian besar kode ini dapat diprediksi dan diabstraksi dengan mudah. Oleh karena itu, atribut `#[Computed]` Livewire menyediakan parameter `persist` yang sangat membantu. Dengan menerapkan `#[Computed(persist: true)]` pada sebuah metode, Anda dapat mencapai hasil yang sama tanpa kode tambahan:
 
 ```php
 use Livewire\Attributes\Computed;
@@ -154,22 +159,24 @@ public function user()
 {
     return User::find($this->userId);
 }
+
 ```
 
-In the example above, when `$this->user` is accessed from your component, it will continue to be cached for the duration of the Livewire component on the page. This means the actual Eloquent query will only be executed once.
+Pada contoh di atas, saat `$this->user` diakses dari **component** Anda, nilainya akan terus disimpan dalam **cache** selama durasi **component** Livewire tersebut ada di halaman. Ini berarti kueri Eloquent yang sebenarnya hanya akan dijalankan satu kali saja.
 
-Livewire caches persisted values for 3600 seconds (one hour). You can override this default by passing an additional `seconds` parameter to the `#[Computed]` attribute:
+Livewire menyimpan nilai yang di-*persist* selama 3600 detik (satu jam). Anda dapat mengubah nilai default ini dengan meneruskan parameter `seconds` tambahan ke atribut `#[Computed]`:
 
 ```php
 #[Computed(persist: true, seconds: 7200)]
+
 ```
 
-> [!tip] Calling `unset()` will clear both memo and cache
-> As previously discussed, you can clear a computed property's memo using PHP's `unset()` method. This also applies to computed properties using the `persist: true` parameter. When calling `unset()` on a persisted computed property, Livewire will clear not only the in-request memo, but also the underlying cached value in Laravel's cache.
+> [!tip] Memanggil `unset()` akan membersihkan memo dan cache
+> Seperti yang dibahas sebelumnya, Anda dapat menghapus memo **computed property** menggunakan metode `unset()` PHP. Ini juga berlaku untuk **computed properties** yang menggunakan parameter `persist: true`. Saat memanggil `unset()` pada properti tersebut, Livewire tidak hanya akan menghapus memo dalam **request**, tetapi juga menghapus nilai terkait di dalam **cache** Laravel.
 
-## Caching across all components
+## Caching di semua components
 
-Instead of caching the value of a computed property for the duration of a single component's lifecycle, you can cache the value of a computed across all components in your application using the `cache: true` parameter provided by the `#[Computed]` attribute:
+Alih-alih menyimpan nilai **computed property** hanya selama siklus hidup satu **component** saja, Anda dapat menyimpan nilai tersebut di seluruh **components** dalam aplikasi Anda menggunakan parameter `cache: true` yang disediakan oleh atribut `#[Computed]`:
 
 ```php
 use Livewire\Attributes\Computed;
@@ -180,11 +187,12 @@ public function posts()
 {
     return Post::all();
 }
+
 ```
 
-In the above example, until the cache expires or is busted, every instance of this component in your application will share the same cached value for `$this->posts`.
+Pada contoh di atas, sampai **cache** kedaluwarsa atau dibersihkan, setiap instansi dari **component** ini di seluruh aplikasi Anda akan berbagi nilai **cache** yang sama untuk `$this->posts`.
 
-If you need to manually clear the cache for a computed property, you may set a custom cache key using the `key` parameter:
+Jika Anda perlu membersihkan **cache** secara manual untuk sebuah **computed property**, Anda dapat menetapkan **cache key** kustom menggunakan parameter `key`:
 
 ```php
 use Livewire\Attributes\Computed;
@@ -195,13 +203,14 @@ public function posts()
 {
     return Post::all();
 }
+
 ```
 
-## When to use computed properties?
+## Kapan sebaiknya menggunakan computed properties?
 
-In addition to offering performance advantages, there are a few other scenarios where computed properties are helpful.
+Selain menawarkan keuntungan performa, ada beberapa skenario lain di mana **computed properties** sangat membantu.
 
-Specifically, when passing data into your component's Blade template, there are a few occasions where a computed property is a better alternative. Below is an example of a simple component's `render()` method passing a collection of `posts` to a Blade template:
+Secara khusus, saat meneruskan data ke dalam **template** Blade **component** Anda, ada beberapa kondisi di mana **computed property** menjadi alternatif yang lebih baik. Di bawah ini adalah contoh metode `render()` pada **component** sederhana yang meneruskan koleksi `posts` ke **template** Blade:
 
 ```php
 public function render()
@@ -210,41 +219,42 @@ public function render()
         'posts' => Post::all(),
     ]);
 }
+
 ```
 
 ```blade
 <div>
     @foreach ($posts as $post)
         <div wire:key="{{ $post->id }}">
-            <!-- ... -->
-        </div>
+            </div>
     @endforeach
 </div>
+
 ```
 
-Although this is sufficient for many use cases, here are three scenarios where a computed property would be a better alternative:
+Meskipun cara ini cukup untuk banyak kasus penggunaan, berikut adalah tiga skenario di mana **computed property** akan menjadi alternatif yang lebih baik:
 
-### Conditionally accessing values
+### Mengakses nilai secara kondisional
 
-If you are conditionally accessing a value that is computationally expensive to retrieve in your Blade template, you can reduce performance overhead using a computed property.
+Jika Anda mengakses suatu nilai secara kondisional yang proses pengambilannya memakan biaya komputasi besar di dalam **template** Blade, Anda dapat mengurangi beban performa menggunakan **computed property**.
 
-Consider the following template without a computed property:
+Pertimbangkan **template** berikut tanpa **computed property**:
 
 ```blade
 <div>
     @if (Auth::user()->can_see_posts)
         @foreach ($posts as $post)
             <div wire:key="{{ $post->id }}">
-                <!-- ... -->
-            </div>
+                </div>
         @endforeach
     @endif
 </div>
+
 ```
 
-If a user is restricted from viewing posts, the database query to retrieve the posts has already been made, yet the posts are never used in the template.
+Jika seorang pengguna dilarang melihat postingan, kueri database untuk mengambil postingan tersebut tetap dijalankan, padahal postingan tersebut tidak pernah digunakan di dalam **template**.
 
-Here's a version of the above scenario using a computed property instead:
+Berikut adalah versi dari skenario di atas menggunakan **computed property**:
 
 ```php
 use Livewire\Attributes\Computed;
@@ -260,6 +270,7 @@ public function render()
 {
     return view('livewire.show-posts');
 }
+
 ```
 
 ```blade
@@ -267,20 +278,20 @@ public function render()
     @if (Auth::user()->can_see_posts)
         @foreach ($this->posts as $post)
             <div wire:key="{{ $post->id }}">
-                <!-- ... -->
-            </div>
+                </div>
         @endforeach
     @endif
 </div>
+
 ```
 
-Now, because we are providing the posts to the template using a computed property, we only execute the database query when the data is needed.
+Sekarang, karena kita menyediakan postingan ke **template** menggunakan **computed property**, kueri database hanya akan dieksekusi saat data tersebut benar-benar dibutuhkan.
 
-### Using inline templates
+### Menggunakan inline templates
 
-Another scenario when computed properties are helpful is using [inline templates](/docs/4.x/components#inline-components) in your component.
+Skenario lain di mana **computed properties** sangat membantu adalah saat menggunakan [inline templates](https://www.google.com/search?q=/docs/4.x/components%23inline-components) pada **component** Anda.
 
-Below is an example of an inline component where, because we are returning a template string directly inside `render()`, we never have an opportunity to pass data into the view:
+Di bawah ini adalah contoh **inline component** di mana, karena kita mengembalikan string **template** secara langsung di dalam `render()`, kita tidak pernah memiliki kesempatan untuk meneruskan data ke dalam **view**:
 
 ```php
 <?php // resources/views/components/⚡show-posts.blade.php
@@ -302,24 +313,24 @@ new class extends Component {
         <div>
             @foreach ($this->posts as $post)
                 <div wire:key="{{ $post->id }}">
-                    <!-- ... -->
-                </div>
+                    </div>
             @endforeach
         </div>
         HTML;
     }
 };
+
 ```
 
-In the above example, without a computed property, we would have no way to explicitly pass data into the Blade template.
+Pada contoh di atas, tanpa **computed property**, kita tidak akan memiliki cara untuk meneruskan data secara eksplisit ke dalam **template** Blade.
 
-### Omitting the render method
+### Meniadakan metode render
 
-In Livewire, another way to cut down on boilerplate in your components is by omitting the `render()` method entirely. When omitted, Livewire will use its own `render()` method returning the corresponding Blade view by convention.
+Di Livewire, cara lain untuk mengurangi kode repetitif (*boilerplate*) pada **component** Anda adalah dengan meniadakan metode `render()` sepenuhnya. Saat ditiadakan, Livewire akan menggunakan metode `render()` miliknya sendiri yang mengembalikan **Blade view** yang sesuai berdasarkan konvensi.
 
-In these case, you obviously don't have a `render()` method from which you can pass data into a Blade view.
+Dalam kasus ini, Anda jelas tidak memiliki metode `render()` sebagai tempat untuk meneruskan data ke dalam **Blade view**.
 
-Rather than re-introducing the `render()` method into your component, you can instead provide that data to the view via computed properties:
+Daripada menghadirkan kembali metode `render()` ke dalam **component** Anda, Anda dapat menyediakan data tersebut ke **view** melalui **computed properties**:
 
 ```php
 <?php // resources/views/components/⚡show-posts.blade.php
@@ -335,43 +346,50 @@ new class extends Component {
         return Post::all();
     }
 };
+
 ```
 
 ```blade
 <div>
     @foreach ($this->posts as $post)
         <div wire:key="{{ $post->id }}">
-            <!-- ... -->
-        </div>
+            </div>
     @endforeach
 </div>
+
 ```
 
-## Alternative: Session properties
+---
 
-If you need to persist simple values across page refreshes without cross-request caching, consider using the [`#[Session]` attribute](/docs/4.x/attribute-session) instead of computed properties.
+## Alternatif: Session properties
 
-Session properties are useful when:
-* You want user-specific values to persist across page reloads (like search filters or UI preferences)
-* You don't need the value to be shareable via URL
-* The value is simple and not computationally expensive to store
+Jika Anda perlu mempertahankan nilai sederhana saat halaman dimuat ulang tanpa perlu **caching** antar-request, pertimbangkan untuk menggunakan [atribut `#[Session]](https://www.google.com/search?q=/docs/4.x/attribute-session)` alih-alih **computed properties**.
 
-For example, storing a search query in the session:
+**Session properties** berguna ketika:
+
+* Anda ingin nilai spesifik pengguna tetap ada setelah halaman dimuat ulang (seperti filter pencarian atau preferensi UI).
+* Anda tidak ingin nilai tersebut dapat dibagikan melalui URL.
+* Nilainya sederhana dan tidak memakan biaya komputasi besar untuk disimpan.
+
+Contohnya, menyimpan kueri pencarian di dalam **session**:
 
 ```php
 use Livewire\Attributes\Session;
 
 #[Session]
 public $search = '';
+
 ```
 
-This keeps the search value across page refreshes without using URL parameters or computed property caching.
+Ini menjaga nilai pencarian tetap ada saat halaman di-*refresh* tanpa menggunakan parameter URL atau **caching** pada **computed property**.
 
-[Learn more about session properties →](/docs/4.x/attribute-session)
+[Learn more about session properties →](https://www.google.com/search?q=/docs/4.x/attribute-session)
+
+---
 
 ## See also
 
-- **[Properties](/docs/4.x/properties)** — Understand basic property management
-- **[Islands](/docs/4.x/islands)** — Optimize performance with lazy computed values
-- **[Computed Attribute](/docs/4.x/attribute-computed)** — Use #[Computed] for memoization
-- **[Components](/docs/4.x/components)** — Access computed properties in views
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Pahami pengelolaan properti dasar.
+* **[Islands](https://www.google.com/search?q=/docs/4.x/islands)** — Optimalkan performa dengan nilai *lazy computed*.
+* **[Computed Attribute](https://www.google.com/search?q=/docs/4.x/attribute-computed)** — Gunakan `#[Computed]` untuk *memoization*.
+* **[Components](https://www.google.com/search?q=/docs/4.x/components)** — Akses *computed properties* di dalam *views*.
