@@ -1,9 +1,8 @@
+Fitur `wire:navigate` milik Livewire membuat navigasi halaman jauh lebih cepat, memberikan pengalaman seperti SPA (*Single Page Application*) bagi pengguna Anda.
 
-Livewire's `wire:navigate` feature makes page navigation much faster, providing an SPA-like experience for your users.
+Halaman ini adalah referensi sederhana untuk direktif `wire:navigate`. Pastikan untuk membaca [halaman tentang fitur Navigate Livewire](https://www.google.com/search?q=/docs/4.x/navigate) untuk dokumentasi yang lebih lengkap.
 
-This page is a simple reference for the `wire:navigate` directive. Be sure to read the [page on Livewire's Navigate feature](/docs/4.x/navigate) for more complete documentation.
-
-Below is a simple example of adding `wire:navigate` to links in a nav bar:
+Di bawah ini adalah contoh sederhana penambahan `wire:navigate` pada tautan di sebuah *nav bar*:
 
 ```blade
 <nav>
@@ -11,13 +10,14 @@ Below is a simple example of adding `wire:navigate` to links in a nav bar:
     <a href="/posts" wire:navigate>Posts</a>
     <a href="/users" wire:navigate>Users</a>
 </nav>
+
 ```
 
-When any of these links are clicked, Livewire will intercept the click and, instead of allowing the browser to perform a full page visit, Livewire will fetch the page in the background and swap it with the current page (resulting in much faster and smoother page navigation).
+Ketika salah satu dari tautan ini diklik, Livewire akan mencegat klik tersebut dan, alih-alih membiarkan browser melakukan kunjungan halaman penuh (*full page visit*), Livewire akan mengambil halaman tersebut di latar belakang dan menukarnya dengan halaman saat ini (menghasilkan navigasi halaman yang jauh lebih cepat dan mulus).
 
-## Styling active links with data-current
+## Styling active links dengan data-current
 
-Livewire automatically adds a `data-current` attribute to any `wire:navigate` link that matches the current page URL. This allows you to style active navigation links using CSS or Tailwind without any additional directives:
+Livewire secara otomatis menambahkan atribut `data-current` ke tautan `wire:navigate` mana pun yang cocok dengan URL halaman saat ini. Hal ini memungkinkan Anda untuk mengatur gaya tautan navigasi yang aktif menggunakan CSS atau Tailwind tanpa direktif tambahan apa pun:
 
 ```blade
 <nav>
@@ -25,36 +25,45 @@ Livewire automatically adds a `data-current` attribute to any `wire:navigate` li
     <a href="/posts" wire:navigate class="data-current:font-bold">Posts</a>
     <a href="/users" wire:navigate class="data-current:font-bold">Users</a>
 </nav>
+
 ```
 
-The `data-current` attribute is added and removed automatically as users navigate between pages. Read more about [highlighting active links in the Navigate documentation](/docs/4.x/navigate#using-the-data-current-attribute).
+Atribut `data-current` ditambahkan dan dihapus secara otomatis saat pengguna menavigasi antar halaman. Baca selengkapnya tentang [menyoroti tautan aktif di dokumentasi Navigate](https://www.google.com/search?q=/docs/4.x/navigate%23using-the-data-current-attribute).
 
-## Prefetching pages on hover
+## Prefetching halaman saat hover
 
-By adding the `.hover` modifier, Livewire will pre-fetch a page when a user hovers over a link. This way, the page will have already been downloaded from the server when the user clicks on the link.
+Dengan menambahkan **modifier** `.hover`, Livewire akan melakukan *pre-fetch* (mengambil data terlebih dahulu) sebuah halaman ketika pengguna mengarahkan kursor (*hover*) di atas tautan. Dengan cara ini, halaman sudah selesai diunduh dari server saat pengguna mengeklik tautan tersebut.
 
 ```blade
 <a href="/" wire:navigate.hover>Dashboard</a>
+
 ```
 
-## Going deeper
+---
 
-For more complete documentation on this feature, visit [Livewire's navigate documentation page](/docs/4.x/navigate).
+## Pelajari lebih dalam
+
+Untuk dokumentasi yang lebih lengkap mengenai fitur ini, kunjungi [halaman dokumentasi navigate Livewire](https://www.google.com/search?q=/docs/4.x/navigate).
+
+---
 
 ## See also
 
-- **[Navigate](/docs/4.x/navigate)** — Complete guide to SPA navigation
-- **[Pages](/docs/4.x/pages)** — Create routable page components
-- **[@persist](/docs/4.x/directive-persist)** — Persist elements during navigation
+* **[Navigate](https://www.google.com/search?q=/docs/4.x/navigate)** — Panduan lengkap navigasi SPA
+* **[Pages](https://www.google.com/search?q=/docs/4.x/pages)** — Membuat *page components* yang mendukung rute (*routable*)
+* **[@persist](https://www.google.com/search?q=/docs/4.x/directive-persist)** — Mempertahankan elemen selama navigasi berlangsung
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:navigate
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.hover` | Prefetches the page when user hovers over the link |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.hover` | Melakukan *prefetch* halaman saat pengguna melakukan *hover* di atas tautan |
