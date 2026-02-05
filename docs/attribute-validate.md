@@ -1,8 +1,8 @@
-The `#[Validate]` attribute associates validation rules with component properties, enabling automatic real-time validation and clean rule declaration.
+Atribut `#[Validate]` menghubungkan aturan validasi dengan properti komponen, memungkinkan validasi otomatis secara real-time dan deklarasi aturan yang lebih bersih.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Validate]` attribute to properties that need validation:
+Terapkan atribut `#[Validate]` pada properti yang memerlukan validasi:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -41,237 +41,136 @@ new class extends Component {
 
     <button wire:click="save">Save Post</button>
 </div>
+
 ```
 
-With `#[Validate]`, Livewire automatically validates properties on each update, providing instant feedback to users.
+Dengan `#[Validate]`, Livewire secara otomatis memvalidasi properti pada setiap pembaruan, memberikan umpan balik instan kepada pengguna.
 
-## How it works
+---
 
-When you add `#[Validate]` to a property:
+## Cara kerjanya
 
-1. **Automatic validation** - Property is validated every time it's updated
-2. **Real-time feedback** - Users see validation errors immediately
-3. **Manual validation** - You still call `$this->validate()` before saving to ensure all properties are validated
+Saat Anda menambahkan `#[Validate]` ke sebuah properti:
 
-## Real-time validation
+1. **Validasi Otomatis** - Properti divalidasi setiap kali nilainya diperbarui.
+2. **Umpan Balik Real-time** - Pengguna melihat error validasi seketika.
+3. **Validasi Manual** - Anda tetap memanggil `$this->validate()` sebelum menyimpan untuk memastikan semua properti telah tervalidasi.
 
-By default, `#[Validate]` validates properties as they're updated:
+---
+
+## Validasi Real-time
+
+Secara default, `#[Validate]` memvalidasi properti saat diperbarui:
 
 ```php
-<?php // resources/views/components/⚡registration.blade.php
+#[Validate('required|email|unique:users,email')]
+public $email = '';
 
-use Livewire\Attributes\Validate;
-use Livewire\Component;
+// Di template menggunakan wire:model.live.blur
+<input type="email" wire:model.live.blur="email">
 
-new class extends Component {
-    #[Validate('required|email|unique:users,email')]
-    public $email = '';
-
-    #[Validate('required|min:8')]
-    public $password = '';
-};
-?>
-
-<div>
-    <input type="email" wire:model.live.blur="email">
-    @error('email') <span>{{ $message }}</span> @enderror
-
-    <input type="password" wire:model.live.blur="password">
-    @error('password') <span>{{ $message }}</span> @enderror
-</div>
 ```
 
-As users fill out the form, they receive immediate validation feedback.
+Saat pengguna mengisi formulir, mereka menerima umpan balik validasi secara langsung.
 
-## Disabling auto-validation
+---
 
-To validate only when explicitly calling `$this->validate()`, use `onUpdate: false`:
+## Menonaktifkan validasi otomatis
+
+Untuk memvalidasi hanya saat memanggil `$this->validate()` secara eksplisit, gunakan `onUpdate: false`:
 
 ```php
-<?php // resources/views/components/post/⚡create.blade.php
+#[Validate('required|min:3', onUpdate: false)] // [tl! highlight]
+public $title = '';
 
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-use App\Models\Post;
-
-new class extends Component {
-    #[Validate('required|min:3', onUpdate: false)] // [tl! highlight]
-    public $title = '';
-
-    #[Validate('required|min:3', onUpdate: false)] // [tl! highlight]
-    public $content = '';
-
-    public function save()
-    {
-        $validated = $this->validate();
-        Post::create($validated);
-        return redirect('/posts');
-    }
-};
 ```
 
-Now validation only runs when `save()` is called, not on every property update.
+Kini validasi hanya berjalan saat metode simpan dipanggil, bukan pada setiap pembaruan properti.
 
-## Custom attribute names
+---
 
-Customize the field name in validation messages:
+## Nama atribut kustom
+
+Sesuaikan nama kolom dalam pesan validasi:
 
 ```php
-#[Validate('required', as: 'date of birth')] // [tl! highlight]
+#[Validate('required', as: 'tanggal lahir')] // [tl! highlight]
 public $dob;
+
 ```
 
-Error message will be "The date of birth field is required" instead of "The dob field is required".
+Pesan error akan menjadi "The tanggal lahir field is required" alih-alih "The dob field is required".
 
-## Custom validation messages
+---
 
-Override default validation messages:
+## Pesan validasi kustom
+
+Ganti pesan validasi default:
 
 ```php
-#[Validate('required', message: 'Please provide a post title')] // [tl! highlight]
+#[Validate('required', message: 'Mohon isi judul postingan')] // [tl! highlight]
 public $title;
+
 ```
 
-For multiple rules, use multiple attributes:
+Untuk banyak aturan, gunakan beberapa atribut:
 
 ```php
-#[Validate('required', message: 'Please provide a post title')]
-#[Validate('min:3', message: 'This title is too short')]
+#[Validate('required', message: 'Judul wajib diisi')]
+#[Validate('min:3', message: 'Judul ini terlalu pendek')]
 public $title;
+
 ```
 
-## Array validation
+---
 
-Validate array properties and their children:
+## Validasi Array
+
+Validasi properti array beserta isinya:
 
 ```php
-<?php // resources/views/components/⚡task-list.blade.php
+#[Validate([
+    'tasks' => 'required|array|min:1',
+    'tasks.*' => 'required|string|min:3',
+])]
+public $tasks = [];
 
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-
-new class extends Component {
-    #[Validate([
-        'tasks' => 'required|array|min:1',
-        'tasks.*' => 'required|string|min:3',
-    ])]
-    public $tasks = [];
-
-    public function addTask()
-    {
-        $this->tasks[] = '';
-    }
-};
 ```
 
-This validates both the array itself and each individual task.
+---
 
-## Limitations
+## Batasan
 
-> [!warning] Rule objects not supported
-> PHP attributes can't use Laravel's Rule objects directly. For complex rules like `Rule::exists()`, use a `rules()` method instead:
->
+> [!warning] Objek Rule tidak didukung
+> Atribut PHP tidak dapat menggunakan objek `Rule` Laravel secara langsung. Untuk aturan kompleks seperti `Rule::exists()`, gunakan metode `rules()` sebagai gantinya:
 > ```php
-> protected function rules()
-> {
->     return [
->         'email' => ['required', 'email', Rule::unique('users')->ignore($this->userId)],
->     ];
+> protected function rules() {
+>     return ['email' => ['required', Rule::unique('users')->ignore($this->userId)]];
 > }
+> 
 > ```
+> 
+> 
 
-## When to use
+---
 
-Use `#[Validate]` when:
+## Kapan harus menggunakan
 
-* Building forms with real-time validation feedback
-* Co-locating validation rules with property definitions
-* Creating simple, readable validation logic
-* Implementing inline validation for better UX
+Gunakan `#[Validate]` ketika:
 
-Use `rules()` method when:
+* Membangun formulir dengan umpan balik validasi real-time.
+* Menempatkan aturan validasi bersamaan dengan definisi properti.
+* Membuat logika validasi yang sederhana dan mudah dibaca.
 
-* You need Laravel's Rule objects
-* Rules depend on dynamic values
-* You're working with complex conditional validation
-* You prefer centralized rule definition
+Gunakan metode `rules()` ketika:
 
-## Example: Contact form
+* Anda memerlukan objek `Rule` Laravel.
+* Aturan bergantung pada nilai dinamis.
+* Anda menangani validasi kondisional yang kompleks.
 
-Here's a complete contact form with validation:
+---
 
-```php
-<?php // resources/views/pages/⚡contact.blade.php
-
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-use App\Mail\ContactMessage;
-use Illuminate\Support\Facades\Mail;
-
-new class extends Component {
-    #[Validate('required|min:2', as: 'name')]
-    public $name = '';
-
-    #[Validate('required|email')]
-    public $email = '';
-
-    #[Validate('required')]
-    public $subject = '';
-
-    #[Validate('required|min:10', as: 'message')]
-    public $message = '';
-
-    public function submit()
-    {
-        $validated = $this->validate();
-
-        Mail::to('support@example.com')->send(new ContactMessage($validated));
-
-        session()->flash('success', 'Message sent successfully!');
-
-        $this->reset();
-    }
-};
-?>
-
-<div>
-    @if (session('success'))
-        <div class="alert">{{ session('success') }}</div>
-    @endif
-
-    <form wire:submit="submit">
-        <div>
-            <input type="text" wire:model.live.blur="name" placeholder="Your name">
-            @error('name') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <input type="email" wire:model.live.blur="email" placeholder="Your email">
-            @error('email') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <input type="text" wire:model.live.blur="subject" placeholder="Subject">
-            @error('subject') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <textarea wire:model.live.blur="message" placeholder="Your message"></textarea>
-            @error('message') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <button type="submit">Send Message</button>
-    </form>
-</div>
-```
-
-Users get immediate feedback as they fill out the form, with friendly field names and helpful error messages.
-
-## Learn more
-
-For comprehensive documentation on validation, including form objects, custom rules, and testing, see the [Validation documentation](/docs/4.x/validation).
-
-## Reference
+## Referensi
 
 ```php
 #[Validate(
@@ -282,13 +181,13 @@ For comprehensive documentation on validation, including form objects, custom ru
     bool $onUpdate = true,
     bool $translate = true,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$rule` | `mixed` | `null` | The validation rule(s) to apply |
-| `$attribute` | `?string` | `null` | Custom attribute name for validation error messages |
-| `$as` | `?string` | `null` | Friendly name to display in validation error messages |
-| `$message` | `mixed` | `null` | Custom error message(s) for validation failures |
-| `$onUpdate` | `bool` | `true` | Whether to run validation when the property is updated |
-| `$translate` | `bool` | `true` | Whether to translate validation messages |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$rule` | `mixed` | `null` | Aturan validasi yang diterapkan. |
+| `$as` | `?string` | `null` | Nama "ramah" yang ditampilkan di pesan error. |
+| `$message` | `mixed` | `null` | Pesan error kustom. |
+| `$onUpdate` | `bool` | `true` | Apakah menjalankan validasi saat properti diperbarui. |
+| `$translate` | `bool` | `true` | Apakah akan menerjemahkan pesan validasi menggunakan sistem lokalisasi Laravel. |
