@@ -1,11 +1,10 @@
+`wire:text` adalah direktif yang memperbarui konten teks sebuah elemen secara dinamis berdasarkan properti atau ekspresi **component**. Berbeda dengan penggunaan sintaks `{{ }}` milik Blade, `wire:text` memperbarui konten tanpa memerlukan *network roundtrip* untuk me-*render* ulang **component**.
 
-`wire:text` is a directive that dynamically updates an element's text content based on a component property or expression. Unlike using Blade's `{{ }}` syntax, `wire:text` updates the content without requiring a network roundtrip to re-render the component.
+Jika Anda terbiasa dengan direktif `x-text` milik Alpine, keduanya pada dasarnya memiliki fungsi yang sama.
 
-If you are familiar with Alpine's `x-text` directive, the two are essentially the same.
+## Penggunaan dasar
 
-## Basic usage
-
-Here's an example of using `wire:text` to optimistically show updates to a Livewire property without waiting for a network roundtrip.
+Berikut adalah contoh penggunaan `wire:text` untuk menampilkan pembaruan properti Livewire secara optimis tanpa menunggu *network roundtrip*.
 
 ```php
 use Livewire\Component;
@@ -29,6 +28,7 @@ class ShowPost extends Component
         $this->likes = $this->post->fresh()->like_count;
     }
 }
+
 ```
 
 ```blade
@@ -37,16 +37,20 @@ class ShowPost extends Component
 
     Likes: <span wire:text="likes"></span>
 </div>
+
 ```
 
-When the button is clicked, `$wire.likes++` immediately updates the displayed count through `wire:text`, while `wire:click="like"` persists the change to the database in the background.
+Ketika tombol diklik, `$wire.likes++` segera memperbarui angka yang ditampilkan melalui `wire:text`, sementara `wire:click="like"` tetap menjalankan proses penyimpanan perubahan ke database di latar belakang.
 
-This pattern makes `wire:text` perfect for building optimistic UIs in Livewire.
+Pola ini menjadikan `wire:text` sangat cocok untuk membangun **optimistic UI** di Livewire.
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:text="expression"
+
 ```
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
