@@ -1,8 +1,8 @@
-The `#[Js]` attribute designates methods that return JavaScript code to be executed on the client-side. Methods marked with `#[Js]` can be called directly from your templates without making a server request.
+Atribut `#[Js]` menandai metode yang mengembalikan kode JavaScript untuk dieksekusi di sisi klien (*client-side*). Metode yang ditandai dengan `#[Js]` dapat dipanggil langsung dari template Anda tanpa melakukan *server request*.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Js]` attribute to methods that return JavaScript expressions:
+Terapkan atribut `#[Js]` pada metode yang mengembalikan ekspresi JavaScript:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -23,6 +23,7 @@ new class extends Component {
         JS;
     } // [tl! highlight:end]
 };
+
 ```
 
 ```blade
@@ -31,15 +32,15 @@ new class extends Component {
     <textarea wire:model="content" placeholder="Content"></textarea>
 
     <button type="submit">Save</button>
-    <button type="button" @click="$wire.resetForm()">Reset</button> <!-- [tl! highlight] -->
-</form>
+    <button type="button" @click="$wire.resetForm()">Reset</button> </form>
+
 ```
 
-When `$wire.resetForm()` is called, the JavaScript executes directly in the browser — no server round-trip occurs.
+Ketika `$wire.resetForm()` dipanggil, JavaScript akan dieksekusi langsung di browser — tidak terjadi *server round-trip*.
 
-## Executing JavaScript after server actions
+## Mengeksekusi JavaScript setelah server actions
 
-If you need to execute JavaScript **after a server action completes**, use the `js()` method instead:
+Jika Anda perlu mengeksekusi JavaScript **setelah sebuah server action selesai**, gunakan metode `js()` sebagai gantinya:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -57,13 +58,14 @@ new class extends Component {
         $this->js("alert('Post saved successfully!')"); // [tl! highlight]
     }
 };
+
 ```
 
-The `js()` method queues JavaScript to be executed when the server response arrives.
+Metode `js()` akan memasukkan JavaScript ke dalam antrean untuk dieksekusi saat respons server tiba.
 
-## Accessing $wire
+## Mengakses $wire
 
-You can access the component's `$wire` object inside JavaScript expressions:
+Anda dapat mengakses objek `$wire` milik komponen di dalam ekspresi JavaScript:
 
 ```php
 #[Js]
@@ -74,26 +76,27 @@ public function resetForm()
         $wire.content = ''
     JS;
 }
+
 ```
 
-## When to use
+## Kapan harus menggunakan
 
-Use `#[Js]` when you need to:
+Gunakan `#[Js]` saat Anda perlu:
 
-* Reset or clear form fields without server overhead
-* Trigger JavaScript animations or transitions
-* Update client-side state without re-rendering
-* Execute reusable JavaScript logic from multiple places
-* Integrate with third-party JavaScript libraries
+* Mengosongkan atau mereset bidang formulir tanpa beban server (*server overhead*)
+* Memicu animasi atau transisi JavaScript
+* Memperbarui *state* di sisi klien tanpa me-*render* ulang
+* Mengeksekusi logika JavaScript yang dapat digunakan kembali dari berbagai tempat
+* Berintegrasi dengan pustaka JavaScript pihak ketiga
 
 ## JavaScript actions vs #[Js] methods
 
-There's an important distinction:
+Ada perbedaan penting yang perlu diperhatikan:
 
-* **`#[Js]` methods** are defined in PHP and return JavaScript code. They are called via `$wire.methodName()` without making a server request.
-* **JavaScript actions** (`$js.methodName`) are defined entirely in JavaScript using `@script` blocks.
+* **`#[Js]` methods** didefinisikan di PHP dan mengembalikan kode JavaScript. Metode ini dipanggil via `$wire.methodName()` tanpa melakukan *server request*.
+* **JavaScript actions** (`$js.methodName`) didefinisikan sepenuhnya di JavaScript menggunakan blok `@script`.
 
-Both approaches execute JavaScript on the client without a server round-trip. The difference is where the JavaScript code is defined.
+Kedua pendekatan tersebut mengeksekusi JavaScript di klien tanpa *server round-trip*. Perbedaannya terletak pada di mana kode JavaScript tersebut didefinisikan.
 
 ```php
 <?php // resources/views/components/⚡example.blade.php
@@ -104,34 +107,38 @@ use Livewire\Component;
 new class extends Component {
     public $count = 0;
 
-    // JavaScript defined in PHP
+    // JavaScript didefinisikan di PHP
     #[Js]
     public function showCount()
     {
         return "alert('Count is: {$this->count}')";
     }
 };
+
 ```
 
 ```blade
 <div>
-    <button @click="$wire.showCount()">Show Count (from PHP)</button>
-    <button @click="$js.incrementLocal()">Increment Local (from JS)</button>
+    <button @click="$wire.showCount()">Show Count (dari PHP)</button>
+    <button @click="$js.incrementLocal()">Increment Local (dari JS)</button>
 </div>
 
 @script
 <script>
-    // JavaScript defined in JavaScript
+    // JavaScript didefinisikan di JavaScript
     $js('incrementLocal', () => {
-        console.log('No server request made')
+        console.log('Tidak ada server request yang dilakukan')
     })
 </script>
 @endscript
+
 ```
 
-## Learn more
+---
 
-For more information about JavaScript integration in Livewire, see:
+## Pelajari lebih lanjut
 
-* [JavaScript documentation](/docs/4.x/javascript)
-* [JavaScript actions documentation](/docs/4.x/actions#javascript-actions)
+Untuk informasi lebih lanjut tentang integrasi JavaScript di Livewire, lihat:
+
+* [Dokumentasi JavaScript](https://www.google.com/search?q=/docs/4.x/javascript)
+* [Dokumentasi JavaScript actions](https://www.google.com/search?q=/docs/4.x/actions%23javascript-actions)
