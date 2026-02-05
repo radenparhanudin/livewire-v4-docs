@@ -1,20 +1,22 @@
-
-Livewire offers a `wire:init` directive to run an action as soon as the component is rendered. This can be helpful in cases where you don't want to hold up the entire page load, but want to load some data immediately after the page load.
+Livewire menawarkan direktif `wire:init` untuk menjalankan **action** segera setelah **component** di-*render*. Hal ini sangat membantu dalam kasus di mana Anda tidak ingin menghambat pemuatan seluruh halaman, tetapi ingin memuat beberapa data segera setelah halaman dimuat.
 
 ```blade
 <div wire:init="loadPosts">
-    <!-- ... -->
-</div>
+    </div>
+
 ```
 
-The `loadPosts` action will be run immediately after the Livewire component renders on the page.
+**Action** `loadPosts` akan dijalankan segera setelah **component** Livewire di-*render* pada halaman.
 
-In most cases however, [Livewire's lazy loading feature](/docs/4.x/lazy) is preferable to using `wire:init`.
+Namun, dalam banyak kasus, [fitur lazy loading Livewire](https://www.google.com/search?q=/docs/4.x/lazy) lebih disarankan daripada menggunakan `wire:init`.
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:init="action"
+
 ```
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
