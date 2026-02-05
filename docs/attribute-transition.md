@@ -1,8 +1,8 @@
-The `#[Transition]` attribute configures view transition behavior for action methods, allowing you to set transition types or skip transitions entirely.
+Atribut `#[Transition]` mengonfigurasi perilaku **view transition** untuk metode **action**, memungkinkan Anda untuk mengatur tipe transisi atau melewatkan transisi sepenuhnya.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Transition]` attribute to action methods that should trigger specific transition animations:
+Terapkan atribut `#[Transition]` pada metode **action** yang harus memicu animasi transisi tertentu:
 
 ```php
 <?php
@@ -26,6 +26,7 @@ class Wizard extends Component
         $this->step--;
     }
 }
+
 ```
 
 ```blade
@@ -37,9 +38,10 @@ class Wizard extends Component
     <button wire:click="previous">Back</button>
     <button wire:click="next">Next</button>
 </div>
+
 ```
 
-The transition type can be targeted in CSS using the `:active-view-transition-type()` selector:
+Tipe transisi dapat ditargetkan di CSS menggunakan pemilih (*selector*) `:active-view-transition-type()`:
 
 ```css
 html:active-view-transition-type(forward) {
@@ -79,11 +81,14 @@ html:active-view-transition-type(backward) {
     from { transform: translateX(-100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
 ```
 
-## Skipping transitions
+---
 
-Use `skip: true` to disable transitions for specific actions:
+## Melewatkan transisi (Skipping transitions)
+
+Gunakan `skip: true` untuk menonaktifkan transisi pada **actions** tertentu:
 
 ```php
 #[Transition(skip: true)]
@@ -91,22 +96,27 @@ public function reset()
 {
     $this->step = 1;
 }
+
 ```
 
-This is useful for actions like "reset" or "cancel" that should instantly update without animation.
+Ini berguna untuk **actions** seperti "reset" atau "cancel" yang harus diperbarui secara instan tanpa animasi.
 
-## Parameters
+---
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `type` | `string` | The transition type name (e.g., `'forward'`, `'backward'`) |
-| `skip` | `bool` | Set to `true` to disable transitions for this action |
+## Parameter
 
-## Alternative approaches
+| Parameter | Tipe | Deskripsi |
+| --- | --- | --- |
+| `type` | `string` | Nama tipe transisi (misal: `'forward'`, `'backward'`) |
+| `skip` | `bool` | Atur ke `true` untuk menonaktifkan transisi pada action ini |
 
-### Using transition()
+---
 
-For dynamic transition types that depend on runtime logic, use the `transition()` method instead:
+## Pendekatan alternatif
+
+### Menggunakan transition()
+
+Untuk tipe transisi dinamis yang bergantung pada logika saat aplikasi berjalan (*runtime*), gunakan metode `transition()` sebagai gantinya:
 
 ```php
 public function goToStep($step)
@@ -115,11 +125,12 @@ public function goToStep($step)
 
     $this->step = $step;
 }
+
 ```
 
-### Using skipTransition()
+### Menggunakan skipTransition()
 
-You can also skip transitions imperatively:
+Anda juga dapat melewatkan transisi secara imperatif:
 
 ```php
 public function reset()
@@ -128,8 +139,11 @@ public function reset()
 
     $this->step = 1;
 }
+
 ```
 
-## Learn more
+---
 
-For more information about view transitions, see the [wire:transition documentation](/docs/4.x/wire-transition).
+## Pelajari lebih lanjut
+
+Untuk informasi lebih lanjut tentang **view transitions**, lihat [dokumentasi wire:transition](https://www.google.com/search?q=/docs/4.x/wire-transition).
