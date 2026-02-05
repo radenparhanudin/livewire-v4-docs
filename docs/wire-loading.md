@@ -1,60 +1,64 @@
+Indikator pemuatan (**loading indicators**) merupakan bagian penting dalam merancang antarmuka pengguna yang baik. Mereka memberikan umpan balik visual kepada pengguna saat sebuah *request* sedang dikirim ke server, sehingga mereka tahu bahwa mereka sedang menunggu sebuah proses selesai.
 
-Loading indicators are an important part of crafting good user interfaces. They give users visual feedback when a request is being made to the server, so they know they are waiting for a process to complete.
+> [!tip] Pertimbangkan untuk menggunakan selektor data-loading sebagai gantinya
+> Meskipun `wire:loading` sangat bagus untuk skenario muncul/sembunyi yang sederhana, Livewire v4 memperkenalkan atribut `data-loading` otomatis pada elemen yang memicu *network requests*. Pendekatan ini seringkali lebih sederhana dan fleksibel—Anda dapat mengatur gaya *loading states* secara langsung dengan Tailwind tanpa memerlukan direktif `wire:target`, dan ini bekerja dengan mulus bahkan saat mengirimkan *events* ke *components* lain. [Pelajari lebih lanjut tentang data-loading →](https://www.google.com/search?q=/docs/4.x/loading-states)
 
-> [!tip] Consider using data-loading selectors instead
-> While `wire:loading` is great for simple show/hide scenarios, Livewire v4 introduces automatic `data-loading` attributes on elements that trigger network requests. This approach is often simpler and more flexible—you can style loading states directly with Tailwind without needing `wire:target` directives, and it works seamlessly even when dispatching events to other components. [Learn more about data-loading →](/docs/4.x/loading-states)
+## Penggunaan dasar
 
-## Basic usage
+Livewire menyediakan sintaks yang sederhana namun sangat kuat untuk mengontrol indikator pemuatan: `wire:loading`. Menambahkan `wire:loading` ke elemen apa pun akan menyembunyikannya secara default (menggunakan `display: none` di CSS) dan menampilkannya ketika sebuah *request* dikirim ke server.
 
-Livewire provides a simple yet extremely powerful syntax for controlling loading indicators: `wire:loading`. Adding `wire:loading` to any element will hide it by default (using `display: none` in CSS) and show it when a request is sent to the server.
-
-Below is a basic example of a `CreatePost` component's form with `wire:loading` being used to toggle a loading message:
+Berikut adalah contoh dasar formulir pada *component* `CreatePost` dengan `wire:loading` yang digunakan untuk memunculkan pesan pemuatan:
 
 ```blade
 <form wire:submit="save">
-    <!-- ... -->
-
     <button type="submit">Save</button>
 
-    <div wire:loading> <!-- [tl! highlight:2] -->
-        Saving post...
+    <div wire:loading> Saving post...
     </div>
 </form>
+
 ```
 
-When a user presses "Save", the "Saving post..." message will appear below the button while the "save" action is being executed. The message will disappear when the response is received from the server and processed by Livewire.
+Ketika pengguna menekan tombol "Save", pesan "Saving post..." akan muncul di bawah tombol selama *action* "save" sedang dijalankan. Pesan tersebut akan hilang ketika respons diterima dari server dan diproses oleh Livewire.
 
-### Removing elements
+### Menghapus elemen
 
-Alternatively, you can append `.remove` for the inverse effect, showing an element by default and hiding it during requests to the server:
+Sebagai alternatif, Anda dapat menambahkan `.remove` untuk efek sebaliknya, yaitu menampilkan elemen secara default dan menyembunyikannya selama *requests* ke server:
 
 ```blade
 <div wire:loading.remove>...</div>
+
 ```
 
-## Toggling classes
+---
 
-In addition to toggling the visibility of entire elements, it's often useful to change the styling of an existing element by toggling CSS classes on and off during requests to the server. This technique can be used for things like changing background colors, lowering opacity, triggering spinning animations, and more.
+## Beralih class (Toggling classes)
 
-Below is a simple example of using the [Tailwind](https://tailwindcss.com/) class `opacity-50` to make the "Save" button fainter while the form is being submitted:
+Selain mengatur visibilitas elemen secara keseluruhan, sering kali berguna untuk mengubah gaya elemen yang sudah ada dengan mengaktifkan atau menonaktifkan class CSS selama *requests* ke server. Teknik ini dapat digunakan untuk hal-hal seperti mengubah warna latar belakang, menurunkan opasitas, memicu animasi putar (*spinning animations*), dan banyak lagi.
+
+Berikut adalah contoh sederhana penggunaan class [Tailwind](https://tailwindcss.com/) `opacity-50` untuk membuat tombol "Save" menjadi lebih pudar saat formulir sedang dikirim:
 
 ```blade
 <button wire:loading.class="opacity-50">Save</button>
+
 ```
 
-Like toggling an element, you can perform the inverse class operation by appending `.remove` to the `wire:loading` directive. In the example below, the button's `bg-blue-500` class will be removed when the "Save" button is pressed:
+Seperti halnya memunculkan elemen, Anda dapat melakukan operasi class sebaliknya dengan menambahkan `.remove` pada direktif `wire:loading`. Pada contoh di bawah, class `bg-blue-500` pada tombol akan dihapus saat tombol "Save" ditekan:
 
 ```blade
 <button class="bg-blue-500" wire:loading.class.remove="bg-blue-500">
     Save
 </button>
+
 ```
 
-## Toggling attributes
+---
 
-By default, when a form is submitted, Livewire will automatically disable the submit button and add the `readonly` attribute to each input element while the form is being processed.
+## Beralih atribut (Toggling attributes)
 
-However, in addition to this default behavior, Livewire offers the `.attr` modifier to allow you to toggle other attributes on an element or toggle attributes on elements that are outside of forms:
+Secara default, ketika sebuah formulir dikirim, Livewire akan secara otomatis menonaktifkan tombol *submit* dan menambahkan atribut `readonly` pada setiap elemen input selama formulir sedang diproses.
+
+Namun, selain perilaku default ini, Livewire menawarkan **modifier** `.attr` untuk memungkinkan Anda mengubah atribut lain pada suatu elemen atau mengubah atribut pada elemen yang berada di luar formulir:
 
 ```blade
 <button
@@ -64,165 +68,147 @@ However, in addition to this default behavior, Livewire offers the `.attr` modif
 >
     Remove
 </button>
+
 ```
 
-Because the button above isn't a submit button, it won't be disabled by Livewire's default form handling behavior when pressed. Instead, we manually added `wire:loading.attr="disabled"` to achieve this behavior.
+Karena tombol di atas bukan tombol *submit*, tombol tersebut tidak akan dinonaktifkan oleh perilaku penanganan formulir default Livewire saat ditekan. Sebagai gantinya, kita menambahkan `wire:loading.attr="disabled"` secara manual untuk mencapai perilaku tersebut.
 
-## Targeting specific actions
+---
 
-By default, `wire:loading` will be triggered whenever a component makes a request to the server.
+## Menargetkan action tertentu
 
-However, in components with multiple elements that can trigger server requests, you should scope your loading indicators down to individual actions.
+Secara default, `wire:loading` akan dipicu setiap kali sebuah *component* melakukan *request* ke server.
 
-For example, consider the following "Save post" form. In addition to a "Save" button that submits the form, there might also be a "Remove" button that executes a "remove" action on the component.
+Namun, pada *components* dengan banyak elemen yang dapat memicu *server requests*, Anda sebaiknya membatasi indikator pemuatan Anda ke *actions* individu.
 
-By adding `wire:target` to the following `wire:loading` element, you can instruct Livewire to only show the loading message when the "Remove" button is clicked:
+Sebagai contoh, pertimbangkan formulir "Save post" berikut. Selain tombol "Save" yang mengirimkan formulir, mungkin juga ada tombol "Remove" yang menjalankan *action* "remove" pada *component*.
+
+Dengan menambahkan `wire:target` pada elemen `wire:loading` berikut, Anda dapat menginstruksikan Livewire untuk hanya menampilkan pesan pemuatan saat tombol "Remove" diklik:
 
 ```blade
 <form wire:submit="save">
-    <!-- ... -->
-
     <button type="submit">Save</button>
 
     <button type="button" wire:click="remove">Remove</button>
 
-    <div wire:loading wire:target="remove">  <!-- [tl! highlight:2] -->
-        Removing post...
+    <div wire:loading wire:target="remove">  Removing post...
     </div>
 </form>
+
 ```
 
-When the above "Remove" button is pressed, the "Removing post..." message will be displayed to the user. However, the message will not be displayed when the "Save" button is pressed.
+### Menargetkan beberapa action
 
-### Targeting multiple actions
-
-You may find yourself in a situation where you would like `wire:loading` to react to some, but not all, actions on a page. In these cases you can pass multiple actions into `wire:target` separated by a comma. For example:
+Anda mungkin berada dalam situasi di mana Anda ingin `wire:loading` bereaksi terhadap beberapa, tetapi tidak semua, *actions* di sebuah halaman. Dalam kasus ini, Anda dapat memasukkan beberapa *actions* ke dalam `wire:target` yang dipisahkan dengan koma. Contohnya:
 
 ```blade
-<form wire:submit="save">
-    <input type="text" wire:model.live.blur="title">
-
-    <!-- ... -->
-
-    <button type="submit">Save</button>
-
-    <button type="button" wire:click="remove">Remove</button>
-
-    <div wire:loading wire:target="save, remove">  <!-- [tl! highlight:2] -->
-        Updating post...
-    </div>
-</form>
-```
-
-The loading indicator ("Updating post...") will now only be shown when the "Remove" or "Save" button are pressed, and not when the `$title` field is being sent to the server.
-
-### Targeting action parameters
-
-In situations where the same action is triggered with different parameters from multiple places on a page, you can further scope `wire:target` to a specific action by passing in additional parameters. For example, consider the following scenario where a "Remove" button exists for each post on the page:
-
-```blade
-<div>
-    @foreach ($posts as $post)
-        <div wire:key="{{ $post->id }}">
-            <h2>{{ $post->title }}</h2>
-
-            <button wire:click="remove({{ $post->id }})">Remove</button>
-
-            <div wire:loading wire:target="remove({{ $post->id }})">  <!-- [tl! highlight:2] -->
-                Removing post...
-            </div>
-        </div>
-    @endforeach
+<div wire:loading wire:target="save, remove"> 
+    Updating post...
 </div>
+
 ```
 
-Without passing `{{ $post->id }}` to `wire:target="remove"`, the "Removing post..." message would show when any of the buttons on the page are clicked.
+Indikator pemuatan ("Updating post...") sekarang hanya akan ditampilkan saat tombol "Remove" atau "Save" ditekan, dan tidak akan muncul saat kolom `$title` sedang dikirim ke server.
 
-However, because we are passing in unique parameters to each instance of `wire:target`, Livewire will only show the loading message when the matching parameters are passed to the "remove" action.
+### Menargetkan action parameters
 
-### Targeting property updates
-
-Livewire also allows you to target specific component property updates by passing the property's name to the `wire:target` directive.
-
-Consider the following example where a form input named `username` uses `wire:model.live` for real-time validation as a user types:
+Dalam situasi di mana *action* yang sama dipicu dengan parameter yang berbeda dari beberapa tempat di halaman, Anda dapat membatasi `wire:target` lebih jauh ke *action* tertentu dengan memasukkan parameter tambahan. Sebagai contoh, pertimbangkan skenario di mana tombol "Remove" ada untuk setiap postingan di halaman:
 
 ```blade
-<form wire:submit="save">
-    <input type="text" wire:model.live="username">
-    @error('username') <span>{{ $message }}</span> @enderror
+@foreach ($posts as $post)
+    <div wire:key="{{ $post->id }}">
+        <button wire:click="remove({{ $post->id }})">Remove</button>
 
-    <div wire:loading wire:target="username"> <!-- [tl! highlight:2] -->
-        Checking availability of username...
+        <div wire:loading wire:target="remove({{ $post->id }})">
+            Removing post...
+        </div>
     </div>
+@endforeach
 
-    <!-- ... -->
-</form>
 ```
 
-The "Checking availability..." message will show when the server is updated with the new username as the user types into the input field.
+Tanpa memasukkan `{{ $post->id }}` ke `wire:target="remove"`, pesan "Removing post..." akan muncul saat tombol apa pun di halaman tersebut diklik. Namun, karena kita memasukkan parameter unik pada setiap instansi `wire:target`, Livewire hanya akan menampilkan pesan pemuatan ketika parameter yang cocok dikirimkan ke *action* "remove".
 
-### Excluding specific loading targets
+### Menargetkan pembaruan properti
 
-Sometimes you may wish to display a loading indicator for every Livewire request _except_ a specific property or action. In these cases you can use the `wire:target.except` modifier like so:
+Livewire juga memungkinkan Anda untuk menargetkan pembaruan properti *component* tertentu dengan memasukkan nama properti ke direktif `wire:target`.
+
+```blade
+<input type="text" wire:model.live="username">
+
+<div wire:loading wire:target="username">
+    Checking availability...
+</div>
+
+```
+
+Pesan "Checking availability..." akan muncul saat server diperbarui dengan nama pengguna baru saat pengguna mengetik di kolom input.
+
+### Mengecualikan target pemuatan tertentu
+
+Terkadang Anda mungkin ingin menampilkan indikator pemuatan untuk setiap *request* Livewire *kecuali* properti atau *action* tertentu. Dalam kasus ini, Anda dapat menggunakan **modifier** `wire:target.except` seperti berikut:
 
 ```blade
 <div wire:loading wire:target.except="download">...</div>
+
 ```
 
-The above loading indicator will now be shown for every Livewire update request on the component _except_ the "download" action.
+---
 
-## Customizing CSS display property
+## Menyesuaikan properti CSS display
 
-When `wire:loading` is added to an element, Livewire updates the CSS `display` property of the element to show and hide the element. By default, Livewire uses `none` to hide and `inline-block` to show.
+Ketika `wire:loading` ditambahkan ke sebuah elemen, Livewire memperbarui properti CSS `display` pada elemen tersebut untuk menampilkan dan menyembunyikannya. Secara default, Livewire menggunakan `none` untuk menyembunyikan dan `inline-block` untuk menampilkan.
 
-If you are toggling an element that uses a display value other than `inline-block`, like `flex` in the following example, you can append `.flex` to `wire:loading`:
+Jika Anda mengubah elemen yang menggunakan nilai *display* selain `inline-block`, seperti `flex`, Anda dapat menambahkan `.flex` pada `wire:loading`:
 
 ```blade
 <div class="flex" wire:loading.flex>...</div>
+
 ```
 
-Below is the complete list of available display values:
+Berikut adalah daftar lengkap nilai *display* yang tersedia:
 
-```blade
-<div wire:loading.inline-flex>...</div>
-<div wire:loading.inline>...</div>
-<div wire:loading.block>...</div>
-<div wire:loading.table>...</div>
-<div wire:loading.flex>...</div>
-<div wire:loading.grid>...</div>
-```
+* `wire:loading.inline-flex`
+* `wire:loading.inline`
+* `wire:loading.block`
+* `wire:loading.table`
+* `wire:loading.flex`
+* `wire:loading.grid`
 
-## Delaying a loading indicator
+---
 
-On fast connections, updates often happen so quickly that loading indicators only flash briefly on the screen before being removed. In these cases, the indicator is more of a distraction than a helpful affordance.
+## Menunda indikator pemuatan (Delaying)
 
-For this reason, Livewire provides a `.delay` modifier to delay the showing of an indicator. For example, if you add `wire:loading.delay` to an element like so:
+Pada koneksi yang cepat, pembaruan sering kali terjadi begitu cepat sehingga indikator pemuatan hanya berkedip sebentar di layar sebelum dihapus. Dalam kasus ini, indikator tersebut justru lebih mengganggu daripada membantu.
+
+Oleh karena itu, Livewire menyediakan **modifier** `.delay` untuk menunda tampilan indikator. Jika Anda menambahkan `wire:loading.delay` pada sebuah elemen:
 
 ```blade
 <div wire:loading.delay>...</div>
+
 ```
 
-The above element will only appear if the request takes over 200 milliseconds. The user will never see the indicator if the request completes before then.
+Elemen tersebut hanya akan muncul jika *request* memakan waktu lebih dari 200 milidetik. Pengguna tidak akan pernah melihat indikator tersebut jika *request* selesai sebelum waktu itu.
 
-To customize the amount of time to delay the loading indicator, you can use one of Livewire's helpful interval aliases:
+Anda dapat menyesuaikan durasi penundaan menggunakan salah satu alias interval berikut:
 
-```blade
-<div wire:loading.delay.shortest>...</div> <!-- 50ms -->
-<div wire:loading.delay.shorter>...</div>  <!-- 100ms -->
-<div wire:loading.delay.short>...</div>    <!-- 150ms -->
-<div wire:loading.delay>...</div>          <!-- 200ms -->
-<div wire:loading.delay.long>...</div>     <!-- 300ms -->
-<div wire:loading.delay.longer>...</div>   <!-- 500ms -->
-<div wire:loading.delay.longest>...</div>  <!-- 1000ms -->
-```
+| Modifier | Durasi |
+| --- | --- |
+| `.shortest` | 50ms |
+| `.shorter` | 100ms |
+| `.short` | 150ms |
+| `.delay` (default) | 200ms |
+| `.long` | 300ms |
+| `.longer` | 500ms |
+| `.longest` | 1000ms |
 
-## Styling with data-loading
+## Styling dengan data-loading
 
-Livewire automatically adds a `data-loading` attribute to any element that triggers a network request. This allows you to style loading states directly with CSS or Tailwind without using `wire:loading` directives.
+Livewire secara otomatis menambahkan atribut `data-loading` ke elemen apa pun yang memicu *network request*. Hal ini memungkinkan Anda untuk mengatur gaya *loading states* secara langsung dengan CSS atau Tailwind tanpa menggunakan direktif `wire:loading`.
 
-### Using Tailwind's data attribute variant
+### Menggunakan varian atribut data Tailwind
 
-You can use Tailwind's `data-loading` variant to apply styles when an element is loading:
+Anda dapat menggunakan varian `data-loading` milik Tailwind untuk menerapkan gaya saat sebuah elemen sedang dalam proses pemuatan (*loading*):
 
 ```blade
 <button
@@ -231,13 +217,14 @@ You can use Tailwind's `data-loading` variant to apply styles when an element is
 >
     Save Changes
 </button>
+
 ```
 
-When the button is clicked and the request is in-flight, it will automatically become semi-transparent and unclickable.
+Ketika tombol diklik dan *request* sedang berjalan, tombol tersebut akan secara otomatis menjadi setengah transparan dan tidak dapat diklik.
 
-### Using CSS
+### Menggunakan CSS
 
-If you're not using Tailwind, you can target the `data-loading` attribute with standard CSS:
+Jika Anda tidak menggunakan Tailwind, Anda dapat menargetkan atribut `data-loading` dengan CSS standar:
 
 ```css
 [data-loading] {
@@ -249,60 +236,68 @@ button[data-loading] {
     background-color: #ccc;
     cursor: wait;
 }
+
 ```
 
-### Styling parent and child elements
+### Styling elemen parent dan child
 
-You can style parent elements when a child has `data-loading` using the `has-data-loading:` variant:
+Anda dapat mengatur gaya elemen *parent* saat elemen *child* memiliki `data-loading` menggunakan varian `has-data-loading:`:
 
 ```blade
 <div class="has-data-loading:opacity-50">
     <button wire:click="save">Save</button>
 </div>
+
 ```
 
-Or style child elements from a parent with `data-loading` using the `in-data-loading:` variant:
+Atau mengatur gaya elemen *child* dari *parent* yang memiliki `data-loading` menggunakan varian `in-data-loading:`:
 
 ```blade
 <button wire:click="save">
     <span class="in-data-loading:hidden">Save</span>
     <span class="hidden in-data-loading:block">Saving...</span>
 </button>
+
 ```
+
+---
 
 ## See also
 
-- **[Loading States](/docs/4.x/loading-states)** — Modern approach with data-loading attributes
-- **[Actions](/docs/4.x/actions)** — Show feedback during action processing
-- **[Forms](/docs/4.x/forms)** — Display form submission progress
+* **[Loading States](https://www.google.com/search?q=/docs/4.x/loading-states)** — Pendekatan modern dengan atribut *data-loading*
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Tampilkan umpan balik selama pemrosesan *action*
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Tampilkan progres pengiriman formulir
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:loading
 wire:target="action"
 wire:target="property"
 wire:target.except="action"
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.remove` | Show element by default, hide during loading |
-| `.class="class-name"` | Add a CSS class during loading |
-| `.class.remove="class-name"` | Remove a CSS class during loading |
-| `.attr="attribute"` | Add an HTML attribute during loading |
-| `.delay` | Delay showing indicator by 200ms |
-| `.delay.shortest` | Delay by 50ms |
-| `.delay.shorter` | Delay by 100ms |
-| `.delay.short` | Delay by 150ms |
-| `.delay.long` | Delay by 300ms |
-| `.delay.longer` | Delay by 500ms |
-| `.delay.longest` | Delay by 1000ms |
-| `.inline-flex` | Use `inline-flex` display value |
-| `.inline` | Use `inline` display value |
-| `.block` | Use `block` display value |
-| `.table` | Use `table` display value |
-| `.flex` | Use `flex` display value |
-| `.grid` | Use `grid` display value |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.remove` | Tampilkan elemen secara default, sembunyikan saat *loading* |
+| `.class="class-name"` | Tambahkan class CSS saat *loading* |
+| `.class.remove="class-name"` | Hapus class CSS saat *loading* |
+| `.attr="attribute"` | Tambahkan atribut HTML saat *loading* |
+| `.delay` | Tunda tampilan indikator selama 200ms |
+| `.delay.shortest` | Tunda selama 50ms |
+| `.delay.shorter` | Tunda selama 100ms |
+| `.delay.short` | Tunda selama 150ms |
+| `.delay.long` | Tunda selama 300ms |
+| `.delay.longer` | Tunda selama 500ms |
+| `.delay.longest` | Tunda selama 1000ms |
+| `.inline-flex` | Gunakan nilai display `inline-flex` |
+| `.inline` | Gunakan nilai display `inline` |
+| `.block` | Gunakan nilai display `block` |
+| `.table` | Gunakan nilai display `table` |
+| `.flex` | Gunakan nilai display `flex` |
+| `.grid` | Gunakan nilai display `grid` |
