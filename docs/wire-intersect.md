@@ -1,89 +1,83 @@
-Livewire's `wire:intersect` directive allows you to execute an action when an element enters or leaves the viewport. This is useful for lazy loading content, triggering analytics, or creating scroll-based interactions.
+Direktif `wire:intersect` milik Livewire memungkinkan Anda menjalankan sebuah **action** saat sebuah elemen masuk atau keluar dari **viewport**. Ini sangat berguna untuk pemuatan konten secara malas (*lazy loading*), memicu analitik, atau membuat interaksi berbasis gulir (*scroll*).
 
-## Basic usage
+## Penggunaan dasar
 
-The simplest form runs an action when an element becomes visible:
+Bentuk paling sederhana menjalankan sebuah **action** saat sebuah elemen menjadi terlihat:
 
 ```blade
 <div wire:intersect="loadMore">
-    <!-- Content loads when scrolled into view -->
-</div>
+    </div>
+
 ```
 
-When the element enters the viewport, the `loadMore` action will be called on your component.
+Ketika elemen masuk ke dalam **viewport**, **action** `loadMore` akan dipanggil pada **component** Anda.
 
-## Enter and leave events
+## Event enter dan leave
 
-You can specify whether to run the action on enter, leave, or both:
+Anda dapat menentukan apakah akan menjalankan **action** saat masuk (*enter*), keluar (*leave*), atau keduanya:
 
 ```blade
-<!-- Runs when entering viewport (default) -->
 <div wire:intersect="trackView">...</div>
 
-<!-- Runs when entering viewport (explicit) -->
 <div wire:intersect:enter="trackView">...</div>
 
-<!-- Runs when leaving viewport -->
 <div wire:intersect:leave="pauseVideo">...</div>
+
 ```
 
 ## Visibility modifiers
 
-Control how much of the element needs to be visible before triggering:
+Kontrol seberapa banyak bagian elemen yang harus terlihat sebelum memicu **action**:
 
 ```blade
-<!-- Trigger when any part is visible (default) -->
 <div wire:intersect="load">...</div>
 
-<!-- Trigger when half is visible -->
 <div wire:intersect.half="load">...</div>
 
-<!-- Trigger when fully visible -->
 <div wire:intersect.full="load">...</div>
 
-<!-- Trigger at custom threshold (0-100) -->
 <div wire:intersect.threshold.25="load">...</div>
+
 ```
 
 ## Margin
 
-Add a margin around the viewport to trigger the action before/after the element enters:
+Tambahkan margin di sekitar **viewport** untuk memicu **action** sebelum/sesudah elemen masuk:
 
 ```blade
-<!-- Trigger 200px before entering viewport -->
 <div wire:intersect.margin.200px="loadMore">...</div>
 
-<!-- Use percentage-based margin -->
 <div wire:intersect.margin.10%="loadMore">...</div>
 
-<!-- Different margins for each side (top, right, bottom, left) -->
 <div wire:intersect.margin.10%.25px.25px.25px="loadMore">...</div>
+
 ```
 
 ## Fire once
 
-Use the `.once` modifier to ensure the action only fires on the first intersection:
+Gunakan **modifier** `.once` untuk memastikan **action** hanya dipicu pada persinggungan pertama kali saja:
 
 ```blade
 <div wire:intersect.once="trackImpression">
-    <!-- Action only fires once, even if scrolled past multiple times -->
-</div>
+    </div>
+
 ```
 
-This is particularly useful for analytics or tracking when you only want to record the first time a user sees something.
+Ini sangat berguna untuk analitik atau pelacakan saat Anda hanya ingin mencatat pertama kali pengguna melihat sesuatu.
 
-## Combining modifiers
+## Menggabungkan modifier
 
-You can combine multiple modifiers to create precise behaviors:
+Anda dapat menggabungkan beberapa **modifier** untuk menciptakan perilaku yang presisi:
 
 ```blade
-<!-- Load when half visible, only once, with 100px margin -->
 <div wire:intersect.once.half.margin.100px="loadSection">
-    <!-- ... -->
-</div>
+    </div>
+
 ```
 
-## Common use cases
+---
+
+## Contoh penggunaan umum
 
 ### Infinite scroll
 
@@ -123,6 +117,7 @@ new class extends Component {
         Loading more posts...
     </div>
 </div>
+
 ```
 
 ### Lazy loading images
@@ -147,38 +142,35 @@ new class extends Component {
         <img src="/path/to/image.jpg" alt="Product">
     @else
         <div wire:intersect.once="loadImage" class="bg-gray-200 h-64">
-            <!-- Placeholder -->
-        </div>
+            </div>
     @endif
 </div>
+
 ```
 
-### Tracking visibility
+---
 
-```blade
-<div wire:intersect:enter.once="trackView" wire:intersect:leave="trackLeave">
-    <!-- Track when users view and leave this content -->
-</div>
-```
+## Perbandingan dengan x-intersect Alpine
 
-## Comparison with Alpine's x-intersect
+Jika Anda terbiasa dengan Alpine.js, `wire:intersect` bekerja mirip dengan `x-intersect` tetapi memicu **Livewire actions** alih-alih ekspresi Alpine. **Modifiers** dan perilakunya dirancang agar terasa akrab bagi pengguna Alpine.
 
-If you're familiar with Alpine.js, `wire:intersect` works similarly to `x-intersect` but triggers Livewire actions instead of Alpine expressions. The modifiers and behavior are designed to feel familiar to Alpine users.
+---
 
-## Reference
+## Referensi
 
 ```blade
 wire:intersect="action"
 wire:intersect:enter="action"
 wire:intersect:leave="action"
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.once` | Only fire the action on the first intersection |
-| `.half` | Trigger when half of the element is visible |
-| `.full` | Trigger when the entire element is visible |
-| `.threshold.[0-100]` | Trigger at a custom visibility threshold percentage |
-| `.margin.[value]` | Add margin around the viewport (e.g., `.margin.200px`, `.margin.10%`) |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.once` | Hanya pemicu **action** pada persinggungan pertama |
+| `.half` | Pemicu saat setengah bagian elemen terlihat |
+| `.full` | Pemicu saat seluruh bagian elemen terlihat |
+| `.threshold.[0-100]` | Pemicu pada persentase ambang batas visibilitas kustom |
+| `.margin.[value]` | Menambahkan margin di sekitar **viewport** (misal: `.margin.200px`, `.margin.10%`) |
