@@ -1,12 +1,12 @@
-After a user performs some action — like submitting a form — you may want to redirect them to another page in your application.
+Setelah seorang pengguna melakukan suatu tindakan — seperti mengirimkan formulir — Anda mungkin ingin mengarahkan (*redirect*) mereka ke halaman lain di aplikasi Anda.
 
-Because Livewire requests aren't standard full-page browser requests, standard HTTP redirects won't work. Instead, you need to trigger redirects via JavaScript. Fortunately, Livewire exposes a simple `$this->redirect()` helper method to use within your components. Internally, Livewire will handle the process of redirecting on the frontend.
+Karena *request* Livewire bukanlah *request* browser halaman penuh yang standar, *HTTP redirect* standar tidak akan berfungsi. Sebaliknya, Anda perlu memicu pengalihan melalui JavaScript. Untungnya, Livewire menyediakan metode *helper* `$this->redirect()` yang sederhana untuk digunakan di dalam *component* Anda. Secara internal, Livewire akan menangani proses pengalihan tersebut di sisi *frontend*.
 
-If you prefer, you can use [Laravel's built-in redirect utilities](https://laravel.com/docs/responses#redirects) within your components as well.
+Jika Anda lebih suka, Anda juga dapat menggunakan [utilitas redirect bawaan Laravel](https://laravel.com/docs/responses#redirects) di dalam *component* Anda juga.
 
 ## Basic usage
 
-Below is an example of a `post.create` Livewire component that redirects the user to another page after they submit the form to create a post:
+Di bawah ini adalah contoh *component* Livewire `post.create` yang mengarahkan pengguna ke halaman lain setelah mereka mengirimkan formulir untuk membuat postingan:
 
 ```php
 <?php
@@ -15,72 +15,83 @@ use Livewire\Component;
 use App\Models\Post;
 
 new class extends Component {
-	public $title = '';
+    public $title = '';
 
     public $content = '';
 
     public function save()
     {
-		Post::create([
-			'title' => $this->title,
-			'content' => $this->content,
-		]);
+        Post::create([
+            'title' => $this->title,
+            'content' => $this->content,
+        ]);
 
-		$this->redirect('/posts'); // [tl! highlight]
+        $this->redirect('/posts'); // [tl! highlight]
     }
 };
 ?>
 
 <form wire:submit="save">
-    <!-- Form fields... -->
-</form>
+    </form>
+
 ```
 
-As you can see, when the `save` action is triggered, a redirect will also be triggered to `/posts`. When Livewire receives this response, it will redirect the user to the new URL on the frontend.
+Seperti yang Anda lihat, ketika *action* `save` dipicu, sebuah pengalihan juga akan dipicu ke `/posts`. Saat Livewire menerima respons ini, ia akan mengarahkan pengguna ke URL baru di *frontend*.
+
+---
 
 ## Redirect to Route
 
-In case you want to redirect to a page using its route name you can use the `redirectRoute`.
+Jika Anda ingin mengarahkan ke sebuah halaman menggunakan nama rutenya, Anda dapat menggunakan `redirectRoute`.
 
-For example, if you have a page with the route named `'profile'` like this:
+Sebagai contoh, jika Anda memiliki halaman dengan rute bernama `'profile'` seperti ini:
 
 ```php
     Route::get('/user/profile', function () {
         // ...
     })->name('profile');
+
 ```
 
-You can use `redirectRoute` to redirect to that page using the name of the route like so:
+Anda dapat menggunakan `redirectRoute` untuk mengarahkan ke halaman tersebut menggunakan nama rute seperti berikut:
 
 ```php
     $this->redirectRoute('profile');
+
 ```
 
-In case you need to pass parameters to the route you may use the second argument of the method `redirectRoute` like so:
+Jika Anda perlu meneruskan parameter ke rute tersebut, Anda dapat menggunakan argumen kedua dari metode `redirectRoute` seperti ini:
 
 ```php
     $this->redirectRoute('profile', ['id' => 1]);
+
 ```
+
+---
 
 ## Redirect to intended
 
-In case you want to redirect the user back to the previous page they were on you can use `redirectIntended`. It accepts an optional default URL as its first argument which is used as a fallback if no previous page can be determined:
+Jika Anda ingin mengarahkan pengguna kembali ke halaman sebelumnya (halaman asal), Anda dapat menggunakan `redirectIntended`. Metode ini menerima URL default opsional sebagai argumen pertamanya yang digunakan sebagai *fallback* jika halaman sebelumnya tidak dapat ditentukan:
 
 ```php
     $this->redirectIntended('/default/url');
+
 ```
+
+---
 
 ## Redirecting to full-page components
 
-Because Livewire uses Laravel's built-in redirection feature, you can use all of the redirection methods available to you in a typical Laravel application.
+Karena Livewire menggunakan fitur pengalihan bawaan Laravel, Anda dapat menggunakan semua metode pengalihan yang tersedia dalam aplikasi Laravel standar.
 
-For example, if you are using a Livewire component as a full-page component for a route like so:
+Sebagai contoh, jika Anda menggunakan *component* Livewire sebagai *full-page component* untuk sebuah rute seperti ini:
 
 ```php
 Route::livewire('/posts', 'pages::show-posts');
+
 ```
 
-You can redirect to it simply by using the route path:
+Anda dapat mengarahkannya cukup dengan menggunakan jalur rute:
 
 ```php
 public function save()
@@ -89,27 +100,34 @@ public function save()
 
     $this->redirect('/posts');
 }
+
 ```
+
+---
 
 ## Redirect to controller actions
 
-If you want to redirect to a route handled by a controller action, you can use `redirectAction()`:
+Jika Anda ingin mengarahkan ke rute yang ditangani oleh *controller action*, Anda dapat menggunakan `redirectAction()`:
 
 ```php
 $this->redirectAction([UserController::class, 'index']);
+
 ```
 
-You can pass parameters to the controller action as the second argument:
+Anda dapat meneruskan parameter ke *controller action* sebagai argumen kedua:
 
 ```php
 $this->redirectAction([UserController::class, 'show'], ['id' => 1]);
+
 ```
+
+---
 
 ## Flash messages
 
-In addition to allowing you to use Laravel's built-in redirection methods, Livewire also supports Laravel's [session flash data utilities](https://laravel.com/docs/session#flash-data).
+Selain memungkinkan Anda menggunakan metode pengalihan bawaan Laravel, Livewire juga mendukung [utilitas session flash data Laravel](https://laravel.com/docs/session#flash-data).
 
-To pass flash data along with a redirect, you can use Laravel's `session()->flash()` method like so:
+Untuk meneruskan *flash data* bersama dengan pengalihan, Anda dapat menggunakan metode `session()->flash()` Laravel seperti berikut:
 
 ```php
 <?php
@@ -129,9 +147,10 @@ new class extends Component {
     }
 };
 ?>
+
 ```
 
-Assuming the page being redirected to contain the following Blade snippet, the user will see a "Post successfully updated." message after updating the post:
+Dengan asumsi halaman tujuan pengalihan berisi potongan kode Blade berikut, pengguna akan melihat pesan "Post successfully updated." setelah memperbarui postingan:
 
 ```blade
 @if (session('status'))
@@ -139,11 +158,14 @@ Assuming the page being redirected to contain the following Blade snippet, the u
         {{ session('status') }}
     </div>
 @endif
+
 ```
+
+---
 
 ## See also
 
-- **[Navigate](/docs/4.x/navigate)** — Use SPA navigation for redirects
-- **[Actions](/docs/4.x/actions)** — Redirect after action completion
-- **[Forms](/docs/4.x/forms)** — Redirect after successful form submission
-- **[Pages](/docs/4.x/pages)** — Navigate between page components
+* **[Navigate](https://www.google.com/search?q=/docs/4.x/navigate)** — Gunakan navigasi SPA untuk pengalihan
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Mengalihkan setelah penyelesaian tindakan
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Mengalihkan setelah pengiriman formulir berhasil
+* **[Pages](https://www.google.com/search?q=/docs/4.x/pages)** — Navigasi antar *page components*
