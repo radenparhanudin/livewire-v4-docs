@@ -1,8 +1,8 @@
-The `#[Layout]` attribute specifies which Blade layout a full-page component should use, allowing you to customize layouts on a per-component basis.
+Atribut `#[Layout]` menentukan **layout** Blade mana yang harus digunakan oleh sebuah **full-page component**, memungkinkan Anda untuk menyesuaikan **layout** pada setiap komponen secara individu.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Layout]` attribute to a full-page component to use a specific layout:
+Terapkan atribut `#[Layout]` pada sebuah **full-page component** untuk menggunakan **layout** tertentu:
 
 ```php
 <?php // resources/views/pages/posts/⚡index.blade.php
@@ -27,31 +27,38 @@ new #[Layout('layouts::dashboard')] class extends Component { // [tl! highlight]
         <div wire:key="{{ $post->id }}">{{ $post->title }}</div>
     @endforeach
 </div>
+
 ```
 
-This component will render using the `resources/views/layouts/dashboard.blade.php` layout instead of the default.
+Komponen ini akan di-*render* menggunakan **layout** `resources/views/layouts/dashboard.blade.php` alih-alih menggunakan default.
 
-## Default layout
+---
 
-By default, Livewire uses the layout specified in your `config/livewire.php` file:
+## Layout default
+
+Secara default, Livewire menggunakan **layout** yang ditentukan dalam file konfigurasi `config/livewire.php` Anda:
 
 ```php
 'component_layout' => 'layouts::app',
+
 ```
 
-The `#[Layout]` attribute overrides this default for specific components.
+Atribut `#[Layout]` menggantikan (*overrides*) default ini untuk komponen-komponen tertentu.
 
-## Passing data to layouts
+---
 
-You can pass additional data to your layout using array syntax:
+## Mengirim data ke layouts
+
+Anda dapat mengirimkan data tambahan ke **layout** Anda menggunakan sintaks array:
 
 ```php
 new #[Layout('layouts::dashboard', ['title' => 'Posts Dashboard'])] class extends Component { // [tl! highlight]
     // ...
 };
+
 ```
 
-In your layout file, the `$title` variable will be available:
+Di dalam file **layout** Anda, variabel `$title` akan tersedia untuk digunakan:
 
 ```blade
 <!DOCTYPE html>
@@ -63,11 +70,14 @@ In your layout file, the `$title` variable will be available:
     {{ $slot }}
 </body>
 </html>
+
 ```
 
-## Alternative: Using layout() method
+---
 
-Instead of the attribute, you can use the `layout()` method in your `render()` method:
+## Alternatif: Menggunakan metode layout()
+
+Alih-alih menggunakan atribut, Anda dapat menggunakan metode `layout()` di dalam metode `render()` Anda:
 
 ```php
 <?php // resources/views/pages/posts/⚡index.blade.php
@@ -81,51 +91,56 @@ new class extends Component {
             ->layout('layouts::dashboard', ['title' => 'Posts']); // [tl! highlight]
     }
 };
+
 ```
 
-The attribute approach is cleaner for single-file components that don't need a `render()` method.
+Pendekatan menggunakan atribut jauh lebih bersih untuk *single-file components* yang tidak memerlukan metode `render()`.
 
-## Using different layouts per page
+---
 
-A common pattern is to use different layouts for different sections of your app:
+## Menggunakan layout berbeda per halaman
+
+Pola yang umum digunakan adalah menggunakan **layout** yang berbeda untuk bagian aplikasi yang berbeda pula:
 
 ```php
-// Admin pages
+// Halaman Admin
 new #[Layout('layouts::admin')] class extends Component { }
 
-// Marketing pages
+// Halaman Marketing
 new #[Layout('layouts::marketing')] class extends Component { }
 
-// Dashboard pages
+// Halaman Dashboard
 new #[Layout('layouts::dashboard')] class extends Component { }
+
 ```
 
-## When to use
+---
 
-Use `#[Layout]` when:
+## Kapan harus menggunakan
 
-* You have multiple layouts in your application (admin, marketing, dashboard, etc.)
-* A specific page needs a different layout than the default
-* You're building a full-page component (not a regular component)
-* You want to keep layout configuration close to the component definition
+Gunakan `#[Layout]` ketika:
 
-> [!info] Only for full-page components
-> The `#[Layout]` attribute only applies to full-page components. Regular components that are rendered within other views don't use layouts.
+* Anda memiliki beberapa **layout** dalam aplikasi Anda (admin, marketing, dashboard, dll.).
+* Halaman tertentu memerlukan **layout** yang berbeda dari default.
+* Anda sedang membangun sebuah **full-page component** (bukan komponen biasa).
+* Anda ingin menjaga konfigurasi **layout** tetap dekat dengan definisi komponen.
 
-## Learn more
+> [!info] Hanya untuk full-page components
+> Atribut `#[Layout]` hanya berlaku untuk **full-page components**. Komponen biasa yang di-*render* di dalam *view* lain tidak menggunakan **layouts**.
 
-For more information about full-page components and layouts, see the [Pages documentation](/docs/4.x/pages#layouts).
+---
 
-## Reference
+## Referensi
 
 ```php
 #[Layout(
     string $name,
     array $params = [],
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$name` | `string` | *required* | The name of the Blade layout to use |
-| `$params` | `array` | `[]` | Additional data to pass to the layout |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$name` | `string` | *required* | Nama **layout** Blade yang akan digunakan. |
+| `$params` | `array` | `[]` | Data tambahan untuk dikirimkan ke **layout**. |
