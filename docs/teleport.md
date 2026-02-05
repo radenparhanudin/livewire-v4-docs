@@ -1,18 +1,17 @@
-Livewire allows you to _teleport_ part of your template to another part of the DOM on the page entirely.
+Livewire memungkinkan Anda untuk melakukan *teleport* bagian dari **template** Anda ke bagian lain dari **DOM** di halaman tersebut sepenuhnya.
 
-This is useful for things like nested dialogs. When nesting one dialog inside of another, the z-index of the parent modal is applied to the nested modal. This can cause problems with styling backdrops and overlays. To avoid this problem, you can use Livewire's `@teleport` directive to render each nested modal as siblings in the rendered DOM.
+Hal ini sangat berguna untuk hal-hal seperti **nested dialogs**. Saat menumpuk satu **dialog** di dalam **dialog** lainnya, *z-index* dari **parent modal** akan diterapkan pada **nested modal**. Ini dapat menyebabkan masalah pada penataan gaya *backdrops* dan *overlays*. Untuk menghindari masalah ini, Anda dapat menggunakan direktif `@teleport` Livewire untuk merender setiap **nested modal** sebagai saudara kandung (*siblings*) dalam **DOM** yang dirender.
 
-This functionality is powered by [Alpine's `x-teleport` directive](https://alpinejs.dev/directives/teleport).
+Fungsionalitas ini ditenagai oleh [direktif `x-teleport` milik Alpine](https://www.google.com/search?q=%5Bhttps://alpinejs.dev/directives/teleport%5D(https://alpinejs.dev/directives/teleport)).
 
-## Basic usage
+## Penggunaan dasar
 
-To _teleport_ a portion of your template to another part of the DOM, you can wrap it in Livewire's `@teleport` directive.
+Untuk melakukan *teleport* pada sebagian **template** Anda ke bagian lain dari **DOM**, Anda dapat membungkusnya dalam direktif `@teleport` Livewire.
 
-Below is an example of using `@teleport` to render a modal dialog's contents at the end of the `<body>` element on the page:
+Di bawah ini adalah contoh penggunaan `@teleport` untuk merender konten **modal dialog** di akhir elemen `<body>` pada halaman:
 
 ```blade
 <div>
-    <!-- Modal -->
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle Modal</button>
 
@@ -23,27 +22,26 @@ Below is an example of using `@teleport` to render a modal dialog's contents at 
         @endteleport
     </div>
 </div>
+
 ```
 
 > [!info]
-> The `@@teleport` selector can be any string you would normally pass into something like `document.querySelector()`.
->
-> You can learn more about `document.querySelector()` by consulting its [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector).
+> Selektor `@@teleport` dapat berupa string apa pun yang biasanya Anda masukkan ke dalam fungsi seperti `document.querySelector()`.
+> Anda dapat mempelajari lebih lanjut tentang `document.querySelector()` dengan merujuk pada [dokumentasi MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector).
 
-Now, when the above Livewire template is rendered on the page, the _contents_ portion of the modal will be rendered at the end of `<body>`:
+Sekarang, ketika **template** Livewire di atas dirender di halaman, bagian konten dari **modal** tersebut akan dirender di akhir `<body>`:
 
 ```html
 <body>
-    <!-- ... -->
-
     <div x-show="open">
         Modal contents...
     </div>
 </body>
+
 ```
 
-> [!warning] You must teleport outside the component
-> Livewire only supports teleporting HTML outside your components. For example, teleporting a modal to the `<body>` tag is fine, but teleporting it to another element within your component will not work.
+> [!warning] Anda harus melakukan teleport ke luar component
+> Livewire hanya mendukung proses *teleporting* HTML ke luar **component** Anda. Sebagai contoh, melakukan *teleport* **modal** ke tag `<body>` diperbolehkan, tetapi melakukan *teleport* ke elemen lain di dalam **component** Anda sendiri tidak akan berfungsi.
 
-> [!warning] Teleporting only works with a single root element
-> Make sure you only include a single root element inside your `@@teleport` statement.
+> [!warning] Teleporting hanya berfungsi dengan satu elemen akar (root)
+> Pastikan Anda hanya menyertakan satu elemen akar (*root element*) di dalam pernyataan `@@teleport`.
