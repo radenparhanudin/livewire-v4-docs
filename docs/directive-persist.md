@@ -1,64 +1,68 @@
-The `@persist` directive preserves elements across page navigations when using `wire:navigate`, maintaining their state and avoiding re-initialization.
+Direktif `@persist` menjaga elemen tetap ada di berbagai navigasi halaman saat menggunakan `wire:navigate`, mempertahankan **state** elemen tersebut dan menghindari inisialisasi ulang.
 
-## Basic usage
+## Penggunaan dasar
 
-Wrap an element with `@persist` and provide a unique name to preserve it across page visits:
+Bungkus sebuah elemen dengan `@persist` dan berikan nama yang unik untuk mempertahankannya di berbagai kunjungan halaman:
 
 ```blade
 @persist('player')
     <audio src="{{ $episode->file }}" controls></audio>
 @endpersist
+
 ```
 
-When navigating to a new page that also contains a persisted element with the same name, Livewire reuses the existing DOM element instead of creating a new one. For an audio player, this means playback continues uninterrupted.
+Saat menavigasi ke halaman baru yang juga berisi elemen persisten dengan nama yang sama, Livewire menggunakan kembali elemen DOM yang sudah ada alih-alih membuat yang baru. Untuk pemutar audio, ini berarti pemutaran musik tetap berlanjut tanpa terhenti.
 
-> [!tip] Requires wire:navigate
-> The `@@persist` directive only works when navigation is handled by Livewire's `wire:navigate` feature. Standard page loads will not preserve elements.
+> [!tip] Memerlukan wire:navigate
+> Direktif `@persist` hanya berfungsi ketika navigasi ditangani oleh fitur `wire:navigate` milik Livewire. Pemuatan halaman standar (refresh penuh) tidak akan mempertahankan elemen.
 
-## Common use cases
+---
+
+## Kasus penggunaan umum
 
 **Audio/video players**
+
 ```blade
 @persist('podcast-player')
     <audio src="{{ $episode->audio_url }}" controls></audio>
 @endpersist
+
 ```
 
 **Chat widgets**
+
 ```blade
 @persist('support-chat')
     <div id="chat-widget">
-        <!-- Chat interface... -->
-    </div>
+        </div>
 @endpersist
+
 ```
 
 **Third-party widgets**
+
 ```blade
 @persist('analytics-widget')
     <div id="analytics-dashboard">
-        <!-- Complex widget that's expensive to initialize... -->
-    </div>
+        </div>
 @endpersist
+
 ```
 
-## Placement in layouts
+---
 
-Persisted elements should typically be placed outside Livewire components, commonly in your main layout:
+## Penempatan dalam layouts
+
+Elemen yang dipersistenkan biasanya harus ditempatkan di luar komponen Livewire, umumnya di dalam **layout** utama Anda:
 
 ```blade
-<!-- resources/views/layouts/app.blade.php -->
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
         <title>{{ $title ?? config('app.name') }}</title>
-
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
         @livewireStyles
     </head>
     <body>
@@ -73,23 +77,28 @@ Persisted elements should typically be placed outside Livewire components, commo
         @livewireScripts
     </body>
 </html>
+
 ```
 
-## Preserving scroll position
+---
 
-For scrollable persisted elements, add `wire:navigate:scroll` to maintain scroll position:
+## Mempertahankan posisi scroll
+
+Untuk elemen persisten yang dapat di-*scroll*, tambahkan `wire:navigate:scroll` untuk menjaga posisi *scroll*:
 
 ```blade
 @persist('scrollable-list')
     <div class="overflow-y-scroll" wire:navigate:scroll>
-        <!-- Scrollable content... -->
-    </div>
+        </div>
 @endpersist
+
 ```
 
-## Active link highlighting
+---
 
-Inside persisted elements, use `wire:current` instead of server-side conditionals to highlight active links:
+## Highlight link aktif
+
+Di dalam elemen yang dipersistenkan, gunakan `wire:current` alih-alih kondisional sisi server untuk menyoroti tautan yang aktif:
 
 ```blade
 @persist('navigation')
@@ -99,27 +108,29 @@ Inside persisted elements, use `wire:current` instead of server-side conditional
         <a href="/users" wire:navigate wire:current="font-bold">Users</a>
     </nav>
 @endpersist
+
 ```
 
-[Learn more about wire:current →](/docs/4.x/wire-current)
+---
 
-## How it works
+## Cara kerjanya
 
-When navigating with `wire:navigate`:
-1. Livewire looks for elements with matching `@persist` names on both pages
-2. If found, the existing element is moved to the new page's DOM
-3. The element's state, event listeners, and Alpine data are preserved
+Saat menavigasi dengan `wire:navigate`:
 
-[Learn more about navigation →](/docs/4.x/navigate)
+1. Livewire mencari elemen dengan nama `@persist` yang cocok di kedua halaman.
+2. Jika ditemukan, elemen yang sudah ada dipindahkan ke DOM halaman baru.
+3. **State**, *event listeners*, dan data Alpine pada elemen tersebut tetap terjaga.
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 @persist(string $key)
-    <!-- Content -->
-@endpersist
+    @endpersist
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$key` | `string` | *required* | A unique name identifying the element to persist across page navigations |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$key` | `string` | *required* | Nama unik yang mengidentifikasi elemen agar tetap ada di berbagai navigasi halaman. |
