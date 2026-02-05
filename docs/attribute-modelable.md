@@ -1,8 +1,8 @@
-The `#[Modelable]` attribute designates a property in a child component that can be bound to from a parent component using `wire:model`.
+Atribut `#[Modelable]` menetapkan sebuah properti di dalam **child component** agar dapat dihubungkan (*bound*) dari **parent component** menggunakan `wire:model`.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Modelable]` attribute to a property in a child component to make it bindable:
+Terapkan atribut `#[Modelable]` pada properti di **child component** agar properti tersebut dapat dihubungkan:
 
 ```php
 <?php // resources/views/components/⚡todo-input.blade.php
@@ -19,9 +19,10 @@ new class extends Component {
 <div>
     <input type="text" wire:model="value">
 </div>
+
 ```
 
-Now the parent component can bind to this child component just like any other input element:
+Sekarang **parent component** dapat terhubung ke **child component** ini sama seperti elemen input lainnya:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -33,37 +34,41 @@ new class extends Component {
 
     public function addTodo()
     {
-        // Use $this->todo here...
+        // Gunakan $this->todo di sini...
     }
 };
 ?>
 
 <div>
-    <livewire:todo-input wire:model="todo" /> <!-- [tl! highlight] -->
-
-    <button wire:click="addTodo">Add Todo</button>
+    <livewire:todo-input wire:model="todo" /> <button wire:click="addTodo">Add Todo</button>
 </div>
+
 ```
 
-When the user types in the `todo-input` component, the parent's `$todo` property automatically updates.
+Ketika pengguna mengetik di komponen `todo-input`, properti `$todo` milik **parent** akan diperbarui secara otomatis.
 
-## How it works
+---
 
-Without `#[Modelable]`, you would need to manually handle two-way communication between parent and child:
+## Cara kerjanya
+
+Tanpa `#[Modelable]`, Anda perlu menangani komunikasi dua arah antara **parent** dan **child** secara manual:
 
 ```php
-// Without #[Modelable] - manual approach
+// Tanpa #[Modelable] - pendekatan manual
 <livewire:todo-input
     :value="$todo"
     @input="todo = $event.value"
 />
+
 ```
 
-The `#[Modelable]` attribute simplifies this by allowing `wire:model` to work directly on the component.
+Atribut `#[Modelable]` menyederhanakan hal ini dengan mengizinkan `wire:model` bekerja langsung pada komponen tersebut.
 
-## Building reusable input components
+---
 
-`#[Modelable]` is perfect for creating custom input components that feel like native HTML inputs:
+## Membangun komponen input yang dapat digunakan kembali
+
+`#[Modelable]` sangat cocok untuk membuat komponen input kustom yang terasa seperti input HTML bawaan:
 
 ```php
 <?php // resources/views/components/⚡date-picker.blade.php
@@ -84,32 +89,39 @@ new class extends Component {
         class="border rounded px-3 py-2"
     >
 </div>
+
 ```
 
 ```blade
-{{-- Usage in parent --}}
+{{-- Penggunaan di parent --}}
 <livewire:date-picker wire:model="startDate" />
 <livewire:date-picker wire:model="endDate" />
+
 ```
+
+---
 
 ## Modifiers
 
-The parent can use wire:model modifiers, and they'll work as expected:
+**Parent** dapat menggunakan **modifiers** `wire:model`, dan mereka akan bekerja sebagaimana mestinya:
 
 ```blade
-{{-- Live updates on every keystroke --}}
+{{-- Pembaruan langsung pada setiap ketukan tombol --}}
 <livewire:todo-input wire:model.live="todo" />
 
-{{-- Update on blur --}}
+{{-- Diperbarui saat kehilangan fokus (blur) --}}
 <livewire:todo-input wire:model.live.blur="todo" />
 
-{{-- Debounce updates --}}
+{{-- Memberikan jeda (debounce) pada pembaruan --}}
 <livewire:todo-input wire:model.live.debounce.500ms="todo" />
+
 ```
 
-## Example: Custom rich text editor
+---
 
-Here's a more complex example of a rich-text editor component:
+## Contoh: Custom rich text editor
+
+Berikut adalah contoh yang lebih kompleks dari komponen editor teks kaya (*rich-text editor*):
 
 ```php
 <?php // resources/views/components/⚡rich-editor.blade.php
@@ -126,36 +138,37 @@ new class extends Component {
 <div>
     <div
         x-init="
-            // Initialize your rich text editor library here
+            // Inisialisasi library rich text editor Anda di sini
             editor.on('change', () => {
                 $wire.content = editor.getContent()
             })
         "
     >
-        <!-- Rich text editor UI -->
-    </div>
+        </div>
 </div>
+
 ```
 
-```blade
-{{-- Usage --}}
-<livewire:rich-editor wire:model="postContent" />
-```
+---
 
-## Limitations
+## Batasan
 
-> [!warning] Only one modelable property per component
-> Currently Livewire only supports a single `#[Modelable]` attribute per component, so only the first one will be bound.
+> [!warning] Hanya satu properti modelable per komponen
+> Saat ini Livewire hanya mendukung satu atribut `#[Modelable]` per komponen, sehingga hanya atribut pertama yang akan dihubungkan.
 
-## When to use
+---
 
-Use `#[Modelable]` when:
+## Kapan harus menggunakan
 
-* Creating reusable input components (date pickers, color pickers, rich text editors)
-* Building form components that need to work with `wire:model`
-* Wrapping third-party JavaScript libraries as Livewire components
-* Creating custom inputs with special validation or formatting
+Gunakan `#[Modelable]` ketika:
 
-## Learn more
+* Membuat komponen input yang dapat digunakan kembali (*date pickers*, *color pickers*, *rich text editors*).
+* Membangun komponen formulir yang perlu bekerja dengan `wire:model`.
+* Membungkus pustaka JavaScript pihak ketiga sebagai komponen Livewire.
+* Membuat input kustom dengan validasi atau pemformatan khusus.
 
-For more information about parent-child communication and data binding, see the [Nesting Components documentation](/docs/4.x/nesting#binding-to-child-data-using-wiremodel).
+---
+
+## Pelajari lebih lanjut
+
+Untuk informasi lebih lanjut tentang komunikasi antara *parent-child* dan pengikatan data, lihat [dokumentasi Nesting Components](https://www.google.com/search?q=/docs/4.x/nesting%23binding-to-child-data-using-wiremodel).
