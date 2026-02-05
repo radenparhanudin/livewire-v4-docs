@@ -1,8 +1,8 @@
-The `#[Computed]` attribute allows you to create derived properties that are cached during a request, providing a performance advantage when accessing expensive operations multiple times.
+Atribut `#[Computed]` memungkinkan Anda membuat properti turunan yang disimpan dalam cache selama sebuah *request*, memberikan keuntungan performa saat mengakses operasi yang berat (*expensive operations*) berkali-kali.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Computed]` attribute to any method to turn it into a cached property:
+Terapkan atribut `#[Computed]` ke metode apa pun untuk mengubahnya menjadi properti yang di-cache:
 
 ```php
 <?php // resources/views/components/user/⚡show.blade.php
@@ -25,6 +25,7 @@ new class extends Component {
         Auth::user()->follow($this->user);
     }
 };
+
 ```
 
 ```blade
@@ -34,16 +35,19 @@ new class extends Component {
 
     <button wire:click="follow">Follow</button>
 </div>
+
 ```
 
-The `user()` method is accessed like a property using `$this->user`. The first time it's called, the result is cached and reused for the rest of the request.
+Metode `user()` diakses seperti properti menggunakan `$this->user`. Pertama kali dipanggil, hasilnya akan di-cache dan digunakan kembali untuk sisa *request* tersebut.
 
-> [!info] Must use `$this` in templates
-> Unlike normal properties, computed properties must be accessed via `$this` in your template. For example, `$this->posts` instead of `$posts`.
+> [!info] Harus menggunakan `$this` di dalam templates
+> Berbeda dengan properti normal, **computed properties** harus diakses melalui `$this` di dalam template Anda. Contohnya, gunakan `$this->posts` alih-alih `$posts`.
 
-## Performance advantage
+---
 
-Computed properties cache their result for the duration of a request. If you access `$this->posts` multiple times, the underlying method only executes once:
+## Keuntungan Performa
+
+**Computed properties** menyimpan hasilnya di cache selama durasi satu *request*. Jika Anda mengakses `$this->posts` beberapa kali, metode di baliknya hanya akan dieksekusi sekali:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -56,49 +60,41 @@ new class extends Component {
     #[Computed] // [tl! highlight]
     public function posts()
     {
-        return Auth::user()->posts; // Only queries database once
+        return Auth::user()->posts; // Hanya melakukan query database satu kali
     }
 };
+
 ```
 
-This allows you to freely access derived values without worrying about performance implications.
+Ini memungkinkan Anda mengakses nilai turunan secara bebas tanpa khawatir tentang implikasi performa.
 
-## Busting the cache
+---
 
-If the underlying data changes during a request, you can clear the cache using `unset()`:
+## Membersihkan cache (Busting the cache)
+
+Jika data yang mendasarinya berubah selama *request*, Anda dapat membersihkan cache menggunakan `unset()`:
 
 ```php
-<?php // resources/views/components/post/⚡index.blade.php
-
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
-
-new class extends Component {
-    #[Computed]
-    public function posts()
-    {
-        return Auth::user()->posts;
+public function createPost()
+{
+    if ($this->posts->count() > 10) {
+        throw new \Exception('Maximum post count exceeded');
     }
 
-    public function createPost()
-    {
-        if ($this->posts->count() > 10) {
-            throw new \Exception('Maximum post count exceeded');
-        }
+    Auth::user()->posts()->create(...);
 
-        Auth::user()->posts()->create(...);
+    unset($this->posts); // Membersihkan cache [tl! highlight]
+}
 
-        unset($this->posts); // Clear cache [tl! highlight]
-    }
-};
 ```
 
-After creating a new post, `unset($this->posts)` clears the cache so the next access retrieves the updated data.
+Setelah membuat postingan baru, `unset($this->posts)` akan menghapus cache sehingga akses berikutnya akan mengambil data yang sudah diperbarui.
 
-## Caching between requests
+---
 
-By default, computed properties only cache within a single request. To cache across multiple requests, use the `persist` parameter:
+## Caching antar request
+
+Secara default, **computed properties** hanya menyimpan cache dalam satu *request*. Untuk menyimpan cache di beberapa *request* yang berbeda, gunakan parameter `persist`:
 
 ```php
 #[Computed(persist: true)] // [tl! highlight]
@@ -106,54 +102,65 @@ public function user()
 {
     return User::find($this->userId);
 }
+
 ```
 
-This caches the value for 3600 seconds (1 hour). You can customize the duration:
+Ini akan menyimpan nilai di cache selama 3600 detik (1 jam). Anda dapat menyesuaikan durasinya:
 
 ```php
-#[Computed(persist: true, seconds: 7200)] // 2 hours [tl! highlight]
+#[Computed(persist: true, seconds: 7200)] // 2 jam [tl! highlight]
+
 ```
 
-## Caching across all components
+---
 
-To share cached values across all component instances in your application, use the `cache` parameter:
+## Caching di semua component
+
+Untuk berbagi nilai cache ke seluruh instansi **component** di aplikasi Anda, gunakan parameter `cache`:
 
 ```php
-use Livewire\Attributes\Computed;
-use App\Models\Post;
-
 #[Computed(cache: true)] // [tl! highlight]
 public function posts()
 {
     return Post::all();
 }
+
 ```
 
-You can optionally set a custom cache key:
+Anda juga dapat menetapkan kunci cache kustom secara opsional:
 
 ```php
 #[Computed(cache: true, key: 'homepage-posts')] // [tl! highlight]
+
 ```
 
-## When to use
+---
 
-Computed properties are especially useful when:
+## Kapan harus menggunakan
 
-* **Conditionally accessing expensive data** - Only query the database if the value is actually used in the template
-* **Using inline templates** - No opportunity to pass data via `render()`
-* **Omitting the render method** - Following v4's single-file component convention
-* **Accessing the same value multiple times** - Automatic caching prevents redundant queries
+**Computed properties** sangat berguna ketika:
 
-## Limitations
+* **Mengakses data berat secara kondisional** — Hanya melakukan query ke database jika nilainya benar-benar digunakan di template.
+* **Menggunakan inline templates** — Tidak ada kesempatan untuk mengirim data melalui `render()`.
+* **Menghilangkan metode render** — Mengikuti konvensi *single-file component* versi 4.
+* **Mengakses nilai yang sama berkali-kali** — Caching otomatis mencegah query yang mubazir.
 
-> [!warning] Not supported on Form objects
-> Computed properties cannot be used on `Livewire\Form` objects. Attempting to access them via `$form->property` will result in an error.
+---
 
-## Learn more
+## Batasan
 
-For detailed information about computed properties, caching strategies, and advanced use cases, see the [Computed Properties documentation](/docs/4.x/computed-properties).
+> [!warning] Tidak didukung pada Form objects
+> **Computed properties** tidak dapat digunakan pada objek `Livewire\Form`. Mencoba mengaksesnya melalui `$form->property` akan menyebabkan error.
 
-## Reference
+---
+
+## Pelajari lebih lanjut
+
+Untuk informasi mendalam tentang **computed properties**, strategi caching, dan kasus penggunaan tingkat lanjut, lihat [dokumentasi Computed Properties](https://www.google.com/search?q=/docs/4.x/computed-properties).
+
+---
+
+## Referensi
 
 ```php
 #[Computed(
@@ -163,12 +170,13 @@ For detailed information about computed properties, caching strategies, and adva
     ?string $key = null,
     mixed $tags = null,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$persist` | `bool` | `false` | Cache the value across requests for the same component instance |
-| `$seconds` | `int` | `3600` | Duration in seconds to cache the value |
-| `$cache` | `bool` | `false` | Cache the value across all component instances |
-| `$key` | `?string` | `null` | Custom cache key (auto-generated if not provided) |
-| `$tags` | `mixed` | `null` | Cache tags (requires a cache driver that supports tags) |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$persist` | `bool` | `false` | Menyimpan nilai di cache lintas *requests* untuk instansi komponen yang sama. |
+| `$seconds` | `int` | `3600` | Durasi dalam detik untuk menyimpan nilai di cache. |
+| `$cache` | `bool` | `false` | Menyimpan nilai di cache untuk semua instansi komponen. |
+| `$key` | `?string` | `null` | Kunci cache kustom (dibuat otomatis jika tidak diisi). |
+| `$tags` | `mixed` | `null` | Tag cache (membutuhkan *cache driver* yang mendukung tag). |
