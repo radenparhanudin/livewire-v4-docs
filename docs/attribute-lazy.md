@@ -1,8 +1,8 @@
-The `#[Lazy]` attribute makes a component load only when it becomes visible in the viewport, preventing slow components from blocking the initial page render.
+Atribut `#[Lazy]` membuat sebuah **component** hanya dimuat ketika ia menjadi terlihat di dalam **viewport**, mencegah **component** yang lambat menghambat proses *render* halaman awal.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Lazy]` attribute to any component that should be lazy-loaded:
+Terapkan atribut `#[Lazy]` pada **component** apa pun yang ingin dimuat secara *lazy-load*:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -16,7 +16,7 @@ new #[Lazy] class extends Component { // [tl! highlight]
 
     public function mount()
     {
-        // Slow database query...
+        // Query database yang lambat...
         $this->amount = Transaction::monthToDate()->sum('amount');
     }
 };
@@ -25,22 +25,29 @@ new #[Lazy] class extends Component { // [tl! highlight]
 <div>
     Revenue this month: {{ $amount }}
 </div>
+
 ```
 
-With `#[Lazy]`, the component initially renders as an empty `<div></div>`, then loads when it enters the viewport—typically when a user scrolls to it.
+Dengan `#[Lazy]`, **component** awalnya akan di-*render* sebagai `<div></div>` kosong, lalu dimuat saat ia masuk ke dalam **viewport**—biasanya saat pengguna menggulir halaman ke arahnya.
+
+---
 
 ## Lazy vs Defer
 
-Livewire provides two ways to delay component loading:
+Livewire menyediakan dua cara untuk menunda pemuatan **component**:
 
-* **Lazy loading (`#[Lazy]`)** - Components load when they become visible in the viewport (when the user scrolls to them)
-* **Deferred loading (`#[Defer]`)** - Components load immediately after the initial page load is complete
+* **Lazy loading (`#[Lazy]`)** – **Component** dimuat saat terlihat di dalam **viewport** (saat pengguna menggulir ke arahnya).
+* **Deferred loading (`#[Defer]`)** – **Component** dimuat segera setelah pemuatan halaman awal selesai.
 
-Use lazy loading for components below the fold that users might not scroll to. Use defer for components that are always visible but you want to load after the page renders.
+Gunakan *lazy loading* untuk **component** yang berada di bawah lipatan (*below the fold*) di mana pengguna mungkin tidak akan menggulir ke sana. Gunakan *defer* untuk **component** yang selalu terlihat tetapi Anda ingin memuatnya setelah halaman selesai di-*render*.
+
+[Image comparing lazy vs defer loading triggers in a web page]
+
+---
 
 ## Rendering placeholders
 
-By default, Livewire renders an empty `<div></div>` before the component loads. You can provide a custom placeholder using the `placeholder()` method:
+Secara default, Livewire me-*render* `<div></div>` kosong sebelum **component** dimuat. Anda dapat menyediakan **placeholder** kustom menggunakan metode `placeholder()`:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -71,16 +78,19 @@ new #[Lazy] class extends Component {
 <div>
     Revenue this month: {{ $amount }}
 </div>
+
 ```
 
-Users will see a skeleton placeholder until the component enters the viewport and loads.
+Pengguna akan melihat **placeholder** berupa *skeleton* sampai **component** masuk ke dalam **viewport** dan dimuat.
 
-> [!warning] Match placeholder element type
-> If your placeholder's root element is a `<div>`, your component must also use a `<div>` element.
+> [!warning] Samakan tipe elemen root placeholder
+> Jika elemen *root* pada **placeholder** Anda adalah `<div>`, maka **component** Anda juga harus menggunakan elemen `<div>`.
+
+---
 
 ## Bundling requests
 
-By default, lazy components load in parallel with independent network requests. To bundle multiple lazy components into a single request, use the `bundle` parameter:
+Secara default, **lazy components** dimuat secara paralel dengan *network requests* yang independen. Untuk menggabungkan beberapa **lazy components** ke dalam satu permintaan (*request*), gunakan parameter `bundle`:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -91,51 +101,57 @@ use Livewire\Component;
 new #[Lazy(bundle: true)] class extends Component { // [tl! highlight]
     // ...
 };
+
 ```
 
-Now, if there are ten `revenue` components on the page, all ten will load via a single bundled network request instead of ten parallel requests.
+Sekarang, jika ada sepuluh komponen `revenue` di halaman, kesepuluhnya akan dimuat melalui satu *bundled network request* alih-alih sepuluh *requests* paralel.
 
-## Alternative approach
+---
 
-### Using the lazy parameter
+## Pendekatan alternatif
 
-Instead of the attribute, you can lazy-load specific component instances using the `lazy` parameter:
+### Menggunakan parameter lazy
+
+Alih-alih menggunakan atribut, Anda dapat melakukan *lazy-load* pada instansi **component** tertentu menggunakan parameter `lazy`:
 
 ```blade
 <livewire:revenue lazy />
+
 ```
 
-This is useful when you only want certain instances of a component to be lazy-loaded.
+Ini berguna ketika Anda hanya ingin instansi tertentu dari sebuah **component** yang dimuat secara *lazy-load*.
 
-### Overriding the attribute
+### Mengabaikan atribut (Overriding)
 
-If a component has `#[Lazy]` but you want to load it immediately in certain cases, you can override it:
+Jika sebuah **component** memiliki `#[Lazy]` tetapi Anda ingin memuatnya segera dalam kasus tertentu, Anda dapat mengabaikannya:
 
 ```blade
 <livewire:revenue :lazy="false" />
+
 ```
 
-## When to use
+---
 
-Use `#[Lazy]` when:
+## Kapan harus menggunakan
 
-* Components contain slow operations (database queries, API calls) that would delay page load
-* The component is below the fold and users might not scroll to it
-* You want to improve perceived performance by showing the page faster
-* You have multiple expensive components on a single page
+Gunakan `#[Lazy]` ketika:
 
-## Learn more
+* **Component** mengandung operasi lambat (query database, API calls) yang akan menunda pemuatan halaman.
+* **Component** berada di bawah lipatan (*below the fold*) dan pengguna mungkin tidak akan menggulir ke sana.
+* Anda ingin meningkatkan persepsi performa dengan menampilkan halaman lebih cepat.
+* Anda memiliki banyak **component** yang memakan sumber daya besar dalam satu halaman.
 
-For complete documentation on lazy loading, including placeholders, bundling strategies, and passing props, see the [Lazy Loading documentation](/docs/4.x/lazy).
+---
 
-## Reference
+## Referensi
 
 ```php
 #[Lazy(
     bool|null $bundle = null,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$bundle` | `bool\|null` | `null` | Bundle multiple lazy components into a single network request |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$bundle` | `bool|null` | `null` | Menggabungkan beberapa lazy components ke dalam satu network request. |
