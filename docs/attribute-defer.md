@@ -1,8 +1,8 @@
-The `#[Defer]` attribute makes a component load immediately after the initial page load is complete, preventing slow components from blocking the page render.
+Atribut `#[Defer]` membuat sebuah **component** dimuat segera setelah pemuatan halaman awal selesai, mencegah **component** yang lambat menghambat proses *render* halaman.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Defer]` attribute to any component that should be deferred:
+Terapkan atribut `#[Defer]` pada **component** apa pun yang ingin ditunda pemuatannya:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -16,7 +16,7 @@ new #[Defer] class extends Component { // [tl! highlight]
 
     public function mount()
     {
-        // Slow database query...
+        // Query database yang lambat...
         $this->amount = Transaction::monthToDate()->sum('amount');
     }
 };
@@ -25,22 +25,29 @@ new #[Defer] class extends Component { // [tl! highlight]
 <div>
     Revenue this month: {{ $amount }}
 </div>
+
 ```
 
-With `#[Defer]`, the component initially renders as an empty `<div></div>`, then loads immediately after the page finishes loading—without waiting for it to enter the viewport.
+Dengan `#[Defer]`, **component** awalnya akan di-*render* sebagai `<div></div>` kosong, lalu dimuat segera setelah halaman selesai dimuat—tanpa menunggu elemen tersebut masuk ke dalam **viewport**.
+
+---
 
 ## Lazy vs Defer
 
-Livewire provides two ways to delay component loading:
+Livewire menyediakan dua cara untuk menunda pemuatan **component**:
 
-* **Lazy loading (`#[Lazy]`)** - Components load when they become visible in the viewport (when the user scrolls to them)
-* **Deferred loading (`#[Defer]`)** - Components load immediately after the initial page load is complete
+* **Lazy loading (`#[Lazy]`)** – **Component** dimuat saat terlihat di dalam **viewport** (saat pengguna menggulir ke arah elemen tersebut).
+* **Deferred loading (`#[Defer]`)** – **Component** dimuat segera setelah pemuatan halaman awal selesai.
 
-Both prevent slow components from blocking your initial page render, but differ in when the component actually loads.
+Keduanya mencegah **component** yang lambat menghambat *render* halaman awal Anda, namun berbeda pada kapan **component** tersebut benar-benar dimuat.
+
+[Image comparing lazy loading versus deferred loading triggers]
+
+---
 
 ## Rendering placeholders
 
-By default, Livewire renders an empty `<div></div>` before the component loads. You can provide a custom placeholder using the `placeholder()` method:
+Secara default, Livewire me-*render* `<div></div>` kosong sebelum **component** dimuat. Anda dapat menyediakan **placeholder** kustom menggunakan metode `placeholder()`:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -61,7 +68,7 @@ new #[Defer] class extends Component {
     {
         return <<<'HTML'
         <div>
-            <svg><!-- Loading spinner... --></svg>
+            <svg></svg>
         </div>
         HTML;
     } // [tl! highlight:end]
@@ -71,16 +78,19 @@ new #[Defer] class extends Component {
 <div>
     Revenue this month: {{ $amount }}
 </div>
+
 ```
 
-Users will see the loading spinner until the component fully loads.
+Pengguna akan melihat *loading spinner* sampai **component** dimuat sepenuhnya.
 
-> [!warning] Match placeholder element type
-> If your placeholder's root element is a `<div>`, your component must also use a `<div>` element.
+> [!warning] Samakan tipe elemen root placeholder
+> Jika elemen *root* pada **placeholder** Anda adalah `<div>`, maka **component** Anda juga harus menggunakan elemen `<div>`.
+
+---
 
 ## Bundling requests
 
-By default, deferred components load in parallel with independent network requests. To bundle multiple deferred components into a single request, use the `bundle` parameter:
+Secara default, **deferred components** dimuat secara paralel dengan *network requests* yang independen. Untuk menggabungkan beberapa **deferred components** ke dalam satu permintaan (*request*), gunakan parameter `bundle`:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -91,50 +101,56 @@ use Livewire\Component;
 new #[Defer(bundle: true)] class extends Component { // [tl! highlight]
     // ...
 };
+
 ```
 
-Now, if there are ten `revenue` components on the page, all ten will load via a single bundled network request instead of ten parallel requests.
+Sekarang, jika ada sepuluh komponen `revenue` di halaman, kesepuluhnya akan dimuat melalui satu *bundled network request* alih-alih sepuluh *requests* paralel.
 
-## Alternative approach
+---
 
-### Using the defer parameter
+## Pendekatan alternatif
 
-Instead of the attribute, you can defer specific component instances using the `defer` parameter:
+### Menggunakan parameter defer
+
+Alih-alih menggunakan atribut, Anda dapat menunda instansi **component** tertentu menggunakan parameter `defer`:
 
 ```blade
 <livewire:revenue defer />
+
 ```
 
-This is useful when you only want certain instances of a component to be deferred.
+Ini berguna ketika Anda hanya ingin instansi tertentu dari sebuah **component** yang ditunda pemuatannya.
 
-### Overriding the attribute
+### Mengabaikan atribut (Overriding)
 
-If a component has `#[Defer]` but you want to load it immediately in certain cases, you can override it:
+Jika sebuah **component** memiliki `#[Defer]` tetapi Anda ingin memuatnya segera dalam kasus tertentu, Anda dapat mengabaikannya:
 
 ```blade
 <livewire:revenue :defer="false" />
+
 ```
 
-## When to use
+---
 
-Use `#[Defer]` when:
+## Kapan harus menggunakan
 
-* Components contain slow operations (database queries, API calls) that would delay page load
-* The component is always visible on initial page load (if it's below the fold, use `#[Lazy]` instead)
-* You want to improve perceived performance by showing the page faster
+Gunakan `#[Defer]` ketika:
 
-## Learn more
+* **Component** mengandung operasi lambat (query database, API calls) yang akan menunda pemuatan halaman.
+* **Component** selalu terlihat pada pemuatan halaman awal (jika berada di bawah lipatan/*below the fold*, gunakan `#[Lazy]`).
+* Anda ingin meningkatkan persepsi performa dengan menampilkan halaman lebih cepat.
 
-For complete documentation on lazy and deferred loading, including placeholders and bundling strategies, see the [Lazy Loading documentation](/docs/4.x/lazy).
+---
 
-## Reference
+## Referensi
 
 ```php
 #[Defer(
     bool|null $bundle = null,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$bundle` | `bool\|null` | `null` | Bundle multiple deferred components into a single network request |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$bundle` | `bool|null` | `null` | Menggabungkan beberapa deferred components ke dalam satu network request. |
