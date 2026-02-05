@@ -1,16 +1,15 @@
+Seperti banyak framework berbasis komponen lainnya, komponen Livewire dapat disarangkan (*nestable*) — artinya satu komponen dapat me-render beberapa komponen di dalam dirinya sendiri.
 
-Like many other component-based frameworks, Livewire components are nestable — meaning one component can render multiple components within itself.
+Namun, karena sistem penyarangan Livewire dibangun secara berbeda dari framework lain, ada implikasi dan batasan tertentu yang penting untuk disadari.
 
-However, because Livewire's nesting system is built differently than other frameworks, there are certain implications and constraints that are important to be aware of.
+> [!tip] Pastikan Anda memahami hydration terlebih dahulu
+> Sebelum mempelajari lebih lanjut tentang sistem penyarangan Livewire, sangat membantu jika Anda memahami sepenuhnya bagaimana Livewire melakukan *hydrate* pada komponen. Anda dapat mempelajari lebih lanjut dengan membaca [dokumentasi hydration](https://www.google.com/search?q=/docs/4.x/hydration).
 
-> [!tip] Make sure you understand hydration first
-> Before learning more about Livewire's nesting system, it's helpful to fully understand how Livewire hydrates components. You can learn more by reading the [hydration documentation](/docs/4.x/hydration).
+## Setiap komponen bersifat independen {#every-component-is-an-island}
 
-## Every component is independent {#every-component-is-an-island}
+Di Livewire, setiap komponen pada sebuah halaman melacak statusnya dan melakukan pembaruan secara independen dari komponen lainnya.
 
-In Livewire, every component on a page tracks its state and makes updates independently of other components.
-
-For example, consider the following `Posts` and nested `ShowPost` components:
+Sebagai contoh, perhatikan komponen `Posts` dan komponen `ShowPost` yang disarangkan di dalamnya:
 
 ```php
 <?php
@@ -32,6 +31,7 @@ class Posts extends Component
         ]);
     }
 }
+
 ```
 
 ```blade
@@ -42,6 +42,7 @@ class Posts extends Component
         <livewire:show-post :$post :wire:key="$post->id">
     @endforeach
 </div>
+
 ```
 
 ```php
@@ -49,7 +50,6 @@ class Posts extends Component
 
 namespace App\Livewire;
 
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use App\Models\Post;
 
@@ -62,6 +62,7 @@ class ShowPost extends Component
         return view('livewire.show-post');
     }
 }
+
 ```
 
 ```blade
@@ -72,9 +73,10 @@ class ShowPost extends Component
 
     <button wire:click="$refresh">Refresh post</button>
 </div>
+
 ```
 
-Here's what the HTML for the entire component tree might look like on initial page load:
+Berikut adalah tampilan HTML untuk seluruh pohon komponen pada saat pemuatan halaman awal:
 
 ```html
 <div wire:id="123" wire:snapshot="...">
@@ -82,31 +84,28 @@ Here's what the HTML for the entire component tree might look like on initial pa
 
     <div wire:id="456" wire:snapshot="...">
         <h1>The first post</h1>
-
         <p>Post content</p>
-
         <button wire:click="$refresh">Refresh post</button>
     </div>
 
     <div wire:id="789" wire:snapshot="...">
         <h1>The second post</h1>
-
         <p>Post content</p>
-
         <button wire:click="$refresh">Refresh post</button>
     </div>
 </div>
+
 ```
 
-Notice that the parent component contains both its rendered template and the rendered templates of all the components nested within it.
+Perhatikan bahwa komponen induk berisi template yang di-render miliknya sendiri sekaligus template yang di-render dari semua komponen yang disarangkan di dalamnya.
 
-Because each component is independent, they each have their own IDs and snapshots (`wire:id` and `wire:snapshot`) embedded in their HTML for Livewire's JavaScript core to extract and track.
+Karena setiap komponen bersifat independen, masing-masing memiliki ID dan *snapshot* mereka sendiri (`wire:id` dan `wire:snapshot`) yang tertanam dalam HTML agar inti JavaScript Livewire dapat mengekstrak dan melacaknya.
 
-Let's consider a few different update scenarios to see the differences in how Livewire handles different levels of nesting.
+Mari kita pertimbangkan beberapa skenario pembaruan yang berbeda untuk melihat perbedaan cara Livewire menangani berbagai level penyarangan.
 
-### Updating a child
+### Memperbarui komponen anak (Child)
 
-If you were to click the "Refresh post" button in one of the child `show-post` components, here is what would be sent to the server:
+Jika Anda mengeklik tombol "Refresh post" di salah satu komponen anak `show-post`, berikut adalah apa yang akan dikirim ke server:
 
 ```js
 {
@@ -114,9 +113,10 @@ If you were to click the "Refresh post" button in one of the child `show-post` c
 
     state: { ... },
 }
+
 ```
 
-Here's the HTML that would get sent back:
+Dan berikut adalah HTML yang akan dikirimkan kembali:
 
 ```html
 <div wire:id="456">
@@ -126,15 +126,16 @@ Here's the HTML that would get sent back:
 
     <button wire:click="$refresh">Refresh post</button>
 </div>
+
 ```
 
-The important thing to note here is that when an update is triggered on a child component, only that component's data is sent to the server, and only that component is re-rendered.
+Hal penting yang perlu dicatat di sini adalah ketika pembaruan dipicu pada komponen anak, hanya data komponen tersebut yang dikirim ke server, dan hanya komponen tersebut yang di-render ulang.
 
-Now let's look at the less intuitive scenario: updating a parent component.
+Sekarang mari kita lihat skenario yang kurang intuitif: memperbarui komponen induk (parent).
 
-### Updating the parent
+### Memperbarui komponen induk (Parent)
 
-As a reminder, here's the Blade template of the parent `Posts` component:
+Sebagai pengingat, berikut adalah template Blade dari komponen induk `Posts`:
 
 ```blade
 <div>
@@ -144,11 +145,12 @@ As a reminder, here's the Blade template of the parent `Posts` component:
         <livewire:show-post :$post :wire:key="$post->id">
     @endforeach
 </div>
+
 ```
 
-If a user changes the "Post Limit" value from `2` to `1`, an update will be solely triggered on the parent.
+Jika pengguna mengubah nilai "Post Limit" dari `2` menjadi `1`, pembaruan hanya akan dipicu pada komponen induk saja.
 
-Here's an example of what the request payload might look like:
+Berikut adalah contoh bagaimana tampilan *payload* permintaan tersebut:
 
 ```js
 {
@@ -160,17 +162,18 @@ Here's an example of what the request payload might look like:
         state: { postLimit: 2, ... },
     },
 }
+
 ```
 
-As you can see, only the snapshot for the parent `Posts` component is sent along to the server.
+Seperti yang Anda lihat, hanya *snapshot* untuk komponen induk `Posts` yang dikirimkan ke server.
 
-An important question you might be asking yourself is: what happens when the parent component re-renders and encounters the child `show-post` components? How will it re-render the children if their snapshots haven't been included in the request payload?
+Pertanyaan penting yang mungkin Anda tanyakan adalah: apa yang terjadi ketika komponen induk me-render ulang dan menemui komponen anak `show-post`? Bagaimana ia akan me-render ulang anak-anak tersebut jika *snapshot* mereka tidak disertakan dalam *payload* permintaan?
 
-The answer is: they won't be re-rendered.
+Jawabannya adalah: mereka tidak akan di-render ulang.
 
-When Livewire renders the `Posts` component, it will render placeholders for any child components it encounters.
+Ketika Livewire me-render komponen `Posts`, ia akan me-render *placeholders* (penampung) untuk setiap komponen anak yang ditemuinya.
 
-Here is an example of what the rendered HTML for the `Posts` component might be after the above update:
+Berikut adalah contoh HTML hasil render untuk komponen `Posts` setelah pembaruan di atas:
 
 ```html
 <div wire:id="123">
@@ -178,13 +181,14 @@ Here is an example of what the rendered HTML for the `Posts` component might be 
 
     <div wire:id="456"></div>
 </div>
+
 ```
 
-As you can see, only one child has been rendered because `postLimit` was updated to `1`. However, you will also notice that instead of the full child component, there is only an empty `<div></div>` with the matching `wire:id` attribute.
+Hanya satu anak yang di-render karena `postLimit` diperbarui menjadi `1`. Namun, Anda juga akan menyadari bahwa alih-alih komponen anak yang lengkap, hanya ada `<div></div>` kosong dengan atribut `wire:id` yang cocok.
 
-When this HTML is received on the frontend, Livewire will _morph_ the old HTML for this component into this new HTML, but intelligently skip any child component placeholders.
+Ketika HTML ini diterima di frontend, Livewire akan melakukan *morph* pada HTML lama komponen ini menjadi HTML baru tersebut, namun secara cerdas akan melewati setiap *placeholder* komponen anak.
 
-The effect is that, after _morphing_, the final DOM content of the parent `Posts` component will be the following:
+Efeknya adalah, setelah proses *morphing*, konten DOM akhir dari komponen induk `Posts` akan menjadi seperti berikut:
 
 ```html
 <div wire:id="123">
@@ -198,18 +202,21 @@ The effect is that, after _morphing_, the final DOM content of the parent `Posts
         <button wire:click="$refresh">Refresh post</button>
     </div>
 </div>
+
 ```
 
-## Performance implications
+---
 
-Livewire's independent component architecture can have both positive and negative implications for your application.
+## Implikasi Performa
 
-An advantage of this architecture is it allows you to isolate expensive portions of your application. For example, you can quarantine a slow database query to its own independent component, and its performance overhead won't impact the rest of the page.
+Arsitektur komponen independen Livewire dapat memiliki implikasi positif maupun negatif bagi aplikasi Anda.
 
-However, the biggest drawback of this approach is that because components are entirely separate, inter-component communication/dependencies becomes more difficult.
+Keuntungan dari arsitektur ini adalah memungkinkan Anda untuk mengisolasi bagian aplikasi yang "mahal". Sebagai contoh, Anda dapat mengarantina kueri database yang lambat ke komponen independennya sendiri, dan beban performanya tidak akan memengaruhi bagian halaman lainnya.
 
-For example, if you had a property passed down from the above parent `Posts` component to the nested `ShowPost` component, it wouldn't be "reactive". Because each component is independent, if a request to the parent component changed the value of the property being passed into `ShowPost`, it wouldn't update inside `ShowPost`.
+Namun, kelemahan terbesar dari pendekatan ini adalah karena komponen sepenuhnya terpisah, komunikasi/ketergantungan antar komponen menjadi lebih sulit.
 
-Livewire has overcome a number of these hurdles and provides dedicated APIs for these scenarios like: [Reactive properties](/docs/4.x/nesting#reactive-props), [Modelable components](/docs/4.x/nesting#binding-to-child-data-using-wiremodel), and [the `$parent` object](/docs/4.x/nesting#directly-accessing-the-parent-from-the-child).
+Sebagai contoh, jika Anda memiliki properti yang diteruskan dari komponen induk `Posts` di atas ke komponen `ShowPost` yang disarangkan, properti tersebut tidak akan bersifat "reaktif". Karena setiap komponen independen, jika sebuah permintaan ke komponen induk mengubah nilai properti yang diteruskan ke `ShowPost`, nilai tersebut tidak akan diperbarui di dalam `ShowPost`.
 
-Armed with this knowledge of how nested Livewire components operate, you will be able to make more informed decisions about when and how to nest components within your application.
+Livewire telah mengatasi sejumlah hambatan ini dan menyediakan API khusus untuk skenario tersebut seperti: [Reactive properties](https://www.google.com/search?q=/docs/4.x/nesting%23reactive-props), [Modelable components](https://www.google.com/search?q=/docs/4.x/nesting%23binding-to-child-data-using-wiremodel), dan [objek `$parent](https://www.google.com/search?q=/docs/4.x/nesting%23directly-accessing-the-parent-from-the-child)`.
+
+Berbekal pengetahuan tentang bagaimana komponen Livewire yang disarangkan beroperasi, Anda akan dapat membuat keputusan yang lebih tepat tentang kapan dan bagaimana menyarangkan komponen dalam aplikasi Anda.
