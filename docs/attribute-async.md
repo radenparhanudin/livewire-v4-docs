@@ -1,8 +1,8 @@
-The `#[Async]` attribute allows actions to run in parallel without being queued, making them execute immediately even if other requests are in-flight.
+Atribut `#[Async]` memungkinkan **actions** berjalan secara paralel tanpa harus mengantre, membuatnya dieksekusi segera bahkan jika ada *requests* lain yang sedang berjalan (*in-flight*).
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Async]` attribute to any action method that should run in parallel:
+Terapkan atribut `#[Async]` pada metode **action** apa pun yang harus dijalankan secara paralel:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -20,25 +20,28 @@ new class extends Component {
         Activity::log('post-viewed', $this->post);
     }
 };
+
 ```
 
 ```blade
 <div wire:intersect="logActivity">
-    <!-- Logs activity asynchronously when element enters viewport -->
-</div>
+    </div>
+
 ```
 
-When `logActivity()` is called, it executes immediately without blocking other requests or being blocked by them.
+Ketika `logActivity()` dipanggil, ia akan langsung dieksekusi tanpa memblokir *requests* lain atau terblokir oleh mereka.
 
-## When to use
+---
 
-Use `#[Async]` for fire-and-forget operations where the result doesn't affect what's displayed on the page:
+## Kapan harus menggunakan
 
-* **Analytics and logging** - Tracking user behavior, page views, or interactions
-* **Background operations** - Triggering jobs, sending notifications, or updating external services
-* **JavaScript-only results** - Fetching data via `await $wire.getData()` that will be consumed purely by JavaScript
+Gunakan `#[Async]` untuk operasi *fire-and-forget* (jalankan lalu lupakan) di mana hasilnya tidak memengaruhi apa yang ditampilkan di halaman:
 
-Here's an example tracking external link clicks:
+* **Analitik dan Logging** – Melacak perilaku pengguna, tampilan halaman, atau interaksi.
+* **Operasi Latar Belakang** – Memicu *jobs*, mengirim notifikasi, atau memperbarui layanan eksternal.
+* **Hasil khusus JavaScript** – Mengambil data via `await $wire.getData()` yang akan dikonsumsi murni oleh JavaScript.
+
+Berikut adalah contoh pelacakan klik tautan eksternal:
 
 ```php
 <?php // resources/views/components/⚡external-link.blade.php
@@ -58,25 +61,29 @@ new class extends Component {
         ]);
     }
 };
+
 ```
 
 ```blade
 <a href="{{ $url }}" target="_blank" wire:click="trackClick">
     Visit External Site
 </a>
+
 ```
 
-Because tracking happens asynchronously, the user's click isn't delayed by the network request.
+Karena pelacakan terjadi secara asinkron, klik pengguna tidak akan terhambat oleh *network request* tersebut.
 
-## When NOT to use
+---
 
-> [!warning] Async actions and state mutations don't mix
-> **Never use async actions if they modify component state that's reflected in your UI.** Because async actions run in parallel, you can end up with unpredictable race conditions where your component's state diverges across multiple simultaneous requests.
+## Kapan TIDAK boleh menggunakan
 
-Consider this dangerous example:
+> [!warning] Async actions dan mutasi state tidak bisa digabung
+> **Jangan pernah menggunakan async actions jika mereka memodifikasi state component yang tercermin di UI Anda.** Karena async actions berjalan secara paralel, Anda bisa berakhir dengan kondisi *race condition* yang tidak terduga di mana *state component* Anda berbeda di antara beberapa *requests* yang berjalan bersamaan.
+
+Perhatikan contoh berbahaya ini:
 
 ```php
-// Warning: This snippet demonstrates what NOT to do...
+// Peringatan: Cuplikan ini menunjukkan hal yang TIDAK boleh dilakukan...
 
 <?php // resources/views/components/⚡counter.blade.php
 
@@ -86,30 +93,36 @@ use Livewire\Component;
 new class extends Component {
     public $count = 0;
 
-    #[Async] // Don't do this! [tl! highlight]
+    #[Async] // Jangan lakukan ini! [tl! highlight]
     public function increment()
     {
-        $this->count++; // State mutation in an async action [tl! highlight]
+        $this->count++; // Mutasi state di dalam async action [tl! highlight]
     }
 };
+
 ```
 
-If a user rapidly clicks the increment button, multiple async requests fire simultaneously. Each request starts with the same initial `$count` value, leading to lost updates. You might click 5 times but only see the counter increment by 1.
+Jika pengguna mengeklik tombol *increment* dengan cepat, beberapa *async requests* akan terpicu secara bersamaan. Setiap *request* dimulai dengan nilai `$count` awal yang sama, menyebabkan pembaruan data hilang (*lost updates*). Anda mungkin mengeklik 5 kali tetapi hanya melihat penghitung bertambah 1.
 
-**The rule of thumb:** Only use async for actions that perform pure side effects—operations that don't change any properties that affect your component's view.
+**Aturan praktisnya:** Hanya gunakan *async* untuk **actions** yang murni melakukan efek samping (*side effects*)—operasi yang tidak mengubah properti apa pun yang memengaruhi tampilan *view component* Anda.
 
-## Alternative approach
+---
 
-### Using the .async modifier
+## Pendekatan alternatif
 
-Instead of using the attribute, you can make specific action calls async with the `.async` modifier:
+### Menggunakan modifier .async
+
+Alih-alih menggunakan atribut, Anda dapat membuat panggilan **action** tertentu menjadi asinkron dengan **modifier** `.async`:
 
 ```blade
 <button wire:click.async="logActivity">Track Event</button>
+
 ```
 
-This approach is useful when you want the action to be async in some places but synchronous in others.
+Pendekatan ini berguna ketika Anda ingin sebuah **action** berjalan asinkron di beberapa tempat tetapi sinkron di tempat lainnya.
 
-## Learn more
+---
 
-For more information about async actions, race conditions, and advanced use cases, see the [Actions documentation](/docs/4.x/actions#parallel-execution-with-async).
+## Pelajari lebih lanjut
+
+Untuk informasi lebih lanjut tentang *async actions*, *race conditions*, dan kasus penggunaan tingkat lanjut, lihat [dokumentasi Actions](https://www.google.com/search?q=/docs/4.x/actions%23parallel-execution-with-async).
