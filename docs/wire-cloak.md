@@ -1,38 +1,49 @@
+`wire:cloak` adalah direktif yang menyembunyikan elemen saat halaman dimuat sampai Livewire sepenuhnya terinisialisasi. Ini sangat berguna untuk mencegah "flash of unstyled content" (kilatan konten yang belum terformat) yang dapat terjadi ketika halaman muncul sebelum Livewire sempat berjalan.
 
-`wire:cloak` is a directive that hides elements on page load until Livewire is fully initialized. This is useful for preventing the "flash of unstyled content" that can occur when the page loads before Livewire has a chance to initialize.
+## Penggunaan dasar
 
-## Basic usage
-
-To use `wire:cloak`, add the directive to any element you want to hide during page load:
+Untuk menggunakan `wire:cloak`, tambahkan direktif ini ke elemen apa pun yang ingin Anda sembunyikan selama pemuatan halaman:
 
 ```blade
 <div wire:cloak>
-    This content will be hidden until Livewire is fully loaded
+    Konten ini akan disembunyikan sampai Livewire dimuat sepenuhnya
 </div>
+
 ```
 
-### Dynamic content
+Agar direktif ini berfungsi, Anda harus menambahkan gaya CSS berikut ke dalam *stylesheet* atau di dalam tag `<style>` pada *layout* aplikasi Anda:
 
-`wire:cloak` is particularly useful in scenarios where you want to prevent users from seeing uninitialized dynamic content such as element shown or hidden using `wire:show`.
+```css
+[wire\:cloak] {
+    display: none !important;
+}
+
+```
+
+### Konten dinamis
+
+`wire:cloak` sangat berguna dalam skenario di mana Anda ingin mencegah pengguna melihat konten dinamis yang belum terinisialisasi, seperti elemen yang ditampilkan atau disembunyikan menggunakan `wire:show`.
 
 ```blade
 <div>
     <div wire:show="starred" wire:cloak>
-        <!-- Yellow star icon... -->
-    </div>
+        </div>
 
     <div wire:show="!starred" wire:cloak>
-        <!-- Gray star icon... -->
-    </div>
+        </div>
 </div>
+
 ```
 
-In the above example, without `wire:cloak`, both icons would be shown before Livewire initializes. However, with `wire:cloak`, both elements will be hidden until initialization.
+Pada contoh di atas, tanpa `wire:cloak`, kedua ikon akan muncul secara bersamaan sebelum Livewire terinisialisasi. Namun, dengan `wire:cloak`, kedua elemen akan disembunyikan sampai proses inisialisasi selesai.
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:cloak
+
 ```
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
