@@ -1,8 +1,8 @@
-The `#[Locked]` attribute prevents properties from being modified on the client-side, protecting sensitive data like model IDs from tampering by users.
+Atribut `#[Locked]` mencegah properti dimodifikasi di sisi klien (*client-side*), melindungi data sensitif seperti ID model dari manipulasi oleh pengguna.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Locked]` attribute to any public property that should not be changed from the frontend:
+Terapkan atribut `#[Locked]` pada properti publik apa pun yang tidak boleh diubah dari frontend:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -27,53 +27,51 @@ new class extends Component {
         return redirect('/posts');
     }
 };
+
 ```
 
-If a user attempts to modify a locked property through browser DevTools or by tampering with requests, Livewire will throw an exception and prevent the action from executing.
+Jika pengguna mencoba memodifikasi properti yang terkunci melalui *browser DevTools* atau dengan memanipulasi *requests*, Livewire akan melempar pengecualian (*exception*) dan mencegah **action** tersebut dieksekusi.
 
-> [!warning] Backend modifications still allowed
-> Properties with the `#[Locked]` attribute can still be changed in your component's PHP code. The lock only prevents client-side tampering. Be careful not to pass untrusted user input to locked properties in your own methods.
+> [!warning] Modifikasi di backend tetap diizinkan
+> Properti dengan atribut `#[Locked]` masih dapat diubah di dalam kode PHP **component** Anda. Penguncian ini hanya mencegah manipulasi dari sisi klien. Berhati-hatilah untuk tidak memasukkan input pengguna yang tidak tepercaya ke properti yang terkunci di dalam metode Anda sendiri.
 
-## When to use
+---
 
-Use `#[Locked]` when you need to:
+## Kapan harus menggunakan
 
-* Store model IDs that should never be changed by users
-* Preserve authorization-sensitive data throughout component lifecycle
-* Protect any public property that acts as a security boundary
+Gunakan `#[Locked]` saat Anda perlu:
 
-> [!tip] Model properties are secure by default
-> If you store an Eloquent model in a public property, Livewire automatically ensures the ID isn't tampered with—no `#[Locked]` attribute needed:
+* Menyimpan ID model yang tidak boleh diubah oleh pengguna.
+* Mempertahankan data sensitif terkait otorisasi sepanjang siklus hidup **component**.
+* Melindungi properti publik apa pun yang berfungsi sebagai batasan keamanan (*security boundary*).
+
+> [!tip] Properti model sudah aman secara default
+> Jika Anda menyimpan model Eloquent dalam properti publik, Livewire secara otomatis memastikan ID-nya tidak dimanipulasi—atribut `#[Locked]` tidak diperlukan:
 > ```php
-> <?php // resources/views/components/post/⚡show.blade.php
->
-> use Livewire\Component;
-> use App\Models\Post;
->
-> new class extends Component {
->     public Post $post; // Already protected [tl! highlight]
->
->     public function mount($id)
->     {
->         $this->post = Post::find($id);
->     }
-> };
+> public Post $post; // Sudah terlindungi secara otomatis [tl! highlight]
+> 
 > ```
+> 
+> 
 
-## Why not protected properties?
+---
 
-You might wonder why you can't just use `protected` properties for sensitive data.
+## Mengapa tidak menggunakan protected properties?
 
-Remember, Livewire only persists public properties between requests. Protected properties work fine for static, hard-coded values, but any data that needs to be stored at runtime must use a public property to persist properly between requests.
+Anda mungkin bertanya-tanya mengapa tidak menggunakan properti `protected` saja untuk data sensitif.
 
-This is where `#[Locked]` becomes essential: it gives you the persistence of public properties with protection against client-side tampering.
+Ingat, Livewire hanya mempertahankan properti `public` di antara *requests*. Properti `protected` berfungsi dengan baik untuk nilai statis yang ditulis langsung (*hard-coded*), tetapi data apa pun yang perlu disimpan saat *runtime* harus menggunakan properti `public` agar tetap tersimpan dengan benar di antara *requests*.
 
-## Can't Livewire do this automatically?
+Di sinilah `#[Locked]` menjadi sangat penting: atribut ini memberikan kemampuan persistensi properti publik dengan perlindungan terhadap manipulasi di sisi klien.
 
-In a perfect world, Livewire would lock properties by default and only allow modifications when `wire:model` is used on that property.
+---
 
-Unfortunately, that would require Livewire to parse all of your Blade templates to understand if a property is modified by `wire:model` or a similar API.
+## Bisakah Livewire melakukan ini secara otomatis?
 
-Not only would that add technical and performance overhead, it would be impossible to detect if a property is mutated by something like Alpine or any other custom JavaScript.
+Dalam dunia yang sempurna, Livewire akan mengunci properti secara default dan hanya mengizinkan modifikasi ketika `wire:model` digunakan pada properti tersebut.
 
-Therefore, Livewire will continue to make public properties freely mutable by default and give developers the tools to lock them as needed.
+Sayangnya, hal itu mengharuskan Livewire untuk membedah (*parse*) semua template Blade Anda untuk memahami apakah sebuah properti dimodifikasi oleh `wire:model` atau API serupa.
+
+Hal ini tidak hanya akan menambah beban teknis dan performa, tetapi juga mustahil untuk mendeteksi jika sebuah properti diubah oleh sesuatu seperti Alpine atau JavaScript kustom lainnya.
+
+Oleh karena itu, Livewire akan tetap membiarkan properti publik dapat diubah secara bebas secara default dan memberikan alat bagi pengembang untuk menguncinya sesuai kebutuhan.
