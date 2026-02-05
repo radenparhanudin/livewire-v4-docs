@@ -1,8 +1,8 @@
-The `@teleport` directive renders a portion of your template in a different location in the DOM, outside the component's normal placement.
+Direktif `@teleport` me-render sebagian dari template Anda di lokasi yang berbeda dalam DOM, di luar penempatan normal komponen tersebut.
 
-## Basic usage
+## Penggunaan dasar
 
-Wrap content with `@teleport` and specify where to render it using a CSS selector:
+Bungkus konten dengan `@teleport` dan tentukan di mana konten tersebut akan di-render menggunakan CSS selector:
 
 ```blade
 <div>
@@ -11,129 +11,141 @@ Wrap content with `@teleport` and specify where to render it using a CSS selecto
 
         @teleport('body')
             <div x-show="open">
-                Modal contents...
+                Konten modal...
             </div>
         @endteleport
     </div>
 </div>
+
 ```
 
-The modal content will be rendered at the end of the `<body>` element:
+Konten modal akan di-render di bagian akhir elemen `<body>`:
 
 ```html
 <body>
-    <!-- Page content... -->
-
     <div x-show="open">
-        Modal contents...
+        Konten modal...
     </div>
 </body>
+
 ```
 
-> [!info] Any valid CSS selector
-> The `@@teleport` selector can be any string you would pass to `document.querySelector()`, such as `'body'`, `'#modal-root'`, or `'.modal-container'`.
+> [!info] CSS Selector apa pun yang valid
+> Selector pada `@@teleport` bisa berupa string apa pun yang biasa Anda masukkan ke `document.querySelector()`, seperti `'body'`, `'#modal-root'`, atau `'.modal-container'`.
 
-## Why use teleport?
+---
 
-Teleporting is useful for nested modals, dropdowns, and popovers where parent styles or z-index values can interfere with proper rendering.
+## Mengapa menggunakan teleport?
 
-**Without teleporting:**
+Teleporting sangat berguna untuk **modals**, **dropdowns**, dan **popovers** yang bersarang (*nested*), di mana gaya (*styles*) induk atau nilai `z-index` dapat mengganggu perenderan yang semestinya.
+
+**Tanpa teleporting:**
+
 ```blade
 <div style="z-index: 10;">
-    <!-- Parent modal with z-index: 10 -->
-
     <div style="z-index: 20;">
-        <!-- Child modal inherits parent's stacking context -->
-        <!-- Backdrop may not cover parent modal properly -->
-    </div>
+        </div>
 </div>
+
 ```
 
-**With teleporting:**
+**Dengan teleporting:**
+
 ```blade
 <div style="z-index: 10;">
-    <!-- Parent modal -->
-
     @teleport('body')
         <div style="z-index: 20;">
-            <!-- Child modal rendered as sibling at body level -->
-            <!-- Backdrop can cover everything properly -->
-        </div>
+            </div>
     @endteleport
 </div>
+
 ```
 
-## Common use cases
+---
+
+## Kasus penggunaan umum
 
 **Modal dialogs:**
+
 ```blade
 @teleport('body')
     <div class="fixed inset-0 bg-black/50" x-show="showModal">
         <div class="modal">
-            <!-- Modal content... -->
-        </div>
+            </div>
     </div>
 @endteleport
+
 ```
 
 **Dropdown menus:**
+
 ```blade
 @teleport('body')
     <div class="absolute" x-show="open" style="top: {{ $top }}px; left: {{ $left }}px;">
-        <!-- Dropdown items... -->
-    </div>
+        </div>
 @endteleport
+
 ```
 
 **Toast notifications:**
+
 ```blade
 @teleport('#notifications-container')
     <div class="toast">
         {{ $message }}
     </div>
 @endteleport
+
 ```
 
-## Important constraints
+---
 
-> [!warning] Must teleport outside the component
-> Livewire only supports teleporting HTML outside your components. Teleporting to another element within the same component will not work.
+## Batasan Penting
 
-> [!warning] Single root element required
-> Only include a single root element inside your `@@teleport` statement. Multiple root elements are not supported.
+> [!warning] Harus diteleportasi ke luar komponen
+> Livewire hanya mendukung teleportasi HTML ke luar komponen Anda. Melakukan teleportasi ke elemen lain di dalam komponen yang sama tidak akan berhasil.
+
+> [!warning] Memerlukan elemen root tunggal
+> Hanya sertakan satu elemen *root* tunggal di dalam pernyataan `@@teleport` Anda. Penggunaan beberapa elemen *root* tidak didukung.
 
 **Valid:**
+
 ```blade
 @teleport('body')
     <div>
-        <h2>Title</h2>
-        <p>Content</p>
+        <h2>Judul</h2>
+        <p>Konten</p>
     </div>
 @endteleport
+
 ```
 
-**Invalid:**
+**Tidak Valid:**
+
 ```blade
 @teleport('body')
-    <h2>Title</h2>
-    <p>Content</p>
+    <h2>Judul</h2>
+    <p>Konten</p>
 @endteleport
+
 ```
 
-## Powered by Alpine
+---
 
-This functionality uses [Alpine's `x-teleport` directive](https://alpinejs.dev/directives/teleport) under the hood.
+## Didukung oleh Alpine
 
-[Learn more about teleporting content →](/docs/4.x/teleport)
+Fungsionalitas ini menggunakan [direktif `x-teleport` milik Alpine](https://www.google.com/search?q=%5Bhttps://alpinejs.dev/directives/teleport%5D(https://alpinejs.dev/directives/teleport)) di belakang layar.
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 @teleport(string $selector)
-    <!-- Content -->
-@endteleport
+    @endteleport
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$selector` | `string` | *required* | A CSS selector specifying where to render the content (e.g., `'body'`, `'#modal-root'`, `'.container'`) |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$selector` | `string` | *required* | CSS selector yang menentukan tempat perenderan konten (misal: `'body'`, `'#modal-root'`, `'.container'`) |
