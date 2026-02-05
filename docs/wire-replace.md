@@ -1,41 +1,40 @@
+*DOM diffing* pada Livewire sangat berguna untuk memperbarui elemen yang ada di halaman Anda, tetapi sesekali Anda mungkin perlu memaksa beberapa elemen untuk di-*render* dari awal guna menyetel ulang (*reset*) *internal state*.
 
-Livewire's DOM diffing is useful for updating existing elements on your page, but occasionally you may need to force some elements to render from scratch to reset internal state.
+Dalam kasus ini, Anda dapat menggunakan direktif `wire:replace` untuk menginstruksikan Livewire agar melewatkan proses *DOM diffing* pada elemen anak (*children*), dan sebagai gantinya mengganti seluruh konten dengan elemen baru dari server secara total.
 
-In these cases, you can use the `wire:replace` directive to instruct Livewire to skip DOM diffing on the children of an element, and instead completely replace the content with the new elements from the server.
+Hal ini paling berguna dalam konteks penggunaan pustaka JavaScript pihak ketiga dan *custom web components*, atau ketika penggunaan kembali elemen (*element re-use*) dapat menyebabkan masalah dalam mempertahankan *state*.
 
-This is most useful in the context of working with third-party javascript libraries and custom web components, or when element re-use could cause problems when keeping state.
-
-Below is an example of wrapping a web component with a shadow DOM `wire:replace` so that Livewire completely replaces the element allowing the custom element to handle its own life-cycle:
+Di bawah ini adalah contoh membungkus sebuah *web component* dengan *shadow DOM* menggunakan `wire:replace` sehingga Livewire mengganti elemen tersebut sepenuhnya, memungkinkan *custom element* tersebut menangani siklus hidupnya (*life-cycle*) sendiri:
 
 ```blade
 <form>
-    <!-- ... -->
-
     <div wire:replace>
-        <!-- This custom element would have its own internal state -->
         <json-viewer>@json($someProperty)</json-viewer>
     </div>
 
-    <!-- ... -->
-</form>
+    </form>
+
 ```
 
-You can also instruct Livewire to replace the target element as well as all children with `wire:replace.self`.
+Anda juga dapat menginstruksikan Livewire untuk mengganti elemen target beserta semua elemen anaknya menggunakan `wire:replace.self`.
 
 ```blade
 <div x-data="{open: false}" wire:replace.self>
-  <!-- Ensure that the "open" state is reset to false on each render -->
-</div>
+  </div>
+
 ```
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:replace
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.self` | Replace the element itself and all children instead of just children |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.self` | Mengganti elemen itu sendiri dan semua elemen anaknya, bukan hanya elemen anak saja |
