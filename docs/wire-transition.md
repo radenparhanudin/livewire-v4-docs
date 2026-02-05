@@ -1,11 +1,10 @@
+`wire:transition` memungkinkan animasi yang mulus saat elemen muncul, hilang, atau berubah menggunakan browser native [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API).
 
-`wire:transition` enables smooth animations when elements appear, disappear, or change using the browser's native [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API).
-
-Unlike JavaScript-based animation libraries, View Transitions are hardware-accelerated and handled natively by the browser, resulting in smoother animations with less overhead.
+Berbeda dengan pustaka animasi berbasis JavaScript, View Transitions dipercepat oleh perangkat keras (*hardware-accelerated*) dan ditangani secara native oleh browser, menghasilkan animasi yang lebih mulus dengan *overhead* yang lebih sedikit.
 
 ## Basic usage
 
-Add `wire:transition` to any element that may be added, removed, or changed during a Livewire update:
+Tambahkan `wire:transition` ke elemen apa pun yang mungkin ditambah, dihapus, atau diubah selama pembaruan Livewire:
 
 ```php
 class ShowPost extends Component
@@ -14,6 +13,7 @@ class ShowPost extends Component
 
     public $showComments = false;
 }
+
 ```
 
 ```blade
@@ -21,33 +21,38 @@ class ShowPost extends Component
     <button wire:click="$toggle('showComments')">Toggle comments</button>
 
     @if ($showComments)
-        <div wire:transition> <!-- [tl! highlight] -->
-            @foreach ($post->comments as $comment)
+        <div wire:transition> @foreach ($post->comments as $comment)
                 <div>{{ $comment->body }}</div>
             @endforeach
         </div>
     @endif
 </div>
+
 ```
 
-When the comments appear or disappear, the browser will smoothly crossfade them instead of abruptly showing or hiding them.
+Ketika komentar muncul atau hilang, browser akan melakukan *crossfade* secara mulus alih-alih menampilkannya atau menyembunyikannya secara tiba-tiba.
+
+---
 
 ## Named transitions
 
-By default, Livewire assigns the view-transition-name `match-element` to elements with `wire:transition`. You can provide a custom name to enable more advanced transition effects:
+Secara default, Livewire menetapkan `view-transition-name` `match-element` ke elemen dengan `wire:transition`. Anda dapat memberikan nama kustom untuk mengaktifkan efek transisi yang lebih canggih:
 
 ```blade
 <div wire:transition="sidebar">...</div>
+
 ```
 
-This sets the element's `view-transition-name` CSS property to `sidebar`, which you can target with CSS for custom animations.
+Ini mengatur properti CSS `view-transition-name` elemen menjadi `sidebar`, yang dapat Anda targetkan dengan CSS untuk animasi kustom.
 
-## Customizing animations with CSS
+---
 
-View Transitions are controlled entirely through CSS. You can customize the animation by targeting the view-transition pseudo-elements:
+## Menyesuaikan animasi dengan CSS
+
+View Transitions dikendalikan sepenuhnya melalui CSS. Anda dapat menyesuaikan animasi dengan menargetkan *pseudo-elements* view-transition:
 
 ```css
-/* Customize the transition for a specific element */
+/* Sesuaikan transisi untuk elemen tertentu */
 ::view-transition-old(sidebar) {
     animation: 300ms ease-out slide-out;
 }
@@ -63,18 +68,22 @@ View Transitions are controlled entirely through CSS. You can customize the anim
 @keyframes slide-in {
     from { transform: translateX(100%); }
 }
+
 ```
 
-The View Transitions API provides three pseudo-elements you can style:
-- `::view-transition-old(name)` — The outgoing element's snapshot
-- `::view-transition-new(name)` — The incoming element's snapshot
-- `::view-transition-group(name)` — Container for both snapshots
+View Transitions API menyediakan tiga *pseudo-elements* yang dapat Anda beri gaya:
+
+* `::view-transition-old(name)` — Snapshot elemen yang keluar
+* `::view-transition-new(name)` — Snapshot elemen yang masuk
+* `::view-transition-group(name)` — Kontainer untuk kedua snapshot tersebut
+
+---
 
 ## Transition types
 
-For more complex scenarios like step wizards where you need different animations based on direction, you can use transition types. This allows you to animate "forward" and "backward" differently.
+Untuk skenario yang lebih kompleks seperti *step wizards* di mana Anda memerlukan animasi berbeda berdasarkan arah, Anda dapat menggunakan **transition types**. Ini memungkinkan Anda menganimasi "maju" (*forward*) dan "mundur" (*backward*) secara berbeda.
 
-Use the `$this->transition()` method to set a transition type:
+Gunakan metode `$this->transition()` untuk menetapkan tipe transisi:
 
 ```php
 class Wizard extends Component
@@ -88,9 +97,10 @@ class Wizard extends Component
         $this->step = $step;
     }
 }
+
 ```
 
-Then target the type in your CSS using the `:active-view-transition-type()` selector:
+Kemudian targetkan tipe tersebut di CSS Anda menggunakan selektor `:active-view-transition-type()`:
 
 ```css
 html:active-view-transition-type(forward) {
@@ -111,28 +121,9 @@ html:active-view-transition-type(backward) {
     }
 }
 
-@keyframes slide-out-left {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-100%); opacity: 0; }
-}
-
-@keyframes slide-in-right {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slide-out-right {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-}
-
-@keyframes slide-in-left {
-    from { transform: translateX(-100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
 ```
 
-For methods that always transition in the same direction, you can use the `#[Transition]` attribute instead:
+Untuk metode yang selalu bertransisi ke arah yang sama, Anda dapat menggunakan atribut `#[Transition]` sebagai gantinya:
 
 ```php
 use Livewire\Attributes\Transition;
@@ -153,13 +144,16 @@ class Wizard extends Component
         $this->step--;
     }
 }
+
 ```
 
-## Skipping transitions
+---
 
-Sometimes you may want to disable transitions for specific actions—for example, a "reset" button that should instantly jump to the first step without animation.
+## Melewatkan transisi (Skipping transitions)
 
-Use `$this->skipTransition()` to disable transitions for the current request:
+Terkadang Anda mungkin ingin menonaktifkan transisi untuk tindakan tertentu—misalnya, tombol "reset" yang harus langsung melompat ke langkah pertama tanpa animasi.
+
+Gunakan `$this->skipTransition()` untuk menonaktifkan transisi pada request saat ini:
 
 ```php
 public function reset()
@@ -168,9 +162,10 @@ public function reset()
 
     $this->step = 1;
 }
+
 ```
 
-Or use the `#[Transition]` attribute with `skip: true`:
+Atau gunakan atribut `#[Transition]` dengan `skip: true`:
 
 ```php
 use Livewire\Attributes\Transition;
@@ -180,36 +175,44 @@ public function reset()
 {
     $this->step = 1;
 }
+
 ```
 
-## Respecting reduced motion
+---
 
-Livewire automatically respects the user's `prefers-reduced-motion` setting. When enabled, transitions are disabled to avoid causing discomfort for users who are sensitive to motion.
+## Menghormati reduced motion
+
+Livewire secara otomatis menghormati pengaturan `prefers-reduced-motion` pengguna. Saat diaktifkan, transisi dinonaktifkan untuk menghindari ketidaknyamanan bagi pengguna yang sensitif terhadap gerakan.
+
+---
 
 ## Browser support
 
-View Transitions are supported in Chrome 111+, Edge 111+, and Safari 18+. In browsers that don't support View Transitions, elements will appear and disappear without animation—the functionality still works, just without the visual transition.
+View Transitions didukung di Chrome 111+, Edge 111+, dan Safari 18+. Pada browser yang tidak mendukung View Transitions, elemen akan muncul dan hilang tanpa animasi—fungsionalitas tetap berjalan, hanya saja tanpa transisi visual.
 
-> [!warning] Firefox has limited support
-> Firefox 144+ supports basic view transitions, but does not support transition types.
+> [!warning] Firefox memiliki dukungan terbatas
+> Firefox 144+ mendukung transisi tampilan dasar, tetapi tidak mendukung tipe transisi (*transition types*).
 
-[View browser support on caniuse.com →](https://caniuse.com/view-transitions)
+---
 
 ## See also
 
-- **[wire:show](/docs/4.x/wire-show)** — Toggle visibility with CSS display
-- **[Loading States](/docs/4.x/loading-states)** — Show loading indicators during requests
-- **[Alpine Transitions](https://alpinejs.dev/directives/transition)** — For more complex animation needs
+* **[wire:show](https://www.google.com/search?q=/docs/4.x/wire-show)** — Ganti visibilitas dengan CSS display
+* **[Loading States](https://www.google.com/search?q=/docs/4.x/loading-states)** — Tampilkan indikator pemuatan selama request
+* **[Alpine Transitions](https://alpinejs.dev/directives/transition)** — Untuk kebutuhan animasi yang lebih kompleks
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:transition="name"
+
 ```
 
-| Expression | Description |
-|------------|-------------|
-| (none) | Uses `match-element` as the view-transition-name |
-| `"name"` | Uses the provided string as the view-transition-name |
+| Ekspresi | Deskripsi |
+| --- | --- |
+| (tidak ada) | Menggunakan `match-element` sebagai view-transition-name |
+| `"name"` | Menggunakan string yang diberikan sebagai view-transition-name |
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
