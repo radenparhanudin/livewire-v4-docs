@@ -1,16 +1,16 @@
-The `#[Isolate]` attribute prevents a component's requests from being bundled with other component updates, allowing it to execute in parallel.
+Atribut `#[Isolate]` mencegah *request* sebuah **component** digabungkan (*bundled*) dengan pembaruan **component** lainnya, sehingga memungkinkannya untuk dieksekusi secara paralel.
 
-## Why bundling matters
+## Mengapa bundling itu penting
 
-Every component update in Livewire triggers a network request. By default, when multiple components trigger updates at the same time, they are bundled into a single request.
+Setiap pembaruan **component** di Livewire memicu sebuah *network request*. Secara default, ketika beberapa **component** memicu pembaruan pada saat yang bersamaan, mereka akan digabungkan menjadi satu *request* tunggal.
 
-This results in fewer network connections to the server and can drastically reduce server load. In addition to the performance gains, this also unlocks features internally that require collaboration between multiple components ([Reactive Properties](/docs/4.x/nesting#reactive-props), [Modelable Properties](/docs/4.x/nesting#binding-to-child-data-using-wiremodel), etc.)
+Hal ini menghasilkan lebih sedikit koneksi jaringan ke server dan dapat secara drastis mengurangi beban server. Selain keuntungan performa, hal ini juga mengaktifkan fitur internal yang membutuhkan kolaborasi antar beberapa **component** ([Reactive Properties](https://www.google.com/search?q=/docs/4.x/nesting%23reactive-props), [Modelable Properties](https://www.google.com/search?q=/docs/4.x/nesting%23binding-to-child-data-using-wiremodel), dll.)
 
-However, there are times when disabling this bundling is desired for performance reasons. That's where `#[Isolate]` comes in.
+Namun, ada kalanya menonaktifkan *bundling* ini diperlukan karena alasan performa. Di situlah `#[Isolate]` berperan.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Isolate]` attribute to any component that should send isolated requests:
+Terapkan atribut `#[Isolate]` pada **component** apa pun yang harus mengirimkan *request* secara terisolasi:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -24,29 +24,32 @@ new #[Isolate] class extends Component { // [tl! highlight]
 
     public function refreshStats()
     {
-        // Expensive operation...
+        // Operasi yang berat (expensive)...
         $this->post->recalculateStatistics();
     }
 };
+
 ```
 
-With `#[Isolate]`, this component's requests will no longer be bundled with other component updates, allowing them to execute in parallel.
+Dengan `#[Isolate]`, *request* dari **component** ini tidak lagi akan digabungkan dengan pembaruan **component** lain, sehingga memungkinkan mereka untuk dieksekusi secara paralel.
 
-> [!tip] When bundling helps vs hurts
-> Bundling is great for most scenarios, but if a component performs expensive operations, bundling can slow down the entire request. Isolating that component allows it to run in parallel with other updates.
+> [!tip] Kapan bundling membantu vs menghambat
+> *Bundling* sangat bagus untuk sebagian besar skenario, tetapi jika sebuah **component** melakukan operasi yang berat, *bundling* dapat memperlambat seluruh *request*. Mengisolasi **component** tersebut memungkinkannya berjalan secara paralel dengan pembaruan lainnya.
 
-## When to use
+---
 
-Use `#[Isolate]` when:
+## Kapan harus menggunakan
 
-* The component performs expensive operations (complex queries, API calls, heavy computations)
-* Multiple components use `wire:poll` and you want independent polling intervals
-* Components listen for events and you don't want one slow component to block others
-* The component doesn't need to coordinate with other components on the page
+Gunakan `#[Isolate]` ketika:
 
-## Example: Polling components
+* **Component** melakukan operasi yang berat (query kompleks, API calls, komputasi berat).
+* Beberapa **component** menggunakan `wire:poll` dan Anda menginginkan interval polling yang independen.
+* **Component** mendengarkan *events* dan Anda tidak ingin satu **component** yang lambat memblokir yang lainnya.
+* **Component** tidak perlu berkoordinasi dengan **component** lain di halaman tersebut.
 
-Here's a practical example with multiple polling components:
+## Contoh: Polling components
+
+Berikut adalah contoh praktis dengan beberapa **polling components**:
 
 ```php
 <?php // resources/views/components/⚡system-status.blade.php
@@ -57,23 +60,27 @@ use Livewire\Component;
 new #[Isolate] class extends Component { // [tl! highlight]
     public function checkStatus()
     {
-        // Expensive external API call...
+        // API call eksternal yang berat...
         return ExternalService::getStatus();
     }
 };
+
 ```
 
 ```blade
 <div wire:poll.5s>
     Status: {{ $this->checkStatus() }}
 </div>
+
 ```
 
-Without `#[Isolate]`, this component's slow API call would delay other components on the page. With it, the component polls independently without blocking others.
+Tanpa `#[Isolate]`, panggilan API yang lambat dari **component** ini akan menunda **component** lain di halaman. Dengan atribut ini, **component** melakukan polling secara independen tanpa memblokir yang lain.
 
-## Lazy components are isolated by default
+---
 
-When using the `#[Lazy]` attribute, components are automatically isolated to load in parallel. You can disable this behavior if needed:
+## Lazy components terisolasi secara default
+
+Saat menggunakan atribut `#[Lazy]`, **component** secara otomatis diisolasi untuk dimuat secara paralel. Anda dapat menonaktifkan perilaku ini jika diperlukan:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -84,18 +91,23 @@ use Livewire\Component;
 new #[Lazy(isolate: false)] class extends Component { // [tl! highlight]
     // ...
 };
+
 ```
 
-Now multiple `revenue` components will bundle their lazy-load requests into a single network request.
+Sekarang, beberapa komponen `revenue` akan menggabungkan *request* lazy-load mereka ke dalam satu *network request* tunggal.
 
-## Trade-offs
+---
 
-**Benefits:**
-* Prevents slow components from blocking other updates
-* Allows true parallel execution of expensive operations
-* Independent polling and event handling
+## Pertimbangan (Trade-offs)
 
-**Drawbacks:**
-* More network requests to the server
-* Can't coordinate with other components in the same request
-* Slightly higher server overhead from multiple connections
+**Keuntungan:**
+
+* Mencegah **component** yang lambat memblokir pembaruan lainnya.
+* Memungkinkan eksekusi paralel yang sesungguhnya untuk operasi yang berat.
+* Polling dan penanganan *event* yang independen.
+
+**Kekurangan:**
+
+* Lebih banyak *network requests* ke server.
+* Tidak dapat berkoordinasi dengan **component** lain dalam *request* yang sama.
+* *Overhead* server yang sedikit lebih tinggi dari banyak koneksi.
