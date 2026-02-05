@@ -1,8 +1,8 @@
-The `#[Renderless]` attribute skips the rendering phase of Livewire's lifecycle when an action is called, improving performance for actions that don't modify the component's view.
+Atribut `#[Renderless]` melewatkan fase pemuatan ulang (*rendering phase*) dalam siklus hidup Livewire ketika sebuah **action** dipanggil, sehingga meningkatkan performa untuk **actions** yang tidak memodifikasi tampilan (*view*) dari komponen tersebut.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Renderless]` attribute to any action method that doesn't need to re-render the component:
+Terapkan atribut `#[Renderless]` pada metode **action** apa pun yang tidak memerlukan perenderan ulang komponen:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -25,6 +25,7 @@ new class extends Component {
         $this->post->incrementViewCount();
     }
 };
+
 ```
 
 ```blade
@@ -34,29 +35,35 @@ new class extends Component {
 
     <div wire:intersect="incrementViewCount"></div>
 </div>
+
 ```
 
-The example above uses `wire:intersect` to call `incrementViewCount()` when the user scrolls to the bottom. Since `#[Renderless]` is applied, the view count is logged but the template doesn't re-render—no part of the page is affected.
+Contoh di atas menggunakan `wire:intersect` untuk memanggil `incrementViewCount()` saat pengguna menggulir ke bawah. Karena `#[Renderless]` diterapkan, jumlah tampilan dicatat tetapi template tidak di-*render* ulang—tidak ada bagian halaman yang terpengaruh.
 
-## When to use
+---
 
-Use `#[Renderless]` when an action:
+## Kapan harus menggunakan
 
-* Only performs backend operations (logging, analytics, tracking)
-* Doesn't modify any properties that affect the rendered view
-* Needs to run frequently without causing unnecessary re-renders
+Gunakan `#[Renderless]` ketika sebuah **action**:
 
-Common use cases include:
-* Tracking user interactions (clicks, scrolls, time on page)
-* Sending analytics events
-* Updating counters or metrics
-* Performing background operations
+* Hanya melakukan operasi backend (logging, analitik, pelacakan).
+* Tidak memodifikasi properti apa pun yang memengaruhi tampilan yang di-*render*.
+* Perlu dijalankan sering tanpa menyebabkan proses *re-render* yang tidak perlu.
 
-## Alternative approaches
+Kasus penggunaan yang umum meliputi:
 
-### Using skipRender()
+* Melacak interaksi pengguna (klik, gulir, waktu di halaman).
+* Mengirim *events* analitik.
+* Memperbarui penghitung atau metrik.
+* Menjalankan operasi latar belakang.
 
-If you need to conditionally skip rendering or prefer not to use attributes, you can call `skipRender()` directly in your action:
+---
+
+## Pendekatan alternatif
+
+### Menggunakan skipRender()
+
+Jika Anda perlu melewatkan perenderan secara kondisional atau lebih suka tidak menggunakan atribut, Anda dapat memanggil `skipRender()` langsung di dalam **action** Anda:
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -74,20 +81,24 @@ new class extends Component {
         $this->skipRender(); // [tl! highlight]
     }
 };
+
 ```
 
-### Using the .renderless modifier
+### Menggunakan modifier .renderless
 
-You can also skip rendering directly from the element using the `.renderless` modifier:
+Anda juga dapat melewatkan perenderan langsung dari elemen menggunakan **modifier** `.renderless`:
 
 ```blade
 <button type="button" wire:click.renderless="incrementViewCount">
     Track View
 </button>
+
 ```
 
-This approach is useful for one-off cases where you don't want to add an attribute to the method.
+Pendekatan ini berguna untuk kasus satu kali di mana Anda tidak ingin menambahkan atribut pada metode tersebut.
 
-## Learn more
+---
 
-For more information about actions and performance optimization, see the [Actions documentation](/docs/4.x/actions#skipping-re-renders).
+## Pelajari lebih lanjut
+
+Untuk informasi lebih lanjut tentang **actions** dan optimalisasi performa, lihat [dokumentasi Actions](https://www.google.com/search?q=/docs/4.x/actions%23skipping-re-renders).
