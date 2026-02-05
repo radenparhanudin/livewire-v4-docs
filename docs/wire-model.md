@@ -1,7 +1,6 @@
+Livewire mempermudah Anda untuk menghubungkan (*bind*) nilai properti **component** dengan input formulir menggunakan `wire:model`.
 
-Livewire makes it easy to bind a component property's value with form inputs using `wire:model`.
-
-Here is a simple example of using `wire:model` to bind the `$title` and `$content` properties with form inputs in a "Create Post" component:
+Berikut adalah contoh sederhana penggunaan `wire:model` untuk menghubungkan properti `$title` dan `$content` dengan input formulir dalam **component** "Create Post":
 
 ```php
 use Livewire\Component;
@@ -15,14 +14,15 @@ class CreatePost extends Component
 
     public function save()
     {
-		$post = Post::create([
-			'title' => $this->title
-			'content' => $this->content
-		]);
+        $post = Post::create([
+            'title' => $this->title,
+            'content' => $this->content
+        ]);
 
         // ...
     }
 }
+
 ```
 
 ```blade
@@ -30,164 +30,172 @@ class CreatePost extends Component
     <label>
         <span>Title</span>
 
-        <input type="text" wire:model="title"> <!-- [tl! highlight] -->
-    </label>
+        <input type="text" wire:model="title"> </label>
 
     <label>
         <span>Content</span>
 
-        <textarea wire:model="content"></textarea> <!-- [tl! highlight] -->
-    </label>
+        <textarea wire:model="content"></textarea> </label>
 
-	<button type="submit">Save</button>
+    <button type="submit">Save</button>
 </form>
+
 ```
 
-Because both inputs use `wire:model`, their values will be synchronized with the server's properties when the "Save" button is pressed.
+Karena kedua input menggunakan `wire:model`, nilai-nilainya akan disinkronkan dengan properti di server saat tombol "Save" ditekan.
 
-> [!warning] "Why isn't my component live updating as I type?"
-> If you tried this in your browser and are confused why the title isn't automatically updating, it's because Livewire only updates a component when an "action" is submitted—like pressing a submit button—not when a user types into a field. This cuts down on network requests and improves performance. To enable "live" updating as a user types, you can use `wire:model.live` instead. [Learn more about data binding](/docs/4.x/properties#data-binding).
+> [!warning] "Mengapa component saya tidak update secara live saat saya mengetik?"
+> Jika Anda mencoba ini di browser dan bingung mengapa judulnya tidak diperbarui secara otomatis, itu karena Livewire hanya memperbarui **component** saat sebuah "**action**" dikirimkan—seperti menekan tombol *submit*—bukan saat pengguna mengetik di kolom input. Hal ini mengurangi **network requests** dan meningkatkan performa. Untuk mengaktifkan pembaruan secara langsung (*live*) saat pengguna mengetik, Anda dapat menggunakan `wire:model.live`. [Pelajari lebih lanjut tentang data binding](https://www.google.com/search?q=/docs/4.x/properties%23data-binding).
 
-## Customizing update timing
+## Menyesuaikan waktu pembaruan
 
-By default, Livewire will only send a network request when an action is performed (like `wire:click` or `wire:submit`), NOT when a `wire:model` input is updated.
+Secara default, Livewire hanya akan mengirimkan **network request** saat sebuah **action** dilakukan (seperti `wire:click` atau `wire:submit`), BUKAN saat input `wire:model` diperbarui.
 
-This drastically improves the performance of Livewire by reducing network requests and provides a smoother experience for your users.
+Hal ini secara drastis meningkatkan performa Livewire dengan mengurangi **network requests** dan memberikan pengalaman yang lebih mulus bagi pengguna Anda.
 
-However, there are occasions where you may want to update the server more frequently for things like real-time validation.
+Namun, ada kalanya Anda ingin memperbarui server lebih sering untuk hal-hal seperti validasi waktu nyata (*real-time validation*).
 
-### Live updating
+### Pembaruan Live
 
-To send property updates to the server as a user types into an input-field, you can append the `.live` modifier to `wire:model`:
+Untuk mengirimkan pembaruan properti ke server saat pengguna mengetik di kolom input, Anda dapat menambahkan **modifier** `.live` pada `wire:model`:
 
 ```html
 <input type="text" wire:model.live="title">
+
 ```
 
-#### Customizing the debounce
+#### Menyesuaikan debounce
 
-By default, when using `wire:model.live`, Livewire adds a 150 millisecond debounce to server updates. This means if a user is continually typing, Livewire will wait until the user stops typing for 150 milliseconds before sending a request.
+Secara default, saat menggunakan `wire:model.live`, Livewire menambahkan **debounce** sebesar 150 milidetik pada pembaruan server. Ini berarti jika pengguna mengetik terus-menerus, Livewire akan menunggu hingga pengguna berhenti mengetik selama 150 milidetik sebelum mengirimkan **request**.
 
-You can customize this timing by appending `.debounce.Xms` after `.live`. Here is an example of changing the debounce to 250 milliseconds:
+Anda dapat menyesuaikan waktu ini dengan menambahkan `.debounce.Xms` setelah `.live`. Berikut adalah contoh mengubah **debounce** menjadi 250 milidetik:
 
 ```html
 <input type="text" wire:model.live.debounce.250ms="title">
+
 ```
 
-### Updating on "blur" event
+### Memperbarui pada event "blur"
 
-The `.blur` modifier delays syncing until the user clicks away from the input:
+**Modifier** `.blur` menunda sinkronisasi hingga pengguna mengeklik di luar area input (*blur*):
 
 ```html
 <input type="text" wire:model.blur="title">
+
 ```
 
-To also send a network request on blur, add `.live`:
+Untuk juga mengirimkan **network request** saat *blur*, tambahkan `.live`:
 
 ```html
 <input type="text" wire:model.blur.live="title">
+
 ```
 
-### Updating on "change" event
+### Memperbarui pada event "change"
 
-The `.change` modifier triggers on the change event, which is useful for select elements:
+**Modifier** `.change` terpicu pada **event** perubahan (*change event*), yang berguna untuk elemen *select*:
 
 ```html
 <select wire:model.change="state">...</select>
 
-<!-- With network request -->
 <select wire:model.change.live="state">...</select>
+
 ```
 
-### Updating on "enter" key
+### Memperbarui pada tombol "enter"
 
-The `.enter` modifier syncs when the user presses the Enter key:
+**Modifier** `.enter` melakukan sinkronisasi saat pengguna menekan tombol Enter:
 
 ```html
 <input type="text" wire:model.enter="search">
 
-<!-- With network request -->
 <input type="text" wire:model.enter.live="search">
+
 ```
 
 ## Input fields
 
-Livewire supports most native input elements out of the box. Meaning you should just be able to attach `wire:model` to any input element in the browser and easily bind properties to them.
+Livewire mendukung sebagian besar elemen input asli browser secara langsung. Artinya, Anda seharusnya bisa memasangkan `wire:model` ke elemen input apa pun dan menghubungkan properti ke elemen tersebut dengan mudah.
 
-Here's a comprehensive list of the different available input types and how you use them in a Livewire context.
+Berikut adalah daftar lengkap berbagai tipe input yang tersedia dan cara menggunakannya dalam konteks Livewire.
 
 ### Text inputs
 
-First and foremost, text inputs are the bedrock of most forms. Here's how to bind a property named "title" to one:
+Yang paling utama, input teks adalah dasar dari sebagian besar formulir. Berikut cara menghubungkan properti bernama "title" ke input teks:
 
 ```blade
 <input type="text" wire:model="title">
+
 ```
 
 ### Textarea inputs
 
-Textarea elements are similarly straightforward. Simply add `wire:model` to a textarea and the value will be bound:
+Elemen textarea juga sama sederhananya. Cukup tambahkan `wire:model` ke textarea dan nilainya akan terhubung:
 
 ```blade
 <textarea type="text" wire:model="content"></textarea>
+
 ```
 
-If the "content" value is initialized with a string, Livewire will fill the textarea with that value - there's no need to do something like the following:
+Jika nilai "content" diinisialisasi dengan sebuah string, Livewire akan mengisi textarea dengan nilai tersebut - tidak perlu melakukan hal seperti berikut:
 
 ```blade
-<!-- Warning: This snippet demonstrates what NOT to do... -->
-
 <textarea type="text" wire:model="content">{{ $content }}</textarea>
+
 ```
 
 ### Checkboxes
 
-Checkboxes can be used for single values, such as when toggling a boolean property. Or, checkboxes may be used to toggle a single value in a group of related values. We'll discuss both scenarios:
+*Checkboxes* dapat digunakan untuk nilai tunggal, seperti saat mengubah properti boolean. Atau, *checkboxes* dapat digunakan untuk memilih satu atau beberapa nilai dalam sekelompok nilai yang terkait. Kita akan membahas kedua skenario tersebut:
 
 #### Single checkbox
 
-At the end of a signup form, you might have a checkbox allowing the user to opt-in to email updates. You might call this property `$receiveUpdates`. You can easily bind this value to the checkbox using `wire:model`:
+Di akhir formulir pendaftaran, Anda mungkin memiliki *checkbox* yang memungkinkan pengguna untuk berlangganan pembaruan email. Anda mungkin menamai properti ini `$receiveUpdates`. Anda dapat dengan mudah menghubungkan nilai ini ke *checkbox* menggunakan `wire:model`:
 
 ```blade
 <input type="checkbox" wire:model="receiveUpdates">
+
 ```
 
-Now when the `$receiveUpdates` value is `false`, the checkbox will be unchecked. Of course, when the value is `true`, the checkbox will be checked.
+Sekarang ketika nilai `$receiveUpdates` adalah `false`, *checkbox* tidak akan dicentang. Tentu saja, ketika nilainya `true`, *checkbox* akan dicentang.
 
 #### Multiple checkboxes
 
-Now, let's say in addition to allowing the user to decide to receive updates, you have an array property in your class called `$updateTypes`, allowing the user to choose from a variety of update types:
+Sekarang, katakanlah selain mengizinkan pengguna untuk memutuskan menerima pembaruan, Anda memiliki properti array di class Anda yang disebut `$updateTypes`, yang memungkinkan pengguna memilih dari berbagai jenis pembaruan:
 
 ```php
 public $updateTypes = [];
+
 ```
 
-By binding multiple checkboxes to the `$updateTypes` property, the user can select multiple update types and they will be added to the `$updateTypes` array property:
+Dengan menghubungkan beberapa *checkbox* ke properti `$updateTypes`, pengguna dapat memilih beberapa jenis pembaruan dan nilai tersebut akan ditambahkan ke properti array `$updateTypes`:
 
 ```blade
 <input type="checkbox" value="email" wire:model="updateTypes">
 <input type="checkbox" value="sms" wire:model="updateTypes">
 <input type="checkbox" value="notification" wire:model="updateTypes">
+
 ```
 
-For example, if the user checks the first two boxes but not the third, the value of `$updateTypes` will be: `["email", "sms"]`
+Misalnya, jika pengguna mencentang dua kotak pertama tetapi tidak yang ketiga, nilai dari `$updateTypes` akan menjadi: `["email", "sms"]`
 
 ### Radio buttons
 
-To toggle between two different values for a single property, you may use radio buttons:
+Untuk beralih di antara dua nilai yang berbeda untuk satu properti, Anda dapat menggunakan *radio buttons*:
 
 ```blade
 <input type="radio" value="yes" wire:model="receiveUpdates">
 <input type="radio" value="no" wire:model="receiveUpdates">
+
 ```
 
 ### Select dropdowns
 
-Livewire makes it simple to work with `<select>` dropdowns. When adding `wire:model` to a dropdown, the currently selected value will be bound to the provided property name and vice versa.
+Livewire mempermudah pekerjaan dengan dropdown `<select>`. Saat menambahkan `wire:model` ke dropdown, nilai yang saat ini dipilih akan dihubungkan ke nama properti yang diberikan dan sebaliknya.
 
-In addition, there's no need to manually add `selected` to the option that will be selected - Livewire handles that for you automatically.
+Selain itu, tidak perlu menambahkan `selected` secara manual ke opsi yang akan dipilih - Livewire menangani hal itu untuk Anda secara otomatis.
 
-Below is an example of a select dropdown filled with a static list of states:
+Di bawah ini adalah contoh dropdown *select* yang diisi dengan daftar statis negara bagian:
 
 ```blade
 <select wire:model="state">
@@ -196,11 +204,12 @@ Below is an example of a select dropdown filled with a static list of states:
     <option value="AZ">Arizona</option>
     ...
 </select>
+
 ```
 
-When a specific state is selected, for example, "Alaska", the `$state` property on the component will be set to `AK`. If you would prefer the value to be set to "Alaska" instead of "AK", you can leave the `value=""` attribute off the `<option>` element entirely.
+Ketika negara bagian tertentu dipilih, misalnya "Alaska", properti `$state` pada **component** akan diatur menjadi `AK`. Jika Anda lebih suka nilainya diatur menjadi "Alaska" alih-alih "AK", Anda dapat menghapus atribut `value=""` dari elemen `<option>` sepenuhnya.
 
-Often, you may build your dropdown options dynamically using Blade:
+Sering kali, Anda mungkin membangun opsi dropdown Anda secara dinamis menggunakan Blade:
 
 ```blade
 <select wire:model="state">
@@ -208,9 +217,10 @@ Often, you may build your dropdown options dynamically using Blade:
         <option value="{{ $state->id }}">{{ $state->label }}</option>
     @endforeach
 </select>
+
 ```
 
-If you don't have a specific option selected by default, you may want to show a muted placeholder option by default, such as "Select a state":
+Jika Anda tidak memiliki opsi khusus yang dipilih secara default, Anda mungkin ingin menampilkan opsi *placeholder* yang diredam secara default, seperti "Select a state":
 
 ```blade
 <select wire:model="state">
@@ -220,39 +230,38 @@ If you don't have a specific option selected by default, you may want to show a 
         <option value="{{ $state->id }}">{{ $state->label }}</option>
     @endforeach
 </select>
+
 ```
 
-As you can see, there is no "placeholder" attribute for a select menu like there is for text inputs. Instead, you have to add a `disabled` option element as the first option in the list.
+Seperti yang Anda lihat, tidak ada atribut "placeholder" untuk menu *select* seperti pada input teks. Sebagai gantinya, Anda harus menambahkan elemen opsi dengan atribut `disabled` sebagai opsi pertama dalam daftar.
 
 ### Dependent select dropdowns
 
-Sometimes you may want one select menu to be dependent on another. For example, a list of cities that changes based on which state is selected.
+Terkadang Anda mungkin ingin satu menu *select* bergantung pada menu *select* lainnya. Contohnya, daftar kota yang berubah berdasarkan negara bagian yang dipilih.
 
-For the most part, this works as you'd expect, however there is one important gotcha: You must add a `wire:key` to the changing select so that Livewire properly refreshes its value when the options change.
+Secara umum, ini bekerja seperti yang Anda harapkan, namun ada satu hal penting yang perlu diperhatikan (*gotcha*): Anda harus menambahkan `wire:key` ke menu *select* yang berubah agar Livewire dapat menyegarkan nilainya dengan benar saat opsi di dalamnya berubah.
 
-Here's an example of two selects, one for states, one for cities. When the state select changes, the options in the city select will change properly:
+Berikut adalah contoh dua buah *select*, satu untuk negara bagian (*states*), satu untuk kota (*cities*). Ketika *select* negara bagian berubah, opsi dalam *select* kota akan berubah dengan benar:
 
 ```blade
-<!-- States select menu... -->
 <select wire:model.live="selectedState">
     @foreach (State::all() as $state)
         <option value="{{ $state->id }}">{{ $state->label }}</option>
     @endforeach
 </select>
 
-<!-- Cities dependent select menu... -->
-<select wire:model.live="selectedCity" wire:key="{{ $selectedState }}"> <!-- [tl! highlight] -->
-    @foreach (City::whereStateId($selectedState->id)->get() as $city)
+<select wire:model.live="selectedCity" wire:key="{{ $selectedState }}"> @foreach (City::whereStateId($selectedState->id)->get() as $city)
         <option value="{{ $city->id }}">{{ $city->label }}</option>
     @endforeach
 </select>
+
 ```
 
-Again, the only thing non-standard here is the `wire:key` that has been added to the second select. This ensures that when the state changes, the "selectedCity" value will be reset properly.
+Sekali lagi, satu-satunya hal yang tidak standar di sini adalah `wire:key` yang ditambahkan ke *select* kedua. Ini memastikan bahwa ketika negara bagian berubah, nilai "selectedCity" akan diatur ulang (*reset*) dengan benar.
 
 ### Multi-select dropdowns
 
-If you are using a "multiple" select menu, Livewire works as expected. In this example, states will be added to the `$states` array property when they are selected and removed if they are deselected:
+Jika Anda menggunakan menu *select* "multiple", Livewire bekerja sebagaimana mestinya. Dalam contoh ini, negara bagian akan ditambahkan ke properti array `$states` saat dipilih dan dihapus jika pilihan dibatalkan:
 
 ```blade
 <select wire:model="states" multiple>
@@ -261,57 +270,67 @@ If you are using a "multiple" select menu, Livewire works as expected. In this e
     <option value="AZ">Arizona</option>
     ...
 </select>
+
 ```
+
+---
 
 ## Event propagation
 
-By default, `wire:model` only listens for input/change events that originate directly on the element itself, not events that bubble up from child elements. This prevents unexpected behavior when using `wire:model` on container elements like modals or accordions that contain other form inputs.
+Secara default, `wire:model` hanya mendengarkan **event** *input/change* yang berasal langsung dari elemen itu sendiri, bukan **event** yang merambat naik (*bubble up*) dari elemen anak (*child elements*). Hal ini mencegah perilaku tak terduga saat menggunakan `wire:model` pada elemen kontainer seperti *modal* atau *accordion* yang berisi input formulir lainnya.
 
-For example, if you have a modal with `wire:model="showModal"` and an input field inside it, clearing that input won't accidentally close the modal by bubbling up a change event.
+Misalnya, jika Anda memiliki *modal* dengan `wire:model="showModal"` dan sebuah kolom input di dalamnya, menghapus isi input tersebut tidak akan secara tidak sengaja menutup *modal* karena adanya perambatan **event** *change*.
 
-### Listening to child events
+### Mendengarkan event dari elemen anak
 
-In rare cases where you want `wire:model` to also respond to events bubbling up from child elements, you can use the `.deep` modifier:
+Dalam kasus langka di mana Anda ingin `wire:model` juga merespons **event** yang merambat naik dari elemen anak, Anda dapat menggunakan **modifier** `.deep`:
 
 ```blade
 <div wire:model.deep="value">
-    <input type="text"> <!-- Changes here will update $value -->
-</div>
+    <input type="text"> </div>
+
 ```
 
-> [!warning] Use `.deep` sparingly
-> Most use cases don't require listening to child events. Only use `.deep` when you specifically need to capture events from descendant elements.
+> [!warning] Gunakan `.deep` dengan bijak
+> Sebagian besar kasus penggunaan tidak memerlukan pemantauan **event** elemen anak. Hanya gunakan `.deep` saat Anda secara spesifik perlu menangkap **event** dari elemen keturunan (*descendant*).
 
-## Going deeper
+---
 
-For a more complete documentation on using `wire:model` in the context of HTML forms, visit the [Livewire forms documentation page](/docs/4.x/forms).
+## Pelajari lebih dalam
+
+Untuk dokumentasi yang lebih lengkap mengenai penggunaan `wire:model` dalam konteks formulir HTML, kunjungi [halaman dokumentasi Livewire forms](https://www.google.com/search?q=/docs/4.x/forms).
+
+---
 
 ## See also
 
-- **[Forms](/docs/4.x/forms)** — Complete guide to building forms with Livewire
-- **[Properties](/docs/4.x/properties)** — Understand data binding and property management
-- **[Validation](/docs/4.x/validation)** — Validate bound properties in real-time
-- **[File Uploads](/docs/4.x/uploads)** — Bind file inputs with wire:model
+* **[Forms](https://www.google.com/search?q=/docs/4.x/forms)** — Panduan lengkap membangun formulir dengan Livewire
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Pahami data binding dan manajemen properti
+* **[Validation](https://www.google.com/search?q=/docs/4.x/validation)** — Validasi properti yang terikat secara *real-time*
+* **[File Uploads](https://www.google.com/search?q=/docs/4.x/uploads)** — Hubungkan input file dengan `wire:model`
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:model="propertyName"
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.live` | Send updates to the server |
-| `.blur` | Only update on blur |
-| `.change` | Only update on change |
-| `.enter` | Only update on enter key |
-| `.lazy` | Update on change and send network request (v3 compatible) |
-| `.debounce.Xms` | Debounce updates (use with `.live`) |
-| `.throttle.Xms` | Throttle updates (use with `.live`) |
-| `.number` | Cast value to `int` on the server |
-| `.boolean` | Cast value to `bool` on the server |
-| `.fill` | Use initial value from HTML `value` attribute |
-| `.deep` | Also listen to events from child elements |
-| `.preserve-scroll` | Maintain scroll position during updates |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.live` | Mengirimkan pembaruan ke server secara langsung |
+| `.blur` | Hanya memperbarui saat elemen kehilangan fokus (*blur*) |
+| `.change` | Hanya memperbarui saat terjadi perubahan (*change*) |
+| `.enter` | Hanya memperbarui saat tombol Enter ditekan |
+| `.lazy` | Memperbarui saat terjadi perubahan dan mengirimkan *network request* (kompatibel dengan v3) |
+| `.debounce.Xms` | Menunda pembaruan (digunakan bersama `.live`) |
+| `.throttle.Xms` | Membatasi frekuensi pembaruan (digunakan bersama `.live`) |
+| `.number` | Mengubah nilai menjadi `int` di server |
+| `.boolean` | Mengubah nilai menjadi `bool` di server |
+| `.fill` | Menggunakan nilai awal dari atribut HTML `value` |
+| `.deep` | Juga mendengarkan **event** dari elemen anak |
+| `.preserve-scroll` | Mempertahankan posisi gulir (*scroll*) selama pembaruan |
