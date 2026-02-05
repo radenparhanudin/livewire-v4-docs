@@ -1,8 +1,8 @@
-The `#[Url]` attribute stores a property's value in the URL's query string, allowing users to share and bookmark specific states of a page.
+Atribut `#[Url]` menyimpan nilai sebuah properti di dalam *query string* URL, memungkinkan pengguna untuk membagikan dan menandai (*bookmark*) status tertentu dari sebuah halaman.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Url]` attribute to any property that should persist in the URL:
+Terapkan atribut `#[Url]` pada properti apa pun yang harus dipertahankan di dalam URL:
 
 ```php
 <?php // resources/views/components/user/⚡index.blade.php
@@ -33,61 +33,61 @@ new class extends Component {
         @endforeach
     </ul>
 </div>
+
 ```
 
-When a user types "bob" into the search field, the URL updates to `https://example.com/users?search=bob`. If they share this URL or refresh the page, the search value persists.
+Ketika seorang pengguna mengetik "bob" ke dalam bidang pencarian, URL akan diperbarui menjadi `https://example.com/users?search=bob`. Jika mereka membagikan URL ini atau me-*refresh* halaman, nilai pencarian tersebut akan tetap ada.
 
-## How it works
+---
 
-The `#[Url]` attribute does two things:
+## Cara kerjanya
 
-1. **Writes to URL** - When the property changes, it updates the query string
-2. **Reads from URL** - On page load, it initializes the property from the query string
+Atribut `#[Url]` melakukan dua hal utama:
 
-This creates a shareable, bookmarkable state for your component.
+1. **Menulis ke URL** - Ketika properti berubah, ia memperbarui *query string*.
+2. **Membaca dari URL** - Saat halaman dimuat, ia menginisialisasi properti berdasarkan nilai dari *query string*.
+
+Hal ini menciptakan status (*state*) yang dapat dibagikan dan ditandai untuk komponen Anda.
+
+---
 
 ## URL vs Session
 
-Both `#[Url]` and `#[Session]` persist property values, but with different trade-offs:
+Baik `#[Url]` maupun `#[Session]` sama-masing mempertahankan nilai properti, namun dengan pertimbangan yang berbeda:
 
-| Feature | `#[Url]` | `#[Session]` |
-|---------|----------|--------------|
-| Persists across refreshes | ✅ | ✅ |
-| Persists when sharing URL | ✅ | ❌ |
-| Keeps URL clean | ❌ | ✅ |
-| Visible to user | ✅ | ❌ |
-| Shareable state | ✅ | ❌ |
+| Fitur | `#[Url]` | `#[Session]` |
+| --- | --- | --- |
+| Persisten setelah *refresh* | ✅ | ✅ |
+| Persisten saat URL dibagikan | ✅ | ❌ |
+| Menjaga URL tetap bersih | ❌ | ✅ |
+| Terlihat oleh pengguna | ✅ | ❌ |
+| Status dapat dibagikan | ✅ | ❌ |
 
-Use `#[Url]` when you want users to be able to share or bookmark the current state. Use `#[Session]` when state should be private.
+Gunakan `#[Url]` ketika Anda ingin pengguna bisa membagikan atau menandai status saat ini. Gunakan `#[Session]` ketika status tersebut bersifat privat.
 
-## Using an alias
+---
 
-Shorten or obfuscate property names in the URL with the `as` parameter:
+## Menggunakan alias
+
+Persingkat atau samarkan nama properti di URL dengan parameter `as`:
 
 ```php
-<?php // resources/views/components/user/⚡index.blade.php
-
-use Livewire\Attributes\Url;
-use Livewire\Component;
-
 new class extends Component {
     #[Url(as: 'q')] // [tl! highlight]
     public $search = '';
 };
+
 ```
 
-The URL will show `?q=bob` instead of `?search=bob`.
+URL akan menampilkan `?q=bob` alih-alih `?search=bob`.
 
-## Excluding values
+---
 
-By default, Livewire only adds query parameters when values differ from their initial value. Use `except` to customize this:
+## Mengecualikan nilai (Excluding values)
+
+Secara default, Livewire hanya menambahkan parameter *query* ketika nilainya berbeda dari nilai awalnya. Gunakan `except` untuk menyesuaikan ini:
 
 ```php
-<?php // resources/views/components/user/⚡index.blade.php
-
-use Livewire\Attributes\Url;
-use Livewire\Component;
-
 new class extends Component {
     #[Url(except: '')] // [tl! highlight]
     public $search = '';
@@ -97,143 +97,50 @@ new class extends Component {
         $this->search = auth()->user()->username;
     }
 };
+
 ```
 
-Now Livewire will only exclude `search` from the URL when it's an empty string, not when it equals the initial username value.
+Sekarang Livewire hanya akan mengecualikan `search` dari URL ketika nilainya berupa string kosong, bukan saat nilainya sama dengan *username* awal.
 
-## Always show in URL
+---
 
-To always include the parameter in the URL, even when empty, use `keep`:
+## Riwayat Browser (Browser history)
 
-```php
-#[Url(keep: true)] // [tl! highlight]
-public $search = '';
-```
-
-The URL will always show `?search=` even when the value is empty.
-
-## Nullable properties
-
-Use nullable type hints to treat empty query parameters as `null` instead of empty strings:
-
-```php
-<?php // resources/views/components/user/⚡index.blade.php
-
-use Livewire\Attributes\Url;
-use Livewire\Component;
-
-new class extends Component {
-    #[Url]
-    public ?string $search; // [tl! highlight]
-};
-```
-
-Now `?search=` sets `$search` to `null` instead of `''`.
-
-## Browser history
-
-By default, Livewire uses `history.replaceState()` to modify the URL without adding browser history entries. To add history entries (making the back button restore previous query values), use `history`:
+Secara default, Livewire menggunakan `history.replaceState()` untuk memodifikasi URL tanpa menambahkan entri riwayat browser. Untuk menambahkan entri riwayat (memungkinkan tombol *back* memulihkan nilai *query* sebelumnya), gunakan `history`:
 
 ```php
 #[Url(history: true)] // [tl! highlight]
 public $search = '';
+
 ```
 
-Now clicking the browser's back button will restore previous search values instead of navigating to the previous page.
+Kini, mengeklik tombol *back* pada browser akan memulihkan nilai pencarian sebelumnya, alih-alih berpindah ke halaman sebelumnya.
 
-## When to use
+---
 
-Use `#[Url]` when:
+## Kapan harus menggunakan
 
-* Building search or filter interfaces
-* Implementing pagination
-* Creating shareable views (map positions, selected filters, etc.)
-* Allowing users to bookmark specific states
-* Supporting browser back/forward navigation through states
+Gunakan `#[Url]` saat:
 
-## Example: Product filtering
+* Membangun antarmuka pencarian atau filter.
+* Mengimplementasikan navigasi halaman (*pagination*).
+* Membuat tampilan yang dapat dibagikan (posisi peta, filter yang dipilih, dll.).
+* Memungkinkan pengguna untuk menandai status tertentu.
+* Mendukung navigasi tombol *back/forward* browser melalui status-status aplikasi.
 
-Here's a practical example of filtering products with multiple URL parameters:
+---
 
-```php
-<?php // resources/views/pages/⚡products.blade.php
+## Pertimbangan SEO
 
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Url;
-use Livewire\Component;
-use App\Models\Product;
+Parameter *query* diindeks oleh mesin pencari dan disertakan dalam analitik:
 
-new class extends Component {
-    #[Url(as: 'q')]
-    public $search = '';
+* **Bagus untuk SEO** - Setiap kombinasi *query* yang unik menciptakan URL unik yang dapat diindeks.
+* **Pelacakan Analitik** - Melacak filter dan pencarian apa yang sering digunakan pengguna.
+* **Dapat dibagikan di media sosial** - Parameter *query* akan tetap terjaga saat tautan dibagikan.
 
-    #[Url]
-    public $category = 'all';
+---
 
-    #[Url]
-    public $minPrice = 0;
-
-    #[Url]
-    public $maxPrice = 1000;
-
-    #[Url]
-    public $sort = 'name';
-
-    #[Computed]
-    public function products()
-    {
-        return Product::query()
-            ->when($this->search, fn($q) => $q->search($this->search))
-            ->when($this->category !== 'all', fn($q) => $q->where('category', $this->category))
-            ->whereBetween('price', [$this->minPrice, $this->maxPrice])
-            ->orderBy($this->sort)
-            ->paginate(20);
-    }
-};
-?>
-
-<div>
-    <input type="text" wire:model.live="search" placeholder="Search products...">
-
-    <select wire:model.live="category">
-        <option value="all">All Categories</option>
-        <option value="electronics">Electronics</option>
-        <option value="clothing">Clothing</option>
-    </select>
-
-    <input type="range" wire:model.live="minPrice" min="0" max="1000">
-    <input type="range" wire:model.live="maxPrice" min="0" max="1000">
-
-    <select wire:model.live="sort">
-        <option value="name">Name</option>
-        <option value="price">Price</option>
-        <option value="created_at">Newest</option>
-    </select>
-
-    @foreach($this->products as $product)
-        <div wire:key="{{ $product->id }}">{{ $product->name }} - ${{ $product->price }}</div>
-    @endforeach
-</div>
-```
-
-Users can share URLs like:
-```
-https://example.com/products?q=laptop&category=electronics&minPrice=500&maxPrice=1500&sort=price
-```
-
-## SEO considerations
-
-Query parameters are indexed by search engines and included in analytics:
-
-* **Good for SEO** - Each unique query combination creates a unique URL that can be indexed
-* **Analytics tracking** - Track which filters and searches users are using
-* **Shareable on social media** - Query parameters are preserved when sharing links
-
-## Learn more
-
-For more information about URL query parameters, including the `queryString()` method and trait hooks, see the [URL Query Parameters documentation](/docs/4.x/url).
-
-## Reference
+## Referensi
 
 ```php
 #[Url(
@@ -243,12 +150,13 @@ For more information about URL query parameters, including the `queryString()` m
     mixed $except = null,
     mixed $nullable = null,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$as` | `?string` | `null` | Custom name for the query parameter in the URL |
-| `$history` | `bool` | `false` | Push URL changes to browser history (enables back button) |
-| `$keep` | `bool` | `false` | Keep the query parameter when navigating away |
-| `$except` | `mixed` | `null` | Value(s) to exclude from the URL |
-| `$nullable` | `mixed` | `null` | Value to use when query parameter is missing from URL |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$as` | `?string` | `null` | Nama kustom untuk parameter di URL. |
+| `$history` | `bool` | `false` | Memasukkan perubahan URL ke riwayat browser (mengaktifkan tombol *back*). |
+| `$keep` | `bool` | `false` | Menjaga parameter *query* saat berpindah navigasi. |
+| `$except` | `mixed` | `null` | Nilai yang dikecualikan agar tidak tampil di URL. |
+| `$nullable` | `mixed` | `null` | Nilai yang digunakan saat parameter hilang dari URL. |
