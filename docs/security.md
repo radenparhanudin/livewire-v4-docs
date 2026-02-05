@@ -1,12 +1,12 @@
-It's important to make sure your Livewire apps are secure and don't expose any application vulnerabilities. Livewire has internal security features to handle many cases, however, there are times when it's up to your application code to keep your components secure.
+Penting untuk memastikan aplikasi Livewire Anda aman dan tidak mengekspos kerentanan aplikasi apa pun. Livewire memiliki fitur keamanan internal untuk menangani banyak kasus, namun, ada kalanya kode aplikasi Anda sendiri yang bertanggung jawab untuk menjaga keamanan komponen Anda.
 
-## Authorizing action parameters
+## Otorisasi action parameters
 
-Livewire actions are extremely powerful, however, any parameters passed to Livewire actions are mutable on the client and should be treated as un-trusted user input.
+Livewire **actions** sangatlah kuat, namun, setiap parameter yang diteruskan ke **actions** dapat diubah di sisi klien dan harus diperlakukan sebagai input pengguna yang tidak terpercaya (*un-trusted user input*).
 
-Arguably the most common security pitfall in Livewire is failing to validate and authorize Livewire action calls before persisting changes to the database.
+Salah satu jebakan keamanan yang paling umum di Livewire adalah kegagalan dalam memvalidasi dan mengotorisasi pemanggilan **action** sebelum menyimpan perubahan ke database.
 
-Here is an example of an insecurity resulting from a lack of authorization:
+Berikut adalah contoh ketidakamanan yang diakibatkan oleh kurangnya otorisasi:
 
 ```php
 <?php
@@ -20,33 +20,35 @@ class ShowPost extends Component
 
     public function delete($id)
     {
-        // INSECURE!
+        // TIDAK AMAN!
 
         $post = Post::find($id);
 
         $post->delete();
     }
 }
+
 ```
 
 ```html
 <button wire:click="delete({{ $post->id }})">Delete Post</button>
+
 ```
 
+Alasan mengapa contoh di atas tidak aman adalah karena `wire:click="delete(...)"` dapat dimodifikasi di browser untuk meneruskan ID postingan APA PUN yang diinginkan oleh pengguna jahat.
 
-The reason the above example is insecure is that `wire:click="delete(...)"` can be modified in the browser to pass ANY post ID a malicious user wishes.
+**Action parameters** (seperti `$id` dalam kasus ini) harus diperlakukan sama seperti input apa pun yang tidak tepercaya dari browser.
 
-Action parameters (like `$id` in this case) should be treated the same as any untrusted input from the browser.
+Oleh karena itu, untuk menjaga keamanan aplikasi ini dan mencegah pengguna menghapus postingan milik pengguna lain, kita harus menambahkan otorisasi pada **action** `delete()`.
 
-Therefore, to keep this application secure and prevent a user from deleting another user's post, we must add authorization to the `delete()` action.
-
-First, let's create a [Laravel Policy](https://laravel.com/docs/authorization#creating-policies) for the Post model by running the following command:
+Pertama, mari buat [Laravel Policy](https://laravel.com/docs/authorization#creating-policies) untuk model Post dengan menjalankan perintah berikut:
 
 ```bash
 php artisan make:policy PostPolicy --model=Post
+
 ```
 
-After running the above command, a new Policy will be created inside `app/Policies/PostPolicy.php`. We can then update its contents with a `delete` method like so:
+Setelah menjalankan perintah di atas, sebuah Policy baru akan dibuat di dalam `app/Policies/PostPolicy.php`. Kita kemudian dapat memperbarui isinya dengan metode `delete` seperti ini:
 
 ```php
 <?php
@@ -59,39 +61,44 @@ use App\Models\User;
 class PostPolicy
 {
     /**
-     * Determine if the given post can be deleted by the user.
+     * Tentukan apakah postingan yang diberikan dapat dihapus oleh pengguna.
      */
     public function delete(?User $user, Post $post): bool
     {
         return $user?->id === $post->user_id;
     }
 }
+
 ```
 
-Now, we can use the `$this->authorize()` method from the Livewire component to ensure the user owns the post before deleting it:
+Sekarang, kita dapat menggunakan metode `$this->authorize()` dari komponen Livewire untuk memastikan pengguna adalah pemilik postingan sebelum menghapusnya:
 
 ```php
 public function delete($id)
 {
     $post = Post::find($id);
 
-    // If the user doesn't own the post,
-    // an AuthorizationException will be thrown...
+    // Jika pengguna bukan pemilik postingan,
+    // AuthorizationException akan dilemparkan...
     $this->authorize('delete', $post); // [tl! highlight]
 
     $post->delete();
 }
+
 ```
 
-Further reading:
+Bacaan lebih lanjut:
+
 * [Laravel Gates](https://laravel.com/docs/authorization#gates)
 * [Laravel Policies](https://laravel.com/docs/authorization#creating-policies)
 
-## Authorizing public properties
+---
 
-Similar to action parameters, public properties in Livewire should be treated as un-trusted input from the user.
+## Otorisasi public properties
 
-Here is the same example from above about deleting a post, written insecurely in a different manner:
+Serupa dengan **action parameters**, **public properties** di Livewire harus diperlakukan sebagai input pengguna yang tidak terpercaya.
+
+Berikut adalah contoh yang sama seperti di atas tentang menghapus postingan, namun ditulis secara tidak aman dengan cara yang berbeda:
 
 ```php
 <?php
@@ -110,36 +117,35 @@ class ShowPost extends Component
 
     public function delete()
     {
-        // INSECURE!
+        // TIDAK AMAN!
 
         $post = Post::find($this->postId);
 
         $post->delete();
     }
 }
+
 ```
 
 ```html
 <button wire:click="delete">Delete Post</button>
+
 ```
 
-As you can see, instead of passing the `$postId` as a parameter to the `delete` method from `wire:click`, we are storing it as a public property on the Livewire component.
-
-The problem with this approach is that any malicious user can inject a custom element onto the page such as:
+Masalah dengan pendekatan ini adalah pengguna jahat dapat menyuntikkan elemen kustom ke halaman seperti:
 
 ```html
 <input type="text" wire:model="postId">
+
 ```
 
-This would allow them to freely modify the `$postId` before pressing "Delete Post". Because the `delete` action doesn't authorize the value of `$postId`, the user can now delete any post in the database, whether they own it or not.
+Hal ini memungkinkan mereka untuk bebas memodifikasi `$postId` sebelum menekan "Delete Post". Karena **action** `delete` tidak mengotorisasi nilai `$postId`, pengguna sekarang dapat menghapus postingan mana pun di database.
 
-To protect against this risk, there are two possible solutions:
+Untuk melindungi dari risiko ini, ada dua solusi yang memungkinkan:
 
-### Using model properties
+### Menggunakan model properties
 
-When setting public properties, Livewire treats models differently than plain values such as strings and integers. Because of this, if we instead store the entire post model as a property on the component, Livewire will ensure the ID is never tampered with.
-
-Here is an example of storing a `$post` property instead of a simple `$postId` property:
+Saat mengatur **public properties**, Livewire memperlakukan model secara berbeda dari nilai biasa seperti string dan integer. Karena itu, jika kita menyimpan seluruh model post sebagai properti pada komponen, Livewire akan memastikan ID-nya tidak pernah dirusak.
 
 ```php
 <?php
@@ -149,7 +155,7 @@ use Livewire\Component;
 
 class ShowPost extends Component
 {
-    public Post $post;
+    public Post $post; // [tl! highlight]
 
     public function mount($postId)
     {
@@ -161,18 +167,16 @@ class ShowPost extends Component
         $this->post->delete();
     }
 }
+
 ```
 
-```html
-<button wire:click="delete">Delete Post</button>
-```
+Komponen ini sekarang aman karena tidak ada cara bagi pengguna jahat untuk mengubah properti `$post` ke model Eloquent yang berbeda.
 
-This component is now secured because there is no way for a malicious user to change the `$post` property to a different Eloquent model.
+### Mengunci properti (Locking)
 
-### Locking the property
-Another way to prevent properties from being set to unwanted values is to use [the `#[Locked]` attribute](/docs/4.x/attribute-locked). Locking properties is done by applying the `#[Locked]` attribute. Now if users attempt to tamper with this value an error will be thrown.
+Cara lain untuk mencegah properti diatur ke nilai yang tidak diinginkan adalah dengan menggunakan [atribut `#[Locked]](https://www.google.com/search?q=/docs/4.x/attribute-locked)`. Mengunci properti dilakukan dengan menerapkan atribut `#[Locked]`. Sekarang, jika pengguna mencoba merusak nilai ini, sebuah error akan dilemparkan.
 
-Note that properties with the Locked attribute can still be changed in the back-end, so care still needs to taken that untrusted user input is not passed to the property in your own Livewire functions.
+Perlu dicatat bahwa properti dengan atribut **Locked** masih dapat diubah di sisi back-end, jadi tetap perlu berhati-hati agar input pengguna yang tidak terpercaya tidak diteruskan ke properti tersebut di dalam fungsi Livewire Anda sendiri.
 
 ```php
 <?php
@@ -198,11 +202,11 @@ class ShowPost extends Component
         $post->delete();
     }
 }
+
 ```
+### Mengotorisasi properti
 
-### Authorizing the property
-
-If using a model property is undesired in your scenario, you can of course fall-back to manually authorizing the deletion of the post inside the `delete` action:
+Jika penggunaan **model property** tidak diinginkan dalam skenario Anda, Anda tentu saja dapat menggunakan cara manual dengan mengotorisasi penghapusan postingan di dalam **action** `delete`:
 
 ```php
 <?php
@@ -228,36 +232,43 @@ class ShowPost extends Component
         $post->delete();
     }
 }
+
 ```
 
 ```html
 <button wire:click="delete">Delete Post</button>
+
 ```
 
-Now, even though a malicious user can still freely modify the value of `$postId`, when the `delete` action is called, `$this->authorize()` will throw an `AuthorizationException` if the user does not own the post.
+Sekarang, meskipun pengguna jahat masih dapat dengan bebas memodifikasi nilai `$postId`, saat **action** `delete` dipanggil, `$this->authorize()` akan melemparkan `AuthorizationException` jika pengguna tersebut bukan pemilik postingan tersebut.
 
-Further reading:
+Bacaan lebih lanjut:
+
 * [Laravel Gates](https://laravel.com/docs/authorization#gates)
 * [Laravel Policies](https://laravel.com/docs/authorization#creating-policies)
 
+---
+
 ## Middleware
 
-When a Livewire component is loaded on a page containing route-level [Authorization Middleware](https://laravel.com/docs/authorization#via-middleware), like so:
+Ketika sebuah komponen Livewire dimuat pada halaman yang berisi [Authorization Middleware](https://laravel.com/docs/authorization#via-middleware) di tingkat rute, seperti ini:
 
 ```php
 Route::livewire('/post/{post}', App\Livewire\UpdatePost::class)
     ->middleware('can:update,post'); // [tl! highlight]
+
 ```
 
-Livewire will ensure those middlewares are re-applied to subsequent Livewire network requests. This is referred to as "Persistent Middleware" in Livewire's core.
+Livewire akan memastikan bahwa **middleware** tersebut diterapkan kembali pada permintaan jaringan (*network requests*) Livewire berikutnya. Hal ini disebut sebagai "**Persistent Middleware**" di dalam inti Livewire.
 
-Persistent middleware protects you from scenarios where the authorization rules or user permissions have changed after the initial page-load.
+**Persistent middleware** melindungi Anda dari skenario di mana aturan otorisasi atau izin pengguna telah berubah setelah pemuatan halaman awal.
 
-Here's a more in-depth example of such a scenario:
+Berikut adalah contoh lebih mendalam dari skenario tersebut:
 
 ```php
 Route::livewire('/post/{post}', App\Livewire\UpdatePost::class)
     ->middleware('can:update,post'); // [tl! highlight]
+
 ```
 
 ```php
@@ -290,22 +301,22 @@ class UpdatePost extends Component
         ]);
     }
 }
+
 ```
 
-As you can see, the `can:update,post` middleware is applied at the route-level. This means that a user who doesn't have permission to update a post cannot view the page.
+Seperti yang Anda lihat, middleware `can:update,post` diterapkan di tingkat rute. Ini berarti pengguna yang tidak memiliki izin untuk memperbarui postingan tidak dapat melihat halaman tersebut.
 
-However, consider a scenario where a user:
-* Loads the page
-* Loses permission to update after the page loads
-* Tries updating the post after losing permission
+Namun, pertimbangkan skenario di mana seorang pengguna:
 
-Because Livewire has already successfully loaded the page you might ask yourself: "When Livewire makes a subsequent request to update the post, will the `can:update,post` middleware be re-applied? Or instead, will the un-authorized user be able to update the post successfully?"
+* Memuat halaman.
+* Kehilangan izin untuk memperbarui setelah halaman dimuat.
+* Mencoba memperbarui postingan setelah kehilangan izin tersebut.
 
-Because Livewire has internal mechanisms to re-apply middleware from the original endpoint, you are protected in this scenario.
+Karena Livewire memiliki mekanisme internal untuk menerapkan kembali **middleware** dari titik akhir (*endpoint*) asli, Anda terlindungi dalam skenario ini.
 
-### Configuring persistent middleware
+### Konfigurasi persistent middleware
 
-By default, Livewire persists the following middleware across network requests:
+Secara default, Livewire mempertahankan **middleware** berikut di seluruh permintaan jaringan:
 
 ```php
 \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
@@ -315,11 +326,12 @@ By default, Livewire persists the following middleware across network requests:
 \App\Http\Middleware\RedirectIfAuthenticated::class,
 \Illuminate\Auth\Middleware\Authenticate::class,
 \Illuminate\Auth\Middleware\Authorize::class,
+
 ```
 
-If any of the above middlewares are applied to the initial page-load, they will be persisted (re-applied) to any future network requests.
+Jika salah satu dari **middleware** di atas diterapkan pada pemuatan halaman awal, mereka akan dipertahankan (diterapkan kembali) ke permintaan jaringan apa pun di masa mendatang.
 
-However, if you are applying a custom middleware from your application on the initial page-load, and want it persisted between Livewire requests, you will need to add it to this list from a [Service Provider](https://laravel.com/docs/providers#main-content) in your app like so:
+Namun, jika Anda menerapkan **middleware** kustom dari aplikasi Anda pada pemuatan halaman awal dan ingin ia tetap ada di antara permintaan Livewire, Anda perlu menambahkannya ke daftar ini dari sebuah [Service Provider](https://laravel.com/docs/providers#main-content) di aplikasi Anda:
 
 ```php
 <?php
@@ -341,47 +353,57 @@ class AppServiceProvider extends ServiceProvider
         ]);
     }
 }
+
 ```
 
-If a Livewire component is loaded on a page that uses the `EnsureUserHasRole` middleware from your application, it will now be persisted and re-applied to any future network requests to that Livewire component.
+Jika komponen Livewire dimuat pada halaman yang menggunakan **middleware** `EnsureUserHasRole`, ia sekarang akan dipertahankan dan diterapkan kembali ke setiap permintaan jaringan di masa mendatang ke komponen Livewire tersebut.
 
-> [!warning] Middleware arguments are not supported
-> Livewire currently doesn't support middleware arguments for persistent middleware definitions.
->
+> [!warning] Argumen middleware tidak didukung
+> Livewire saat ini tidak mendukung argumen **middleware** untuk definisi **persistent middleware**.
 > ```php
-> // Bad...
+> // Salah...
 > Livewire::addPersistentMiddleware(AuthorizeResource::class.':admin');
->
-> // Good...
+> 
+> ```
+> 
+> 
+
+> // Benar...
 > Livewire::addPersistentMiddleware(AuthorizeResource::class);
 > ```
+> 
+> ```
+> 
+> 
 
+### Menerapkan global Livewire middleware
 
-### Applying global Livewire middleware
-
-Alternatively, if you wish to apply specific middleware to every single Livewire update network request, you can do so by registering your own Livewire update route with any middleware you wish:
+Alternatifnya, jika Anda ingin menerapkan **middleware** tertentu ke setiap permintaan jaringan pembaruan Livewire, Anda dapat melakukannya dengan mendaftarkan rute pembaruan Livewire Anda sendiri dengan **middleware** apa pun yang Anda inginkan:
 
 ```php
 Livewire::setUpdateRoute(function ($handle) {
-	return Route::post('/livewire/update', $handle)
+    return Route::post('/livewire/update', $handle)
         ->middleware(App\Http\Middleware\LocalizeViewPaths::class);
 });
+
 ```
 
-Any Livewire AJAX/fetch requests made to the server will use the above endpoint and apply the `LocalizeViewPaths` middleware before handling the component update.
+Setiap permintaan AJAX/fetch Livewire yang dibuat ke server akan menggunakan titik akhir di atas dan menerapkan **middleware** `LocalizeViewPaths` sebelum menangani pembaruan komponen.
 
-Learn more about [customizing the update route on the Installation page](https://livewire.laravel.com/docs/installation#configuring-livewires-update-endpoint).
+Pelajari lebih lanjut tentang [kustomisasi rute pembaruan di halaman Instalasi](https://livewire.laravel.com/docs/installation#configuring-livewires-update-endpoint).
+
+---
 
 ## Snapshot checksums
 
-Between every Livewire request, a snapshot is taken of the Livewire component and sent to the browser. This snapshot is used to re-build the component during the next server round-trip.
+Di antara setiap permintaan Livewire, sebuah **snapshot** diambil dari komponen Livewire dan dikirim ke browser. **Snapshot** ini digunakan untuk membangun kembali komponen selama siklus server berikutnya.
 
-[Learn more about Livewire snapshots in the Hydration documentation.](https://livewire.laravel.com/docs/hydration#the-snapshot)
+[Pelajari lebih lanjut tentang Livewire snapshots di dokumentasi Hydration.](https://livewire.laravel.com/docs/hydration#the-snapshot)
 
-Because fetch requests can be intercepted and tampered with in a browser, Livewire generates a "checksum" of each snapshot to go along with it.
+Karena permintaan fetch dapat dicegat dan dirusak di browser, Livewire menghasilkan "**checksum**" dari setiap **snapshot** yang menyertainya.
 
-This checksum is then used on the next network request to verify that the snapshot hasn't changed in any way.
+"**Checksum**" ini kemudian digunakan pada permintaan jaringan berikutnya untuk memverifikasi bahwa **snapshot** tersebut tidak berubah dengan cara apa pun.
 
-If Livewire finds a checksum mismatch, it will throw a `CorruptComponentPayloadException` and the request will fail.
+Jika Livewire menemukan ketidakcocokan **checksum**, ia akan melemparkan `CorruptComponentPayloadException` dan permintaan tersebut akan gagal.
 
-This protects against any form of malicious tampering that would otherwise result in granting users the ability to execute or modify unrelated code.
+Ini melindungi aplikasi dari segala bentuk manipulasi jahat yang bertujuan memberikan kemampuan kepada pengguna untuk mengeksekusi atau memodifikasi kode yang tidak terkait.
