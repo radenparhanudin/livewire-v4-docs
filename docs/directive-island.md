@@ -1,8 +1,8 @@
-The `@island` directive creates isolated regions within a component that update independently, without re-rendering the entire component.
+Direktif `@island` membuat wilayah terisolasi di dalam sebuah **component** yang diperbarui secara independen, tanpa me-*render* ulang seluruh **component**.
 
-## Basic usage
+## Penggunaan dasar
 
-Wrap any portion of your template with `@island` to create an isolated region:
+Bungkus bagian mana pun dari template Anda dengan `@island` untuk membuat wilayah terisolasi:
 
 ```blade
 <?php // resources/views/components/⚡dashboard.blade.php
@@ -15,7 +15,7 @@ new class extends Component {
     #[Computed]
     public function revenue()
     {
-        // Expensive calculation...
+        // Kalkulasi yang berat...
         return Revenue::yearToDate();
     }
 };
@@ -31,16 +31,18 @@ new class extends Component {
     @endisland
 
     <div>
-        <!-- Other content... -->
-    </div>
+        </div>
 </div>
+
 ```
 
-When the "Refresh" button is clicked, only the island re-renders—the rest of the component remains untouched.
+Ketika tombol "Refresh" diklik, hanya bagian **island** yang di-*render* ulang—bagian komponen lainnya tetap tidak tersentuh.
+
+---
 
 ## Lazy loading islands
 
-Defer an island's initial render until after the page loads using the `lazy` parameter:
+Tunda perenderan awal sebuah **island** sampai setelah halaman dimuat menggunakan parameter `lazy`:
 
 ```blade
 @island(lazy: true)
@@ -48,29 +50,31 @@ Defer an island's initial render until after the page loads using the `lazy` par
         Revenue: {{ $this->revenue }}
     </div>
 @endisland
+
 ```
 
-The island displays a loading state initially, then fetches its content in a separate request.
+**Island** tersebut awalnya akan menampilkan status pemuatan (*loading state*), kemudian mengambil kontennya dalam permintaan (*request*) terpisah.
 
 ### Lazy vs Deferred
 
-By default, `lazy` waits until the island is visible in the viewport. Use `defer` to load immediately after page load:
+Secara default, `lazy` menunggu sampai **island** terlihat di dalam **viewport**. Gunakan `defer` untuk memuat segera setelah pemuatan halaman selesai:
 
 ```blade
-{{-- Loads when scrolled into view --}}
+{{-- Dimuat saat digulir ke area pandang (viewport) --}}
 @island(lazy: true)
-    <!-- ... -->
-@endisland
+    @endisland
 
-{{-- Loads immediately after page load --}}
+{{-- Dimuat segera setelah halaman selesai dimuat --}}
 @island(defer: true)
-    <!-- ... -->
-@endisland
+    @endisland
+
 ```
+
+---
 
 ## Custom loading states
 
-Use `@placeholder` to customize what displays while loading:
+Gunakan `@placeholder` untuk menyesuaikan apa yang ditampilkan selama proses pemuatan:
 
 ```blade
 @island(lazy: true)
@@ -84,11 +88,14 @@ Use `@placeholder` to customize what displays while loading:
         Revenue: {{ $this->revenue }}
     </div>
 @endisland
+
 ```
+
+---
 
 ## Named islands
 
-Give islands names to target them from elsewhere in your component:
+Berikan nama pada **island** untuk menargetkannya dari bagian lain di dalam komponen Anda:
 
 ```blade
 @island(name: 'revenue')
@@ -98,22 +105,26 @@ Give islands names to target them from elsewhere in your component:
 <button type="button" wire:click="$refresh" wire:island="revenue">
     Refresh revenue
 </button>
+
 ```
 
-The `wire:island` directive scopes updates to specific islands.
+Direktif `wire:island` membatasi cakupan pembaruan (*scope updates*) hanya pada **island** tertentu.
 
-## Why use islands?
+---
 
-Islands provide performance isolation without the overhead of creating separate child components, managing props, or dealing with component communication.
+## Mengapa menggunakan islands?
 
-**Use islands when:**
-* You want to isolate expensive computations
-* You need independent update regions within one component
-* You want simpler architecture than nested components
+**Islands** memberikan isolasi performa tanpa beban tambahan (*overhead*) seperti membuat **child components** terpisah, mengelola **props**, atau berurusan dengan komunikasi antar komponen.
 
-[Learn more about islands →](/docs/4.x/islands)
+**Gunakan islands saat:**
 
-## Reference
+* Anda ingin mengisolasi komputasi yang berat.
+* Anda membutuhkan wilayah pembaruan independen di dalam satu komponen.
+* Anda menginginkan arsitektur yang lebih sederhana daripada **nested components**.
+
+---
+
+## Referensi
 
 ```blade
 @island(
@@ -121,12 +132,12 @@ Islands provide performance isolation without the overhead of creating separate 
     bool $lazy = false,
     bool $defer = false,
 )
-    <!-- Content -->
-@endisland
+    @endisland
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$name` | `?string` | `null` | A unique name for targeting the island with `wire:island` |
-| `$lazy` | `bool` | `false` | Defer rendering until the island is visible in the viewport |
-| `$defer` | `bool` | `false` | Load immediately after page load instead of waiting for viewport visibility |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$name` | `?string` | `null` | Nama unik untuk menargetkan island dengan `wire:island`. |
+| `$lazy` | `bool` | `false` | Menunda render sampai island terlihat di dalam viewport. |
+| `$defer` | `bool` | `false` | Memuat segera setelah halaman dimuat tanpa menunggu visibilitas viewport. |
