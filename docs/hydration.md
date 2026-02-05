@@ -1,26 +1,25 @@
+Menggunakan Livewire terasa seperti menempelkan *class* PHP sisi server langsung ke browser web. Hal-hal seperti memanggil fungsi server secara langsung melalui penekanan tombol mendukung ilusi ini. Namun pada kenyataannya, itu hanyalah sebuah ilusi.
 
-Using Livewire feels like attaching a server-side PHP class directly to a web browser. Things like calling server-side functions directly from button presses support this illusion. But in reality, it is just that: an illusion.
+Di balik layar, Livewire sebenarnya berperilaku jauh lebih mirip dengan aplikasi web standar. Ia me-*render* HTML statis ke browser, mendengarkan *event* browser, lalu membuat permintaan AJAX untuk memanggil kode di sisi server.
 
-In the background, Livewire actually behaves much more like a standard web application. It renders static HTML to the browser, listens for browser events, then makes AJAX requests to invoke server-side code.
+Karena setiap permintaan AJAX yang dibuat Livewire ke server bersifat "**stateless**" (artinya tidak ada proses backend yang berjalan lama untuk menjaga status komponen tetap hidup), Livewire harus membuat ulang status terakhir yang diketahui dari sebuah komponen sebelum melakukan pembaruan apa pun.
 
-Because each AJAX request Livewire makes to the server is "stateless" (meaning there isn't a long running backend process keeping the state of a component alive), Livewire must re-create the last-known state of a component before making any updates.
+Livewire melakukan ini dengan mengambil "**snapshot**" dari komponen PHP setelah setiap pembaruan di sisi server sehingga komponen tersebut dapat dibuat ulang atau *dilanjutkan* (*resumed*) pada permintaan berikutnya.
 
-It does this by taking "snapshots" of the PHP component after each server-side update so that the component can be re-created or _resumed_ on the next request.
-
-Throughout this documentation, we will refer to the process of taking the snapshot as "dehydration" and the process of re-creating a component from a snapshot as "hydration".
+Dalam dokumentasi ini, kami akan merujuk proses pengambilan *snapshot* sebagai "**dehydration**" dan proses pembuatan ulang komponen dari sebuah *snapshot* sebagai "**hydration**".
 
 ## Dehydrating
 
-When Livewire _dehydrates_ a server-side component, it does two things:
+Saat Livewire melakukan *dehydrate* pada komponen di sisi server, ia melakukan dua hal:
 
-* Renders the component's template to HTML
-* Creates a JSON snapshot of the component
+* Me-*render* template komponen menjadi HTML
+* Membuat *snapshot* JSON dari komponen tersebut
 
 ### Rendering HTML
 
-After a component is mounted or an update has been made, Livewire calls a component's `render()` method to convert the Blade template to raw HTML.
+Setelah komponen di-*mount* atau pembaruan telah dilakukan, Livewire memanggil metode `render()` komponen untuk mengubah template Blade menjadi HTML mentah.
 
-Take the following `counter` component for example:
+Ambil contoh komponen `counter` berikut:
 
 ```php
 <?php
@@ -46,9 +45,10 @@ new class extends Component {
         HTML;
     }
 };
+
 ```
 
-After each mount or update, Livewire would render the above `counter` component to the following HTML:
+Setelah setiap *mount* atau pembaruan, Livewire akan me-*render* komponen `counter` di atas menjadi HTML berikut:
 
 ```html
 <div>
@@ -56,11 +56,12 @@ After each mount or update, Livewire would render the above `counter` component 
 
     <button wire:click="increment">+</button>
 </div>
+
 ```
 
 ### The snapshot
 
-In order to re-create the `counter` component on the server during the next request, a JSON snapshot is created, attempting to capture as much of the state of the component as possible:
+Agar dapat membuat ulang komponen `counter` di server selama permintaan berikutnya, sebuah *snapshot* JSON dibuat untuk menangkap sebanyak mungkin status komponen:
 
 ```js
 {
@@ -74,18 +75,19 @@ In order to re-create the `counter` component on the server during the next requ
         id: '1526456',
     },
 }
+
 ```
 
-Notice two different portions of the snapshot: `memo`, and `state`.
+Perhatikan dua bagian berbeda dari *snapshot* tersebut: `memo` dan `state`.
 
-The `memo` portion is used to store the information needed to identify and re-create the component, while the `state` portion stores the values of all the component's public properties.
+Bagian `memo` digunakan untuk menyimpan informasi yang diperlukan untuk mengidentifikasi dan membuat ulang komponen, sedangkan bagian `state` menyimpan nilai dari semua properti publik komponen.
 
 > [!info]
-> The above snapshot is a condensed version of an actual snapshot in Livewire. In live applications, the snapshot contains much more information, such as validation errors, a list of child components, locales, and much more. For a more detailed look at a snapshot object you may reference the [snapshot schema documentation](/docs/4.x/javascript#the-snapshot-object).
+> Snapshot di atas adalah versi ringkas dari snapshot asli di Livewire. Dalam aplikasi nyata, snapshot berisi jauh lebih banyak informasi, seperti error validasi, daftar komponen anak, lokal, dan banyak lagi. Untuk melihat detail objek snapshot, Anda dapat merujuk ke [dokumentasi skema snapshot](https://www.google.com/search?q=/docs/4.x/javascript%23the-snapshot-object).
 
-### Embedding the snapshot in the HTML
+### Menyematkan snapshot di dalam HTML
 
-When a component is first rendered, Livewire stores the snapshot as JSON inside an HTML attribute called `wire:snapshot`. This way, Livewire's JavaScript core can extract the JSON and turn it into a run-time object:
+Saat komponen pertama kali di-*render*, Livewire menyimpan *snapshot* sebagai JSON di dalam atribut HTML bernama `wire:snapshot`. Dengan cara ini, inti JavaScript Livewire dapat mengekstrak JSON tersebut dan mengubahnya menjadi objek *run-time*:
 
 ```html
 <div wire:id="..." wire:snapshot="{ state: {...}, memo: {...} }">
@@ -93,11 +95,12 @@ When a component is first rendered, Livewire stores the snapshot as JSON inside 
 
     <button wire:click="increment">+</button>
 </div>
+
 ```
 
 ## Hydrating
 
-When a component update is triggered, for example, the "+" button is pressed in the `counter` component, a payload like the following is sent to the server:
+Ketika pembaruan komponen dipicu, misalnya tombol "+" ditekan pada komponen `counter`, sebuah *payload* seperti berikut dikirim ke server:
 
 ```js
 {
@@ -117,11 +120,12 @@ When a component update is triggered, for example, the "+" button is pressed in 
         },
     }
 }
+
 ```
 
-Before Livewire can call the `increment` method, it must first create a new `counter` instance and seed it with the snapshot's state.
+Sebelum Livewire dapat memanggil metode `increment`, ia harus terlebih dahulu membuat instansi `counter` baru dan mengisinya dengan status dari *snapshot* tersebut.
 
-Here is some PHP pseudo-code that achieves this result:
+Berikut adalah *pseudo-code* PHP yang mencapai hasil ini:
 
 ```php
 $state = request('snapshot.state');
@@ -132,17 +136,16 @@ $instance = Livewire::new($memo['name'], $memo['id']);
 foreach ($state as $property => $value) {
     $instance[$property] = $value;
 }
+
 ```
 
-If you follow the above script, you will see that after creating a `counter` object, its public properties are set based on the state provided from the snapshot.
+Jika Anda mengikuti skrip di atas, Anda akan melihat bahwa setelah membuat objek `counter`, properti publiknya diatur berdasarkan status yang disediakan dari *snapshot*.
 
 ## Advanced hydration
 
-The above `counter` example works well to demonstrate the concept of hydration; however, it only demonstrates how Livewire handles hydrating simple values like integers (`1`).
+Contoh `counter` di atas berfungsi dengan baik untuk mendemonstrasikan konsep *hydration*; namun, itu hanya menunjukkan bagaimana Livewire menangani *hydration* nilai sederhana seperti integer (`1`).
 
-As you may know, Livewire supports many more sophisticated property types beyond integers.
-
-Let's take a look at a slightly more complex example - a `todos` component:
+Seperti yang Anda ketahui, Livewire mendukung lebih banyak tipe properti yang canggih di luar integer. Mari kita lihat contoh yang sedikit lebih kompleks - komponen `todos`:
 
 ```php
 <?php
@@ -160,13 +163,12 @@ new class extends Component {
         ]);
     }
 };
+
 ```
 
-As you can see, we are setting the `$todos` property to a [Laravel collection](https://laravel.com/docs/collections#main-content) with three strings as its content.
+Di sini kita mengatur properti `$todos` menjadi sebuah [Laravel collection](https://laravel.com/docs/collections#main-content). Karena JSON tidak memiliki cara untuk merepresentasikan Laravel collection secara langsung, Livewire membuat polanya sendiri untuk mengasosiasikan metadata dengan data murni di dalam *snapshot*.
 
-JSON alone has no way of representing Laravel collections, so instead, Livewire has created its own pattern of associating metadata with pure data inside a snapshot.
-
-Here is the snapshot's state object for this `todos` component:
+Berikut adalah objek status *snapshot* untuk komponen `todos` ini:
 
 ```js
 state: {
@@ -175,64 +177,37 @@ state: {
         { s: 'clctn', class: 'Illuminate\\Support\\Collection' },
     ],
 },
+
 ```
 
-This may be confusing to you if you were expecting something more straightforward like:
-
-```js
-state: {
-    todos: [ 'first', 'second', 'third' ],
-},
-```
-
-However, if Livewire were hydrating a component based on this data, it would have no way of knowing it's a collection and not a plain array.
-
-Therefore, Livewire supports an alternate state syntax in the form of a tuple (an array of two items):
+Livewire mendukung sintaks status alternatif dalam bentuk **tuple** (array berisi dua item):
 
 ```js
 todos: [
     [ 'first', 'second', 'third' ],
     { s: 'clctn', class: 'Illuminate\\Support\\Collection' },
 ],
+
 ```
 
-When Livewire encounters a tuple when hydrating a component's state, it uses information stored in the second element of the tuple to more intelligently hydrate the state stored in the first.
-
-To demonstrate more clearly, here is simplified code showing how Livewire might re-create a collection property based on the above snapshot:
-
-```php
-[ $state, $metadata ] = request('snapshot.state.todos');
-
-$collection = new $metadata['class']($state);
-```
-
-As you can see, Livewire uses the metadata associated with the state to derive the full collection class.
+Ketika Livewire menemui sebuah tuple saat melakukan *hydrating* pada status komponen, ia menggunakan informasi yang disimpan di elemen kedua tuple untuk melakukan *hydrating* status yang disimpan di elemen pertama secara lebih cerdas.
 
 ### Deeply nested tuples
 
-One distinct advantage of this approach is the ability to dehydrate and hydrate deeply nested properties.
+Salah satu keuntungan nyata dari pendekatan ini adalah kemampuan untuk melakukan *dehydrate* dan *hydrate* pada properti yang bersarang sangat dalam (*deeply nested*).
 
-For example, consider the above `todos` example, except now with a [Laravel Stringable](https://laravel.com/docs/helpers#method-str) instead of a plain string as the third item in the collection:
+Misalnya, jika item ketiga dalam koleksi adalah sebuah [Laravel Stringable](https://laravel.com/docs/helpers#method-str):
 
 ```php
-<?php
+$this->todos = collect([
+    'first',
+    'second',
+    str('third'),
+]);
 
-use Livewire\Component;
-
-new class extends Component {
-    public $todos;
-
-    public function mount() {
-        $this->todos = collect([
-            'first',
-            'second',
-            str('third'),
-        ]);
-    }
-};
 ```
 
-The dehydrated snapshot for this component's state would now look like this:
+Snapshot yang di-*dehydrate* untuk status komponen ini sekarang akan terlihat seperti ini:
 
 ```js
 todos: [
@@ -243,17 +218,20 @@ todos: [
     ],
     { s: 'clctn', class: 'Illuminate\\Support\\Collection' },
 ],
+
 ```
 
-As you can see, the third item in the collection has been dehydrated into a metadata tuple. The first element in the tuple being the plain string value, and the second being a flag denoting to Livewire that this string is a _stringable_.
+Seperti yang Anda lihat, item ketiga dalam koleksi telah di-*dehydrate* menjadi tuple metadata. Elemen pertama adalah nilai string biasa, dan elemen kedua adalah tanda (*flag*) yang memberitahu Livewire bahwa string ini adalah sebuah *stringable*.
 
-### Supporting custom property types
+### Mendukung tipe properti kustom
 
-Internally, Livewire has hydration support for the most common PHP and Laravel types. However, if you wish to support un-supported types, you can do so using [Synthesizers](/docs/4.x/synthesizers) — Livewire's internal mechanism for hydrating/dehydrating non-primitive property types.
+Secara internal, Livewire memiliki dukungan *hydration* untuk tipe PHP dan Laravel yang paling umum. Namun, jika Anda ingin mendukung tipe yang belum didukung, Anda dapat melakukannya menggunakan [Synthesizers](https://www.google.com/search?q=/docs/4.x/synthesizers) — mekanisme internal Livewire untuk proses *hydrating/dehydrating* tipe properti non-primitif.
 
-## See also
+---
 
-- **[Lifecycle Hooks](/docs/4.x/lifecycle-hooks)** — Use hydrate() and dehydrate() hooks
-- **[Properties](/docs/4.x/properties)** — How properties are preserved between requests
-- **[Morphing](/docs/4.x/morphing)** — How Livewire updates the DOM
-- **[Synthesizers](/docs/4.x/synthesizers)** — Customize property serialization
+## Lihat juga
+
+* **[Lifecycle Hooks](https://www.google.com/search?q=/docs/4.x/lifecycle-hooks)** — Gunakan hook hydrate() dan dehydrate()
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Bagaimana properti dijaga di antara permintaan
+* **[Morphing](https://www.google.com/search?q=/docs/4.x/morphing)** — Bagaimana Livewire memperbarui DOM
+* **[Synthesizers](https://www.google.com/search?q=/docs/4.x/synthesizers)** — Kustomisasi serialisasi properti
