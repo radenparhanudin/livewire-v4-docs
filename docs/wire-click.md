@@ -1,7 +1,6 @@
+Livewire menyediakan direktif `wire:click` yang sederhana untuk memanggil metode **component** (disebut juga sebagai **actions**) saat pengguna mengeklik elemen tertentu pada halaman.
 
-Livewire provides a simple `wire:click` directive for calling component methods (aka actions) when a user clicks a specific element on the page.
-
-For example, given the `ShowInvoice` component below:
+Sebagai contoh, perhatikan **component** `ShowInvoice` di bawah ini:
 
 ```php
 <?php
@@ -22,95 +21,118 @@ class ShowInvoice extends Component
         );
     }
 }
+
 ```
 
-You can trigger the `download()` method from the class above when a user clicks a "Download Invoice" button by adding `wire:click="download"`:
+Anda dapat memicu metode `download()` dari class di atas saat pengguna mengeklik tombol "Download Invoice" dengan menambahkan `wire:click="download"`:
 
 ```html
-<button type="button" wire:click="download"> <!-- [tl! highlight] -->
-    Download Invoice
+<button type="button" wire:click="download"> Download Invoice
 </button>
+
 ```
+
+---
 
 ## Passing parameters
 
-You can pass parameters to actions directly in the `wire:click` directive:
+Anda dapat meneruskan parameter ke **actions** secara langsung di dalam direktif `wire:click`:
 
 ```blade
 <button wire:click="delete({{ $post->id }})">Delete</button>
+
 ```
 
-When the button is clicked, the `delete()` method will be called with the post's ID.
+Saat tombol diklik, metode `delete()` akan dipanggil dengan ID dari postingan tersebut.
 
-> [!warning] Don't trust action parameters
-> Action parameters should be treated like HTTP request input and should not be trusted. Always authorize ownership before updating data.
+> [!warning] Jangan mempercayai action parameters
+> Parameter **action** harus diperlakukan sama seperti input **HTTP request** dan tidak boleh dipercayai begitu saja. Selalu lakukan otorisasi kepemilikan sebelum memperbarui data.
 
-## Using on links
+---
 
-When using `wire:click` on `<a>` tags, you must append `.prevent` to prevent the default link behavior. Otherwise, the browser will navigate to the provided `href`.
+## Menggunakan pada link
+
+Saat menggunakan `wire:click` pada tag `<a>`, Anda harus menambahkan `.prevent` untuk mencegah perilaku tautan default. Jika tidak, browser akan melakukan navigasi ke `href` yang disediakan.
 
 ```blade
 <a href="#" wire:click.prevent="show">View Details</a>
+
 ```
 
-## Preventing re-renders
+---
 
-Use `.renderless` to skip re-rendering the component after the action completes. This is useful for actions that only perform side effects (like logging or analytics):
+## Mencegah re-renders
+
+Gunakan `.renderless` untuk melewatkan proses **re-render** **component** setelah **action** selesai. Ini berguna untuk **actions** yang hanya melakukan efek samping (*side effects*) seperti pencatatan log atau analitik:
 
 ```blade
 <button wire:click.renderless="trackClick">Track Event</button>
+
 ```
 
-## Preserving scroll position
+---
 
-By default, updating content may change the scroll position. Use `.preserve-scroll` to maintain the current scroll position:
+## Mempertahankan posisi scroll
+
+Secara default, memperbarui konten dapat mengubah posisi **scroll**. Gunakan `.preserve-scroll` untuk mempertahankan posisi **scroll** saat ini:
 
 ```blade
 <button wire:click.preserve-scroll="loadMore">Load More</button>
+
 ```
 
-## Parallel execution
+---
 
-By default, Livewire queues actions within the same component. Use `.async` to allow actions to run in parallel:
+## Eksekusi paralel
+
+Secara default, Livewire mengantrekan (*queue*) **actions** di dalam **component** yang sama. Gunakan `.async` untuk mengizinkan **actions** berjalan secara paralel:
 
 ```blade
 <button wire:click.async="process">Process</button>
+
 ```
 
-## Going deeper
+---
 
-The `wire:click` directive is just one of many different available event listeners in Livewire. For full documentation on its (and other event listeners) capabilities, visit [the Livewire actions documentation page](/docs/4.x/actions).
+## Pelajari lebih dalam
+
+Direktif `wire:click` hanyalah salah satu dari banyak **event listeners** yang tersedia di Livewire. Untuk dokumentasi lengkap mengenai kemampuannya (dan **event listeners** lainnya), kunjungi [halaman dokumentasi Livewire actions](https://www.google.com/search?q=/docs/4.x/actions).
+
+---
 
 ## See also
 
-- **[Actions](/docs/4.x/actions)** — Complete guide to component actions
-- **[Events](/docs/4.x/events)** — Dispatch events from click handlers
-- **[wire:confirm](/docs/4.x/wire-confirm)** — Add confirmation dialogs to actions
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Panduan lengkap tentang **component actions**
+* **[Events](https://www.google.com/search?q=/docs/4.x/events)** — Mengirimkan **events** dari *click handlers*
+* **[wire:confirm](https://www.google.com/search?q=/docs/4.x/wire-confirm)** — Menambahkan dialog konfirmasi pada **actions**
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:click="methodName"
 wire:click="methodName(param1, param2)"
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.prevent` | Prevents default browser behavior |
-| `.stop` | Stops event propagation |
-| `.self` | Only triggers if event originated on this element |
-| `.once` | Ensures listener is only called once |
-| `.debounce` | Debounces handler by 250ms (use `.debounce.500ms` for custom duration) |
-| `.throttle` | Throttles handler to every 250ms minimum (use `.throttle.500ms` for custom) |
-| `.window` | Listens for event on the `window` object |
-| `.document` | Listens for event on the `document` object |
-| `.outside` | Only listens for clicks outside the element |
-| `.passive` | Won't block scroll performance |
-| `.capture` | Listens during the capturing phase |
-| `.camel` | Converts event name to camel case |
-| `.dot` | Converts event name to dot notation |
-| `.renderless` | Skips re-rendering after action completes |
-| `.preserve-scroll` | Maintains scroll position during updates |
-| `.async` | Executes action in parallel instead of queued |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.prevent` | Mencegah perilaku default browser |
+| `.stop` | Menghentikan propagasi event (**event propagation**) |
+| `.self` | Hanya terpicu jika event berasal dari elemen ini sendiri |
+| `.once` | Memastikan **listener** hanya dipanggil satu kali |
+| `.debounce` | Melakukan **debounce** pada handler selama 250ms (gunakan `.debounce.500ms` untuk durasi kustom) |
+| `.throttle` | Membatasi (**throttle**) handler minimal setiap 250ms (gunakan `.throttle.500ms` untuk kustom) |
+| `.window` | Mendengarkan event pada objek `window` |
+| `.document` | Mendengarkan event pada objek `document` |
+| `.outside` | Hanya mendengarkan klik di luar elemen tersebut |
+| `.passive` | Tidak akan memblokir performa **scroll** |
+| `.capture` | Mendengarkan selama fase **capturing** |
+| `.camel` | Mengubah nama event menjadi *camel case* |
+| `.dot` | Mengubah nama event menjadi notasi titik (*dot notation*) |
+| `.renderless` | Melewatkan **re-rendering** setelah **action** selesai |
+| `.preserve-scroll` | Mempertahankan posisi **scroll** selama pembaruan |
+| `.async` | Mengeksekusi **action** secara paralel alih-alih mengantre |
