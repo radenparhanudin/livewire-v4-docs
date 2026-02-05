@@ -1,23 +1,22 @@
+**Refs** di Livewire menyediakan cara untuk memberi nama, kemudian menargetkan elemen atau *component* individu di dalam Livewire.
 
-Refs in Livewire provide a way to name, then target an individual element or component inside Livewire.
+Ini sangat berguna untuk mengirimkan *events* atau melakukan *streaming content* ke elemen tertentu. Konsepnya mirip dengan penggunaan *class* atau *id* untuk menargetkan elemen, namun jauh lebih rapi dan terintegrasi dengan ekosistem Livewire.
 
-They're useful for dispatching events or streaming content to a specific element.
+Berikut adalah daftar kasus penggunaannya:
 
-They're a tidy alternative, but conceptually similar, to using something like classes/ids to target elements.
+* Mengirimkan (*dispatching*) *event* ke *component* tertentu.
+* Menargetkan elemen menggunakan `$refs`.
+* Melakukan *streaming content* ke elemen tertentu.
 
-Here are a list of use-cases:
+Mari kita pelajari masing-masing kegunaan tersebut.
 
-- Dispatching an event to a specific component
-- Targeting an element using `$refs`
-- Streaming content to a specific element
+---
 
-Let's walk through each of these.
+## Mengirimkan events (Dispatching events)
 
-## Dispatching events
+**Refs** adalah cara yang sangat baik untuk menargetkan *child components* tertentu dalam sistem *event* Livewire.
 
-Refs are a great way to target specific child components within Livewire's event system.
-
-Consider the following Livewire modal component that listens for a _close_ event:
+Pertimbangkan *component* modal Livewire berikut yang mendengarkan *event* `close`:
 
 ```php
 <?php
@@ -38,9 +37,10 @@ new class extends Livewire\Component {
 <div wire:show="isOpen">
     {{ $slot }}
 </div>
+
 ```
 
-By adding `wire:ref` to the component tag, you now dispatch the _close_ event directly to it using the `ref:` parameter:
+Dengan menambahkan `wire:ref` pada tag *component*, Anda sekarang dapat mengirimkan *event* `close` secara langsung kepadanya menggunakan parameter `ref:`:
 
 ```php
 <?php
@@ -48,7 +48,7 @@ By adding `wire:ref` to the component tag, you now dispatch the _close_ event di
 new class extends Livewire\Component {
     public function save()
     {
-        //
+        // ...
 
         $this->dispatch('close')->to(ref: 'modal');
     }
@@ -56,21 +56,20 @@ new class extends Livewire\Component {
 ?>
 
 <div>
-    <!-- ... -->
-
     <livewire:modal wire:ref="modal">
-        <!-- ... -->
-
         <button wire:click="save">Save</button>
     </livewire:modal>
 </div>
+
 ```
 
-## Accessing DOM elements
+---
 
-When you add `wire:ref` to an HTML element, you can access it via the `$refs` magic property.
+## Mengakses elemen DOM
 
-Consider a character counter that updates in real-time:
+Ketika Anda menambahkan `wire:ref` pada elemen HTML, Anda dapat mengaksesnya melalui properti *magic* `$refs`.
+
+Pertimbangkan penghitung karakter yang diperbarui secara *real-time*:
 
 ```php
 <div>
@@ -78,45 +77,41 @@ Consider a character counter that updates in real-time:
 
     Characters: <span wire:ref="count">0</span>
 
-    <!-- ... -->
-</div>
+    </div>
 
 <script>
     this.$refs.message.addEventListener('input', (e) => {
         this.$refs.count.textContent = e.target.value.length
     })
 </script>
+
 ```
 
-## Accessing `$wire`
+---
 
-If you wish to access `$wire` for a component with a ref, you can do so via the `.$wire` propert on the element:
+## Mengakses $wire
+
+Jika Anda ingin mengakses properti `$wire` dari sebuah *component* yang memiliki **ref**, Anda dapat melakukannya melalui properti `.$wire` pada elemen tersebut:
 
 ```php
-<div>
-    <!-- ... -->
-
-    <livewire:modal wire:ref="modal">
-        <!-- ... -->
-
-        <button wire:click="save()">Save</button>
-    </livewire:modal>
-</div>
-
 <script>
     this.$intercept('save', ({ onFinish }) => {
         onFinish(() => {
+            // Mengakses objek $wire milik component modal melalui ref
             this.$refs.modal.$wire.close()
         })
     })
 </script>
+
 ```
+
+---
 
 ## Streaming content
 
-Livewire supports streaming content directly to elements within a component using CSS selectors, however, `wire:ref` is a more convenient and discoverable approach.
+Livewire mendukung *streaming content* langsung ke elemen-elemen di dalam sebuah *component* menggunakan selektor CSS. Namun, `wire:ref` adalah pendekatan yang lebih nyaman dan mudah ditemukan (*discoverable*).
 
-Consider the following component that streams an answer directly from an LLM as it's generated:
+Pertimbangkan *component* berikut yang melakukan *stream* jawaban langsung dari sebuah LLM saat jawaban tersebut dihasilkan:
 
 ```php
 <?php
@@ -127,6 +122,7 @@ new class extends Livewire\Component {
     public function ask()
     {
         Ai::ask($this->question, function ($chunk) {
+            // Mengirimkan potongan data (chunk) ke elemen dengan ref 'answer'
             $this->stream($chunk)->to(ref: 'answer');
         });
 
@@ -138,41 +134,47 @@ new class extends Livewire\Component {
 <div>
     <input type="text" wire:model="question">
 
-    <button wire:click="ask"></button>
+    <button wire:click="ask">Ask AI</button>
 
     <h2>Answer:</h2>
 
     <p wire:ref="answer"></p>
 </div>
+
 ```
+
+---
 
 ## Dynamic refs
 
-Refs work perfectly in loops and other dynamic contexts.
+**Refs** bekerja dengan sempurna di dalam perulangan (*loops*) dan konteks dinamis lainnya. Berikut adalah contoh dengan beberapa instansi modal:
 
-Here's an example with multiple modal instances:
-
-```php
-@foreach($users as $index => $user)
+```blade
+@foreach($users as $user)
     <livewire:modal
         wire:key="{{ $user->id }}"
         wire:ref="{{ 'user-modal-' . $user->id }}"
     >
-        <!-- ... -->
-    </livewire>
+        </livewire:modal>
 @endforeach
+
 ```
 
-## Scoping behavior
+---
 
-Refs are scoped to the current component. This means you can target any element within the component, but not elements in other components on the page.
+## Perilaku Scoping
 
-If multiple elements have the same ref name within a component, the first one encountered will be used.
+**Refs** dibatasi (*scoped*) pada *component* saat ini. Ini berarti Anda dapat menargetkan elemen apa pun di dalam *component* tersebut, tetapi tidak dapat menargetkan elemen di *component* lain pada halaman yang sama.
 
-## Reference
+Jika beberapa elemen memiliki nama **ref** yang sama di dalam satu *component*, maka elemen pertama yang ditemukanlah yang akan digunakan.
+
+---
+
+## Referensi
 
 ```blade
 wire:ref="name"
+
 ```
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
