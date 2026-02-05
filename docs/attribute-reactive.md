@@ -1,8 +1,8 @@
-The `#[Reactive]` attribute makes a child component's property automatically update when the parent changes the value being passed in.
+Atribut `#[Reactive]` membuat properti pada **child component** diperbarui secara otomatis ketika **parent** mengubah nilai yang dikirimkan ke komponen tersebut.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Reactive]` attribute to any property that should react to parent changes:
+Terapkan atribut `#[Reactive]` pada properti apa pun yang harus bereaksi terhadap perubahan di **parent**:
 
 ```php
 <?php // resources/views/components/⚡todo-count.blade.php
@@ -26,15 +26,18 @@ new class extends Component {
 <div>
     Count: {{ $this->count }}
 </div>
+
 ```
 
-Now when the parent component adds or removes todos, the child component will automatically update to reflect the new count.
+Sekarang, ketika **parent component** menambah atau menghapus *todos*, **child component** akan diperbarui secara otomatis untuk mencerminkan jumlah yang baru.
 
-## Why props aren't reactive by default
+---
 
-By default, Livewire props are **not reactive**. When a parent component updates, only the parent's state is sent to the server—not the child's. This minimizes data transfer and improves performance.
+## Mengapa props tidak reactive secara default
 
-Here's what happens without `#[Reactive]`:
+Secara default, **props** Livewire bersifat **tidak reactive**. Ketika sebuah **parent component** diperbarui, hanya *state* milik **parent** yang dikirim ke server—bukan milik **child**. Hal ini dilakukan untuk meminimalkan transfer data dan meningkatkan performa.
+
+Berikut adalah apa yang terjadi tanpa `#[Reactive]`:
 
 ```php
 <?php // resources/views/components/⚡todos.blade.php
@@ -47,7 +50,7 @@ new class extends Component {
     public function addTodo($text)
     {
         $this->todos[] = ['text' => $text];
-        // Child components with $todos props won't automatically update
+        // Child components dengan props $todos tidak akan diperbarui secara otomatis
     }
 };
 ?>
@@ -57,38 +60,47 @@ new class extends Component {
 
     <button wire:click="addTodo('New task')">Add Todo</button>
 </div>
+
 ```
 
-Without `#[Reactive]` on the child's `$todos` property, adding a todo in the parent won't update the child's count.
+Tanpa atribut `#[Reactive]` pada properti `$todos` milik **child**, menambahkan *todo* di **parent** tidak akan memperbarui jumlah (*count*) di **child**.
 
-## How it works
+---
 
-When you add `#[Reactive]`:
+## Cara kerjanya
 
-1. Parent updates its `$todos` property
-2. Parent sends new `$todos` value to the child during the response
-3. Child component automatically re-renders with the new value
+Ketika Anda menambahkan `#[Reactive]`:
 
-This creates a "reactive" relationship similar to frontend frameworks like Vue or React.
+1. **Parent** memperbarui properti `$todos` miliknya.
+2. **Parent** mengirimkan nilai `$todos` yang baru ke **child** selama proses respons.
+3. **Child component** secara otomatis melakukan *re-render* dengan nilai yang baru tersebut.
 
-## Performance considerations
+Ini menciptakan hubungan "reactive" yang serupa dengan *frontend frameworks* seperti Vue atau React.
 
-> [!warning] Use reactive properties sparingly
-> Reactive properties require additional data to be sent between server and client on every parent update. Only use `#[Reactive]` when necessary for your use case.
+---
 
-**When to use:**
-* Child component displays data that changes in the parent
-* Child needs to stay in sync with parent state
-* You're building a tightly coupled parent-child relationship
+## Pertimbangan Performa
 
-**When NOT to use:**
-* Initial data is passed once and never changes
-* Child manages its own independent state
-* Performance is critical and updates aren't needed
+> [!warning] Gunakan reactive properties secukupnya
+> **Reactive properties** mengharuskan data tambahan dikirim antara server dan klien pada setiap pembaruan **parent**. Hanya gunakan `#[Reactive]` jika memang diperlukan untuk kasus penggunaan Anda.
 
-## Example: Live search results
+**Kapan harus menggunakan:**
 
-Here's a practical example of a search component with reactive results:
+* **Child component** menampilkan data yang berubah-ubah di **parent**.
+* **Child** perlu tetap sinkron dengan *state* milik **parent**.
+* Anda sedang membangun hubungan **parent-child** yang sangat erat (*tightly coupled*).
+
+**Kapan TIDAK boleh menggunakan:**
+
+* Data awal dikirim sekali dan tidak pernah berubah.
+* **Child** mengelola *state* independennya sendiri.
+* Performa sangat krusial dan pembaruan otomatis tidak terlalu dibutuhkan.
+
+---
+
+## Contoh: Hasil pencarian live (Live search)
+
+Berikut adalah contoh praktis komponen pencarian dengan hasil yang reactive:
 
 ```php
 <?php // resources/views/components/⚡search.blade.php
@@ -109,8 +121,8 @@ new class extends Component {
 <div>
     <input type="text" wire:model.live="query" placeholder="Search posts...">
 
-    <livewire:search-results :posts="$this->posts()" /> <!-- [tl! highlight] -->
-</div>
+    <livewire:search-results :posts="$this->posts()" /> </div>
+
 ```
 
 ```php
@@ -130,28 +142,34 @@ new class extends Component {
         <div wire:key="{{ $post->id }}">{{ $post->title }}</div>
     @endforeach
 </div>
+
 ```
 
-As the user types, the parent's `$posts` changes and the child's results automatically update.
+Saat pengguna mengetik, `$posts` di **parent** berubah dan hasil di **child** otomatis diperbarui.
 
-## Alternative: Events
+---
 
-For loosely coupled components, consider using events instead of reactive props:
+## Alternatif: Events
+
+Untuk komponen yang tidak saling bergantung (*loosely coupled*), pertimbangkan untuk menggunakan **events** alih-alih **reactive props**:
 
 ```php
-// Parent dispatches event
+// Parent mengirimkan event
 $this->dispatch('todos-updated', todos: $this->todos);
 
-// Child listens for event
+// Child mendengarkan event
 #[On('todos-updated')]
 public function handleTodosUpdate($todos)
 {
     $this->todos = $todos;
 }
+
 ```
 
-Events provide more flexibility but require explicit communication between components.
+**Events** memberikan fleksibilitas lebih, namun memerlukan komunikasi yang eksplisit antar komponen.
 
-## Learn more
+---
 
-For more information about parent-child communication and component architecture, see the [Nesting Components documentation](/docs/4.x/nesting#reactive-props).
+## Pelajari lebih lanjut
+
+Untuk informasi lebih lanjut mengenai komunikasi **parent-child** dan arsitektur komponen, lihat [dokumentasi Nesting Components](https://www.google.com/search?q=/docs/4.x/nesting%23reactive-props).
