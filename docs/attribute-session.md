@@ -1,8 +1,8 @@
-The `#[Session]` attribute persists a property's value in the user's session, maintaining it across page refreshes and navigation.
+Atribut `#[Session]` mempertahankan nilai sebuah properti di dalam **session** pengguna, menjaganya tetap ada meskipun halaman di-refresh atau pengguna berpindah navigasi.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Session]` attribute to any property that should persist in the session:
+Terapkan atribut `#[Session]` pada properti apa pun yang ingin dipertahankan dalam **session**:
 
 ```php
 <?php // resources/views/components/post/⚡index.blade.php
@@ -33,165 +33,114 @@ new class extends Component {
         <div wire:key="{{ $post->id }}">{{ $post->title }}</div>
     @endforeach
 </div>
+
 ```
 
-After a user enters a search value, they can refresh the page or navigate away and return—the search value will be preserved.
+Setelah pengguna memasukkan nilai pencarian, mereka dapat me-refresh halaman atau pergi ke halaman lain dan kembali lagi—nilai pencarian tersebut akan tetap tersimpan.
 
-## How it works
+---
 
-Every time the property changes, Livewire stores its new value in the user's session. When the component loads, Livewire fetches the value from the session and initializes the property with it.
+## Cara kerjanya
 
-This creates a persistent user experience without modifying the URL.
+Setiap kali properti berubah, Livewire menyimpan nilai barunya di dalam **session** pengguna. Saat **component** dimuat, Livewire mengambil nilai tersebut dari **session** dan menginisialisasi properti dengannya.
+
+Ini menciptakan pengalaman pengguna yang persisten tanpa harus mengubah URL.
+
+---
 
 ## Session vs URL
 
-Both `#[Session]` and `#[Url]` persist property values, but with different trade-offs:
+Baik `#[Session]` maupun `#[Url]` sama-masing mempertahankan nilai properti, namun dengan pertimbangan yang berbeda:
 
-| Feature | `#[Session]` | `#[Url]` |
-|---------|-------------|----------|
-| Persists across refreshes | ✅ | ✅ |
-| Persists when sharing URL | ❌ | ✅ |
-| Keeps URL clean | ✅ | ❌ |
-| Visible to user | ❌ | ✅ |
-| Shareable state | ❌ | ✅ |
+| Fitur | `#[Session]` | `#[Url]` |
+| --- | --- | --- |
+| Persisten setelah refresh | ✅ | ✅ |
+| Persisten saat URL dibagikan | ❌ | ✅ |
+| Menjaga URL tetap bersih | ✅ | ❌ |
+| Terlihat oleh pengguna | ❌ | ✅ |
+| State dapat dibagikan | ❌ | ✅ |
 
-Use `#[Session]` when you want persistence without cluttering the URL or when state shouldn't be shareable.
+Gunakan `#[Session]` ketika Anda menginginkan persistensi tanpa mengotori URL atau ketika **state** tidak seharusnya bisa dibagikan kepada orang lain.
+
+---
 
 ## Custom session keys
 
-By default, Livewire generates session keys using the component and property names. You can customize this:
+Secara default, Livewire membuat kunci **session** menggunakan nama komponen dan nama properti. Anda dapat menyesuaikannya:
 
 ```php
-<?php // resources/views/components/post/⚡index.blade.php
-
-use Livewire\Attributes\Session;
-use Livewire\Component;
-
 new class extends Component {
     #[Session(key: 'post_search')] // [tl! highlight]
     public $search = '';
 };
+
 ```
 
-The property will be stored in the session using the key `post_search`.
+Properti ini akan disimpan di dalam **session** menggunakan kunci `post_search`.
+
+---
 
 ## Dynamic session keys
 
-You can generate keys dynamically using other properties:
+Anda dapat membuat kunci secara dinamis menggunakan properti lainnya:
 
 ```php
-<?php // resources/views/components/post/⚡index.blade.php
-
-use Livewire\Attributes\Session;
-use Livewire\Component;
-use App\Models\Author;
-
 new class extends Component {
     public Author $author;
 
     #[Session(key: 'search-{author.id}')] // [tl! highlight]
     public $search = '';
 };
+
 ```
 
-If `$author->id` is `4`, the session key becomes `search-4`. This allows different session values per author.
+Jika `$author->id` adalah `4`, kunci **session** menjadi `search-4`. Hal ini memungkinkan nilai **session** yang berbeda untuk setiap penulis.
 
-## When to use
+---
 
-Use `#[Session]` when:
+## Kapan harus menggunakan
 
-* Persisting user preferences (theme, language, sidebar state)
-* Maintaining filter/search state across page navigation
-* Storing form data to prevent loss on refresh
-* Keeping UI state private to the user
-* Avoiding URL clutter from query parameters
+Gunakan `#[Session]` ketika:
 
-## Example: Dashboard filters
+* Mempertahankan preferensi pengguna (tema, bahasa, status *sidebar*).
+* Menjaga status filter/pencarian saat navigasi antar halaman.
+* Menyimpan data formulir untuk mencegah kehilangan data saat refresh.
+* Menjaga **UI state** tetap privat bagi pengguna tersebut.
+* Menghindari URL yang berantakan akibat parameter pencarian (*query parameters*).
 
-Here's a practical example of persisting dashboard filters:
+---
 
-```php
-<?php // resources/views/pages/⚡dashboard.blade.php
+## Pertimbangan Performa
 
-use Livewire\Attributes\Session;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
-use App\Models\Transaction;
+> [!warning] Jangan menyimpan data dalam jumlah besar
+> **Session** Laravel dimuat ke dalam memori pada setiap *request*. Menyimpan terlalu banyak data di **session** pengguna dapat memperlambat seluruh aplikasi untuk pengguna tersebut. Hindari menyimpan *collections* atau objek yang besar.
 
-new class extends Component {
-    #[Session]
-    public $dateRange = '30days';
+**Penggunaan yang Baik:**
 
-    #[Session]
-    public $category = 'all';
+* Nilai sederhana (string, angka, boolean).
+* Array kecil (opsi filter, preferensi).
+* ID Model (bukan seluruh objek model).
 
-    #[Session]
-    public $sortBy = 'date';
+**Penggunaan yang Buruk:**
 
-    #[Computed]
-    public function transactions()
-    {
-        return Transaction::query()
-            ->when($this->dateRange === '30days', fn($q) => $q->where('created_at', '>=', now()->subDays(30)))
-            ->when($this->category !== 'all', fn($q) => $q->where('category', $this->category))
-            ->orderBy($this->sortBy)
-            ->get();
-    }
-};
-?>
+* *Collections* berukuran besar.
+* Model Eloquent lengkap.
+* Data biner atau konten file.
 
-<div>
-    <select wire:model.live="dateRange">
-        <option value="7days">Last 7 days</option>
-        <option value="30days">Last 30 days</option>
-        <option value="year">This year</option>
-    </select>
+> [!tip] Alternatif: URL persistence
+> Jika Anda ingin **state** dapat dibagikan melalui URL atau dapat di-*bookmark*, pertimbangkan untuk menggunakan atribut [`#[Url]`](https://www.google.com/search?q=/docs/4.x/url) sebagai gantinya. Parameter URL mempertahankan status di bilah alamat, sementara properti **session** menjaga URL tetap bersih.
 
-    <select wire:model.live="category">
-        <option value="all">All categories</option>
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-    </select>
+---
 
-    <select wire:model.live="sortBy">
-        <option value="date">Date</option>
-        <option value="amount">Amount</option>
-    </select>
-
-    @foreach($this->transactions as $transaction)
-        <div wire:key="{{ $transaction->id }}">{{ $transaction->description }}</div>
-    @endforeach
-</div>
-```
-
-Users can set their preferred filters and they'll persist across sessions, page refreshes, and navigation.
-
-## Performance considerations
-
-> [!warning] Don't store large amounts of data
-> Laravel sessions are loaded into memory during every request. Storing too much in a user's session can slow down your entire application for that user. Avoid storing large collections or objects.
-
-**Good uses:**
-* Simple values (strings, numbers, booleans)
-* Small arrays (filter options, preferences)
-* Model IDs (not entire models)
-
-**Bad uses:**
-* Large collections
-* Complete Eloquent models
-* Binary data or file contents
-
-> [!tip] Alternative: URL persistence
-> If you want state to be shareable via URL or bookmarkable, consider using the [`#[Url]` attribute](/docs/4.x/url) instead of `#[Session]`. URL parameters persist state in the address bar while session properties keep the URL clean.
-
-## Reference
+## Referensi
 
 ```php
 #[Session(
     ?string $key = null,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$key` | `?string` | `null` | Custom session key (auto-generated if not provided) |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$key` | `?string` | `null` | Kunci session kustom (dibuat otomatis jika tidak diisi). |
