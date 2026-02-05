@@ -1,28 +1,28 @@
+## Menggunakan JavaScript dalam komponen Livewire
 
-## Using JavaScript in Livewire components
+Livewire dan Alpine menyediakan banyak utilitas untuk membangun komponen dinamis langsung di dalam HTML Anda, namun ada kalanya akan sangat membantu jika Anda keluar dari HTML dan mengeksekusi JavaScript murni untuk komponen Anda.
 
-Livewire and Alpine provide plenty of utilities for building dynamic components directly in your HTML, however, there are times when it's helpful to break out of the HTML and execute plain JavaScript for your component.
-
-> [!warning] Class-based components need the @@script directive
-> The examples on this page use bare `<script>` tags, which work for **single-file** and **multi-file** components. If you're using **class-based components** (where the Blade view is in a separate file from the PHP class), you must wrap your script tags with the `@@script` directive:
->
+> [!warning] Class-based components memerlukan direktif @@script
+> Contoh-contoh di halaman ini menggunakan tag `<script>` biasa, yang berfungsi untuk komponen **single-file** dan **multi-file**. Jika Anda menggunakan **class-based components** (di mana view Blade berada di file terpisah dari class PHP), Anda harus membungkus tag script Anda dengan direktif `@@script`:
 > ```blade
 > @@script
 > <script>
->     // Your JavaScript here...
+>     // JavaScript Anda di sini...
 > </script>
 > @@endscript
+> 
 > ```
->
-> This tells Livewire to handle the execution timing properly for class-based components.
+> 
+> 
+> Ini memberitahu Livewire untuk menangani waktu eksekusi dengan benar bagi class-based components.
 
-### Executing scripts
+### Mengeksekusi script
 
-You can add `<script>` tags directly inside your component template to execute JavaScript when the component loads.
+Anda dapat menambahkan tag `<script>` langsung di dalam template komponen Anda untuk mengeksekusi JavaScript saat komponen dimuat.
 
-Because these scripts are handled by Livewire, they execute at the perfect time—after the page has loaded, but before the Livewire component renders. This means you no longer need to wrap your scripts in `document.addEventListener('...')` to load them properly.
+Karena script ini ditangani oleh Livewire, mereka dieksekusi pada waktu yang tepat—setelah halaman dimuat, tetapi sebelum komponen Livewire di-render. Ini berarti Anda tidak perlu lagi membungkus script Anda dalam `document.addEventListener('...')` agar dimuat dengan benar.
 
-This also means that lazily or conditionally loaded Livewire components are still able to execute JavaScript after the page has initialized.
+Ini juga berarti bahwa komponen Livewire yang dimuat secara *lazy* atau kondisional tetap dapat mengeksekusi JavaScript setelah halaman diinisialisasi.
 
 ```blade
 <div>
@@ -30,11 +30,12 @@ This also means that lazily or conditionally loaded Livewire components are stil
 </div>
 
 <script>
-    // This Javascript will get executed every time this component is loaded onto the page...
+    // Javascript ini akan dieksekusi setiap kali komponen ini dimuat ke halaman...
 </script>
+
 ```
 
-Here's a more full example where you can do something like register a JavaScript action that is used in your Livewire component.
+Berikut adalah contoh yang lebih lengkap di mana Anda dapat mendaftarkan JavaScript action yang digunakan dalam komponen Livewire Anda.
 
 ```blade
 <div>
@@ -46,15 +47,16 @@ Here's a more full example where you can do something like register a JavaScript
         console.log('increment')
     }
 </script>
+
 ```
 
-To learn more about JavaScript actions, [visit the actions documentation](/docs/4.x/actions#javascript-actions).
+Untuk mempelajari lebih lanjut tentang JavaScript actions, [kunjungi dokumentasi actions](https://www.google.com/search?q=/docs/4.x/actions%23javascript-actions).
 
-### Using `$wire` from scripts
+### Menggunakan `$wire` dari script
 
-When you add `<script>` tags inside your component, you automatically have access to your Livewire component's `$wire` object.
+Saat Anda menambahkan tag `<script>` di dalam komponen, Anda secara otomatis memiliki akses ke objek `$wire` milik komponen Livewire tersebut.
 
-Here's an example of using a simple `setInterval` to refresh the component every 2 seconds (You could easily do this with [`wire:poll`](/docs/4.x/wire-poll), but it's a simple way to demonstrate the point):
+Berikut adalah contoh penggunaan `setInterval` sederhana untuk me-refresh komponen setiap 2 detik (Anda dapat dengan mudah melakukannya dengan [`wire:poll`](https://www.google.com/search?q=/docs/4.x/wire-poll), tetapi ini adalah cara simpel untuk mendemonstrasikannya):
 
 ```blade
 <script>
@@ -62,47 +64,53 @@ Here's an example of using a simple `setInterval` to refresh the component every
         $wire.$refresh()
     }, 2000)
 </script>
+
 ```
 
-## The `$wire` object
+---
 
-The `$wire` object is your JavaScript interface to your Livewire component. It provides access to component properties, methods, and utilities for interacting with the server.
+## Objek `$wire`
 
-Inside component scripts, you can use `$wire` directly. Here are the most essential methods you'll use:
+Objek `$wire` adalah antarmuka JavaScript Anda menuju komponen Livewire. Ia menyediakan akses ke properti komponen, metode, dan utilitas untuk berinteraksi dengan server.
+
+Di dalam script komponen, Anda dapat menggunakan `$wire` secara langsung. Berikut adalah metode-metode paling penting yang akan Anda gunakan:
 
 ```js
-// Access and modify properties
+// Mengakses dan memodifikasi properti
 $wire.count
 $wire.count = 5
 $wire.$set('count', 5)
 
-// Call component methods
+// Memanggil metode komponen
 $wire.save()
 $wire.delete(postId)
 
-// Refresh the component
+// Me-refresh komponen
 $wire.$refresh()
 
-// Dispatch events
+// Mengirimkan event (Dispatch)
 $wire.$dispatch('post-created', { postId: 2 })
 
-// Listen for events
+// Mendengarkan event (Listen)
 $wire.$on('post-created', (event) => {
     console.log(event.postId)
 })
 
-// Access the root element
+// Mengakses elemen root
 $wire.$el.querySelector('.modal')
+
 ```
 
-> [!tip] Complete $wire reference
-> For a comprehensive list of all `$wire` methods and properties, see the [$wire reference](#the-wire-object) at the bottom of this page.
+> [!tip] Referensi lengkap $wire
+> Untuk daftar komprehensif semua metode dan properti `$wire\`, lihat [referensi $wire](https://www.google.com/search?q=%23the-wire-object) di bagian bawah halaman ini.
 
-## Loading assets
+---
 
-Component `<script>` tags are useful for executing a bit of JavaScript every time a Livewire component loads, however, there are times you might want to load entire script and style assets on the page along with the component.
+## Memuat aset (Loading assets)
 
-Here is an example of using `@assets` to load a date picker library called [Pikaday](https://github.com/Pikaday/Pikaday) and initialize it inside your component:
+Tag `<script>` komponen berguna untuk mengeksekusi sedikit JavaScript setiap kali komponen Livewire dimuat, namun ada kalanya Anda mungkin ingin memuat seluruh aset script dan style ke halaman bersamaan dengan komponen tersebut.
+
+Berikut adalah contoh penggunaan `@assets` untuk memuat library date picker bernama [Pikaday](https://github.com/Pikaday/Pikaday) dan menginisialisasinya di dalam komponen Anda:
 
 ```blade
 <div>
@@ -117,48 +125,53 @@ Here is an example of using `@assets` to load a date picker library called [Pika
 <script>
     new Pikaday({ field: $wire.$el.querySelector('[data-picker]') });
 </script>
+
 ```
 
-When this component loads, Livewire will make sure any `@assets` are loaded on that page before evaluating scripts. In addition, it will ensure the provided `@assets` are only loaded once per page no matter how many instances of this component there are, unlike component scripts, which will evaluate for every component instance on the page.
+Ketika komponen ini dimuat, Livewire akan memastikan semua `@assets` dimuat di halaman tersebut sebelum mengevaluasi script. Selain itu, ia memastikan `@assets` yang disediakan hanya dimuat satu kali per halaman tidak peduli berapa banyak instansi komponen ini yang ada, berbeda dengan script komponen yang akan dievaluasi untuk setiap instansi komponen di halaman.
+
+---
 
 ## Interceptors
 
-Intercept Livewire requests at three levels: **action** (most granular), **message** (per-component), and **request** (HTTP level).
+Cegat permintaan Livewire pada tiga level: **action** (paling granular), **message** (per-komponen), dan **request** (level HTTP).
 
 ```js
-// Action interceptors - fire for each action call
-$wire.intercept(callback)                     // All actions on this component
-$wire.intercept('save', callback)             // Only 'save' action
-Livewire.interceptAction(callback)            // Global (all components)
+// Action interceptors - dipicu untuk setiap pemanggilan action
+$wire.intercept(callback)                 // Semua action pada komponen ini
+$wire.intercept('save', callback)         // Hanya action 'save'
+Livewire.interceptAction(callback)        // Global (semua komponen)
 
-// Message interceptors - fire for each component message
-$wire.interceptMessage(callback)              // Messages from this component
-$wire.interceptMessage('save', callback)      // Only when message contains 'save'
-Livewire.interceptMessage(callback)           // Global (all components)
+// Message interceptors - dipicu untuk setiap pesan komponen
+$wire.interceptMessage(callback)          // Pesan dari komponen ini
+$wire.interceptMessage('save', callback)   // Hanya saat pesan berisi 'save'
+Livewire.interceptMessage(callback)       // Global (semua komponen)
 
-// Request interceptors - fire for each HTTP request
-$wire.interceptRequest(callback)              // Requests involving this component
-$wire.interceptRequest('save', callback)      // Only when request contains 'save'
-Livewire.interceptRequest(callback)           // Global (all requests)
+// Request interceptors - dipicu untuk setiap HTTP request
+$wire.interceptRequest(callback)          // Request yang melibatkan komponen ini
+$wire.interceptRequest('save', callback)   // Hanya saat request berisi 'save'
+Livewire.interceptRequest(callback)       // Global (semua request)
+
 ```
 
-All interceptors return an unsubscribe function:
+Semua interceptor mengembalikan fungsi unsubscribe:
 
 ```js
 let unsubscribe = $wire.intercept(callback)
-unsubscribe() // Remove the interceptor
+unsubscribe() // Menghapus interceptor
+
 ```
 
 ### Action interceptors
 
-Action interceptors are the most granular. They fire for each method call on a component.
+Action interceptors adalah yang paling granular. Mereka dipicu untuk setiap pemanggilan metode pada sebuah komponen.
 
 ```js
 $wire.intercept(({ action, onSend, onCancel, onSuccess, onError, onFailure, onFinish }) => {
-    // action.name        - Method name ('save', '$refresh', etc.)
-    // action.params      - Method parameters
-    // action.component   - Component instance
-    // action.cancel()    - Cancel this action
+    // action.name        - Nama metode ('save', '$refresh', dll.)
+    // action.params      - Parameter metode
+    // action.component   - Instansi komponen
+    // action.cancel()    - Membatalkan action ini
 
     onSend(({ call }) => {
         // call: { method, params, metadata }
@@ -167,32 +180,33 @@ $wire.intercept(({ action, onSend, onCancel, onSuccess, onError, onFailure, onFi
     onCancel(() => {})
 
     onSuccess((result) => {
-        // result: Return value from PHP method
+        // result: Nilai kembalian dari metode PHP
     })
 
     onError(({ response, body, preventDefault }) => {
-        preventDefault() // Prevent error modal
+        preventDefault() // Mencegah modal error muncul
     })
 
     onFailure(({ error }) => {
-        // error: Network error
+        // error: Kesalahan jaringan
     })
 
     onFinish(() => {
-        // Runs after DOM morph completes (or on error/cancel)
+        // Berjalan setelah DOM morph selesai (atau saat error/batal)
     })
 })
+
 ```
 
 ### Message interceptors
 
-Message interceptors fire for each component update. A message contains one or more actions.
+Message interceptors dipicu untuk setiap pembaruan komponen. Sebuah pesan (*message*) berisi satu atau lebih action.
 
 ```js
 $wire.interceptMessage(({ message, cancel, onSend, onCancel, onSuccess, onError, onFailure, onStream, onFinish }) => {
-    // message.component  - Component instance
-    // message.actions    - Set of actions in this message
-    // cancel()           - Cancel this message
+    // message.component  - Instansi komponen
+    // message.actions    - Kumpulan action dalam pesan ini
+    // cancel()           - Membatalkan pesan ini
 
     onSend(({ payload }) => {
         // payload: { snapshot, updates, calls }
@@ -203,66 +217,67 @@ $wire.interceptMessage(({ message, cancel, onSend, onCancel, onSuccess, onError,
     onSuccess(({ payload, onSync, onEffect, onMorph, onRender }) => {
         // payload: { snapshot, effects }
 
-        onSync(() => {})    // After state synced
-        onEffect(() => {})  // After effects processed
-        onMorph(async () => {})   // After DOM morphed (must be async)
-        onRender(() => {})  // After render complete
+        onSync(() => {})    // Setelah status disinkronkan
+        onEffect(() => {})  // Setelah efek diproses
+        onMorph(async () => {})   // Setelah DOM di-morph (harus async)
+        onRender(() => {})  // Setelah render selesai
     })
 
     onError(({ response, body, preventDefault }) => {
-        preventDefault() // Prevent error modal
+        preventDefault() // Mencegah modal error muncul
     })
 
     onFailure(({ error }) => {})
 
     onStream(({ json }) => {
-        // json: Parsed stream chunk
+        // json: Chunk stream yang sudah diparsing
     })
 
     onFinish(() => {
-        // Runs after DOM morph completes (or on error/cancel)
+        // Berjalan setelah DOM morph selesai (atau saat error/batal)
     })
 })
+
 ```
 
 #### Timing
 
-Hook execution order for successful requests:
+Urutan eksekusi **hook** untuk permintaan yang berhasil:
 
-1. `onSuccess` - Immediately after server response
-2. `onSync` - After state merged
-3. `onEffect` - After effects processed
-4. `onMorph` - After DOM morphed
-5. `onFinish` - After morph completes
-6. `onRender` - In `requestAnimationFrame` (post-paint)
+1. `onSuccess` - Segera setelah respons server diterima.
+2. `onSync` - Setelah **state** digabungkan (*merged*).
+3. `onEffect` - Setelah efek-efek diproses.
+4. `onMorph` - Setelah DOM di-**morph**.
+5. `onFinish` - Setelah proses **morph** selesai sepenuhnya.
+6. `onRender` - Di dalam `requestAnimationFrame` (setelah proses *paint* browser).
 
-Action promises (`.then()`) resolve at the same time as `onFinish` (after morph).
+**Action promises** (`.then()`) diselesaikan pada waktu yang sama dengan `onFinish` (setelah **morph**).
 
 ### Request interceptors
 
-Request interceptors fire for each HTTP request. A request may contain messages from multiple components.
+**Request interceptors** dipicu untuk setiap permintaan HTTP. Satu permintaan dapat berisi pesan dari beberapa komponen sekaligus.
 
 ```js
 $wire.interceptRequest(({ request, onSend, onCancel, onSuccess, onError, onFailure, onResponse, onParsed, onStream, onRedirect, onDump, onFinish }) => {
-    // request.messages   - Set of messages in this request
-    // request.cancel()   - Cancel this request
+    // request.messages   - Kumpulan pesan dalam permintaan ini
+    // request.cancel()   - Membatalkan permintaan ini
 
     onSend(({ responsePromise }) => {})
 
     onCancel(() => {})
 
     onResponse(({ response }) => {
-        // response: Fetch Response (before body read)
+        // response: Fetch Response (sebelum body dibaca)
     })
 
     onParsed(({ response, body }) => {
-        // body: Response body as string
+        // body: Isi respons sebagai string
     })
 
     onSuccess(({ response, body, json }) => {})
 
     onError(({ response, body, preventDefault }) => {
-        preventDefault() // Prevent error modal
+        preventDefault() // Mencegah modal error muncul
     })
 
     onFailure(({ error }) => {})
@@ -270,20 +285,21 @@ $wire.interceptRequest(({ request, onSend, onCancel, onSuccess, onError, onFailu
     onStream(({ response }) => {})
 
     onRedirect(({ url, preventDefault }) => {
-        preventDefault() // Prevent redirect
+        preventDefault() // Mencegah pengalihan (redirect)
     })
 
     onDump(({ html, preventDefault }) => {
-        preventDefault() // Prevent dump modal
+        preventDefault() // Mencegah modal dump muncul
     })
 
     onFinish(() => {})
 })
+
 ```
 
-### Examples
+### Contoh Penggunaan
 
-**Loading state for a component:**
+**Loading state untuk sebuah komponen:**
 
 ```blade
 <script>
@@ -292,116 +308,123 @@ $wire.interceptRequest(({ request, onSend, onCancel, onSuccess, onError, onFailu
         onFinish(() => $wire.$el.classList.remove('opacity-50'))
     })
 </script>
+
 ```
 
-**Confirm before delete:**
+**Konfirmasi sebelum hapus (Confirm before delete):**
 
 ```blade
 <script>
     $wire.intercept('delete', ({ action }) => {
-        if (!confirm('Are you sure?')) {
+        if (!confirm('Apakah Anda yakin?')) {
             action.cancel()
         }
     })
 </script>
+
 ```
 
-**Global session expiration handling:**
+**Penanganan sesi kedaluwarsa secara global:**
 
 ```js
 Livewire.interceptRequest(({ onError }) => {
     onError(({ response, preventDefault }) => {
         if (response.status === 419) {
             preventDefault()
-            if (confirm('Session expired. Refresh?')) {
+            if (confirm('Sesi kedaluwarsa. Muat ulang halaman?')) {
                 window.location.reload()
             }
         }
     })
 })
+
 ```
 
-**Action-specific success notification:**
+**Notifikasi sukses khusus untuk action tertentu:**
 
 ```blade
 <script>
     $wire.intercept('save', ({ onSuccess, onError }) => {
-        onSuccess(() => showToast('Saved!'))
-        onError(() => showToast('Failed to save', 'error'))
+        onSuccess(() => showToast('Berhasil disimpan!'))
+        onError(() => showToast('Gagal menyimpan', 'error'))
     })
 </script>
+
 ```
+
+---
 
 ## Global Livewire events
 
-Livewire dispatches two helpful browser events for you to register any custom extension points from outside scripts:
+Livewire mengirimkan dua **browser events** yang berguna bagi Anda untuk mendaftarkan titik ekstensi kustom dari script eksternal:
 
 ```html
 <script>
     document.addEventListener('livewire:init', () => {
-        // Runs after Livewire is loaded but before it's initialized
-        // on the page...
+        // Berjalan setelah Livewire dimuat tetapi sebelum diinisialisasi 
+        // di halaman...
     })
 
     document.addEventListener('livewire:initialized', () => {
-        // Runs immediately after Livewire has finished initializing
-        // on the page...
+        // Berjalan segera setelah Livewire selesai menginisialisasi
+        // di halaman...
     })
 </script>
+
 ```
 
 > [!info]
-> It is often beneficial to register any [custom directives](#registering-custom-directives) or [lifecycle hooks](#javascript-hooks) inside of `livewire:init` so that they are available before Livewire begins initializing on the page.
+> Sering kali lebih baik untuk mendaftarkan [custom directives](https://www.google.com/search?q=%23registering-custom-directives) atau [lifecycle hooks](https://www.google.com/search?q=%23javascript-hooks) di dalam `livewire:init` agar tersedia sebelum Livewire mulai menginisialisasi halaman.
 
-## The `Livewire` global object
+---
 
-Livewire's global object is the best starting point for interacting with Livewire from external scripts.
+## Objek global `Livewire`
 
-You can access the global `Livewire` JavaScript object on `window` from anywhere inside your client-side code.
+Objek global Livewire adalah titik awal terbaik untuk berinteraksi dengan Livewire dari script eksternal. Anda dapat mengakses objek JavaScript `Livewire` global pada `window` dari mana saja di dalam kode sisi klien Anda.
 
-It is often helpful to use `window.Livewire` inside a `livewire:init` event listener
+Sangat disarankan untuk menggunakan `window.Livewire` di dalam *event listener* `livewire:init`.
 
-### Accessing components
+### Mengakses komponen
 
-You can use the following methods to access specific Livewire components loaded on the current page:
+Anda dapat menggunakan metode berikut untuk mengakses komponen Livewire tertentu yang dimuat pada halaman saat ini:
 
 ```js
-// Retrieve the $wire object for the first component on the page...
+// Mengambil objek $wire untuk komponen pertama di halaman...
 let component = Livewire.first()
 
-// Retrieve a given component's `$wire` object by its ID...
+// Mengambil objek $wire komponen tertentu berdasarkan ID-nya...
 let component = Livewire.find(id)
 
-// Retrieve an array of component `$wire` objects by name...
+// Mengambil array berisi objek $wire komponen berdasarkan namanya...
 let components = Livewire.getByName(name)
 
-// Retrieve $wire objects for every component on the page...
+// Mengambil objek $wire untuk setiap komponen di halaman...
 let components = Livewire.all()
+
 ```
 
 > [!info]
-> Each of these methods returns a `$wire` object representing the component's state in Livewire.
-> <br><br>
-> You can learn more about these objects in [the `$wire` documentation](#the-wire-object).
+> Masing-masing metode ini mengembalikan objek `$wire` yang mewakili **state** komponen di Livewire. Anda dapat mempelajari lebih lanjut tentang objek-objek ini di [dokumentasi $wire](https://www.google.com/search?q=%23the-wire-object).
 
-### Interacting with events
+### Berinteraksi dengan event
 
-In addition to dispatching and listening for events from individual components in PHP, the global `Livewire` object allows you to interact with [Livewire's event system](/docs/4.x/events) from anywhere in your application:
+Selain mengirim dan mendengarkan **event** dari masing-masing komponen di PHP, objek `Livewire` global memungkinkan Anda untuk berinteraksi dengan [sistem event Livewire](https://www.google.com/search?q=/docs/4.x/events) dari mana saja di aplikasi Anda:
 
 ```js
-// Dispatch an event to any Livewire components listening...
+// Mengirim event ke komponen Livewire mana pun yang mendengarkan...
 Livewire.dispatch('post-created', { postId: 2 })
 
-// Dispatch an event to a given Livewire component by name...
+// Mengirim event ke komponen Livewire tertentu berdasarkan namanya...
 Livewire.dispatchTo('dashboard', 'post-created', { postId: 2 })
 
-// Listen for events dispatched from Livewire components...
+// Mendengarkan event yang dikirim dari komponen Livewire...
 Livewire.on('post-created', ({ postId }) => {
     // ...
 })
+
 ```
 
-In certain scenarios, you might need to unregister global Livewire events. For instance, when working with Alpine components and `wire:navigate`, multiple listeners may be registered as `init` is called when navigating between pages. To address this, utilize the `destroy` function, automatically invoked by Alpine. Loop through all your listeners within this function to unregister them and prevent any unwanted accumulation.
+Dalam skenario tertentu, Anda mungkin perlu membatalkan pendaftaran **global Livewire events**. Misalnya, saat bekerja dengan komponen Alpine dan `wire:navigate`, beberapa *listener* mungkin terdaftar berulang kali karena `init` dipanggil saat berpindah antar halaman. Untuk mengatasinya, gunakan fungsi `destroy` yang secara otomatis dipanggil oleh Alpine.
 
 ```js
 Alpine.data('MyComponent', () => ({
@@ -409,48 +432,53 @@ Alpine.data('MyComponent', () => ({
     init() {
         this.listeners.push(
             Livewire.on('post-created', (options) => {
-                // Do something...
+                // Lakukan sesuatu...
             })
         );
     },
     destroy() {
+        // Memanggil fungsi unsubscribe untuk setiap listener
         this.listeners.forEach((listener) => {
             listener();
         });
     }
 }));
-```
-### Using lifecycle hooks
 
-Livewire allows you to hook into various parts of its global lifecycle using `Livewire.hook()`:
+```
+
+### Menggunakan lifecycle hooks
+
+Livewire memungkinkan Anda untuk masuk ke berbagai bagian siklus hidup globalnya menggunakan `Livewire.hook()`:
 
 ```js
-// Register a callback to execute on a given internal Livewire hook...
+// Mendaftarkan callback untuk dieksekusi pada hook internal Livewire tertentu...
 Livewire.hook('component.init', ({ component, cleanup }) => {
     // ...
 })
+
 ```
 
-More information about Livewire's JavaScript hooks can be [found below](#javascript-hooks).
+Informasi lebih lanjut mengenai JavaScript **hooks** Livewire dapat [ditemukan di bawah](https://www.google.com/search?q=%23javascript-hooks).
 
-### Registering custom directives
+### Mendaftarkan custom directives
 
-Livewire allows you to register custom directives using `Livewire.directive()`.
+Livewire memungkinkan Anda untuk mendaftarkan **custom directives** menggunakan `Livewire.directive()`.
 
-Below is an example of a custom `wire:confirm` directive that uses JavaScript's `confirm()` dialog to confirm or cancel an action before it is sent to the server:
+Di bawah ini adalah contoh dari direktif kustom `wire:confirm` yang menggunakan dialog `confirm()` JavaScript untuk mengonfirmasi atau membatalkan sebuah **action** sebelum dikirim ke server:
 
 ```html
 <button wire:confirm="Are you sure?" wire:click="delete">Delete post</button>
+
 ```
 
-Here is the implementation of `wire:confirm` using `Livewire.directive()`:
+Berikut adalah implementasi `wire:confirm` menggunakan `Livewire.directive()`:
 
 ```js
 Livewire.directive('confirm', ({ el, directive, component, cleanup }) => {
     let content =  directive.expression
 
-    // The "directive" object gives you access to the parsed directive.
-    // For example, here are its values for: wire:click.prevent="deletePost(1)"
+    // Objek "directive" memberi Anda akses ke direktif yang telah diparsing.
+    // Sebagai contoh, berikut adalah nilai-nilainya untuk: wire:click.prevent="deletePost(1)"
     //
     // directive.raw = wire:click.prevent
     // directive.value = "click"
@@ -466,92 +494,101 @@ Livewire.directive('confirm', ({ el, directive, component, cleanup }) => {
 
     el.addEventListener('click', onClick, { capture: true })
 
-    // Register any cleanup code inside `cleanup()` in the case
-    // where a Livewire component is removed from the DOM while
-    // the page is still active.
+    // Daftarkan kode pembersihan (cleanup) di dalam `cleanup()` untuk kasus
+    // di mana komponen Livewire dihapus dari DOM saat
+    // halaman masih aktif.
     cleanup(() => {
         el.removeEventListener('click', onClick)
     })
 })
+
 ```
+
+---
 
 ## JavaScript hooks
 
-For advanced users, Livewire exposes its internal client-side "hook" system. You can use the following hooks to extend Livewire's functionality or gain more information about your Livewire application.
+Untuk pengguna tingkat lanjut, Livewire mengekspos sistem "**hook**" internal di sisi klien. Anda dapat menggunakan **hooks** berikut untuk memperluas fungsionalitas Livewire atau mendapatkan informasi lebih lanjut tentang aplikasi Livewire Anda.
 
-### Component initialization
+### Inisialisasi komponen
 
-Every time a new component is discovered by Livewire — whether on the initial page load or later on — the `component.init` event is triggered. You can hook into `component.init` to intercept or initialize anything related to the new component:
+Setiap kali komponen baru ditemukan oleh Livewire — baik pada saat pemuatan halaman awal atau setelahnya — event `component.init` akan dipicu. Anda dapat masuk ke `component.init` untuk mencegat atau menginisialisasi apa pun yang terkait dengan komponen baru tersebut:
 
 ```js
 Livewire.hook('component.init', ({ component, cleanup }) => {
     //
 })
+
 ```
 
-For more information, please consult the [documentation on the component object](#the-component-object).
+Untuk informasi lebih lanjut, silakan merujuk pada [dokumentasi objek komponen](https://www.google.com/search?q=%23the-component-object).
 
-### DOM element initialization
+### Inisialisasi elemen DOM
 
-In addition to triggering an event when new components are initialized, Livewire triggers an event for each DOM element within a given Livewire component.
+Selain memicu event saat komponen baru diinisialisasi, Livewire memicu event untuk setiap elemen DOM di dalam komponen Livewire tertentu.
 
-This can be used to provide custom Livewire HTML attributes within your application:
+Ini dapat digunakan untuk menyediakan atribut HTML Livewire kustom di dalam aplikasi Anda:
 
 ```js
 Livewire.hook('element.init', ({ component, el }) => {
     //
 })
+
 ```
 
 ### DOM Morph hooks
 
-During the DOM morphing phase—which occurs after Livewire completes a network roundtrip—Livewire triggers a series of events for every element that is mutated.
+Selama fase **DOM morphing** — yang terjadi setelah Livewire menyelesaikan siklus komunikasi jaringan — Livewire memicu serangkaian event untuk setiap elemen yang berubah (**mutated**).
 
 ```js
 Livewire.hook('morph.updating',  ({ el, component, toEl, skip, childrenOnly }) => {
-	//
+    //
 })
 
 Livewire.hook('morph.updated', ({ el, component }) => {
-	//
+    //
 })
 
 Livewire.hook('morph.removing', ({ el, component, skip }) => {
-	//
+    //
 })
 
 Livewire.hook('morph.removed', ({ el, component }) => {
-	//
+    //
 })
 
 Livewire.hook('morph.adding',  ({ el, component }) => {
-	//
+    //
 })
 
 Livewire.hook('morph.added',  ({ el }) => {
-	//
+    //
 })
+
 ```
 
-In addition to the events fired per element, a `morph` and `morphed` event is fired for each Livewire component:
+Selain event yang dipicu per elemen, event `morph` dan `morphed` juga dipicu untuk setiap komponen Livewire:
 
 ```js
 Livewire.hook('morph',  ({ el, component }) => {
-	// Runs just before the child elements in `component` are morphed (exluding partial morphing)
+    // Berjalan tepat sebelum elemen anak dalam `component` di-morph (tidak termasuk partial morphing)
 })
 
 Livewire.hook('morphed',  ({ el, component }) => {
-    // Runs after all child elements in `component` are morphed (excluding partial morphing)
+    // Berjalan setelah semua elemen anak dalam `component` selesai di-morph (tidak termasuk partial morphing)
 })
+
 ```
 
-## Server-side JavaScript evaluation
+---
 
-In addition to executing JavaScript directly in your components, you can use the `js()` method to evaluate JavaScript expressions from your server-side PHP code.
+## Evaluasi JavaScript di sisi server
 
-This is generally useful for performing some kind of client-side follow-up after a server-side action is performed.
+Selain mengeksekusi JavaScript secara langsung di komponen Anda, Anda dapat menggunakan metode `js()` untuk mengevaluasi ekspresi JavaScript dari kode PHP di sisi server.
 
-For example, here is a `post.create` component that triggers a client-side alert dialog after the post is saved to the database:
+Ini umumnya berguna untuk melakukan semacam tindak lanjut di sisi klien setelah sebuah **action** di sisi server dilakukan.
+
+Sebagai contoh, berikut adalah komponen `post.create` yang memicu dialog alert di sisi klien setelah postingan disimpan ke database:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -563,29 +600,33 @@ new class extends Component {
 
     public function save()
     {
-        // Save post to database...
+        // Simpan postingan ke database...
 
         $this->js("alert('Post saved!')");
     }
 };
+
 ```
 
-The JavaScript expression `alert('Post saved!')` will be executed on the client after the post has been saved to the database on the server.
+Ekspresi JavaScript `alert('Post saved!')` akan dieksekusi pada klien setelah postingan berhasil disimpan ke database di server.
 
-You can access the current component's `$wire` object inside the expression:
+Anda dapat mengakses objek `$wire` komponen saat ini di dalam ekspresi tersebut:
 
 ```php
 $this->js('$wire.$refresh()');
 $this->js('$wire.$dispatch("post-created", { id: ' . $post->id . ' })');
+
 ```
 
-## Common patterns
+---
 
-Here are some common patterns for using JavaScript with Livewire in real-world applications.
+## Pola Umum (Common patterns)
 
-### Integrating third-party libraries
+Berikut adalah beberapa pola umum penggunaan JavaScript dengan Livewire dalam aplikasi dunia nyata.
 
-Many JavaScript libraries need to be initialized when elements are added to the page. Use component scripts to initialize libraries when your component loads:
+### Mengintegrasikan library pihak ketiga
+
+Banyak library JavaScript perlu diinisialisasi saat elemen ditambahkan ke halaman. Gunakan script komponen untuk menginisialisasi library saat komponen Anda dimuat:
 
 ```blade
 <div>
@@ -602,123 +643,137 @@ Many JavaScript libraries need to be initialized when elements are added to the 
         zoom: 12
     });
 </script>
+
 ```
 
-### Syncing with localStorage
+### Sinkronisasi dengan localStorage
 
-You can sync component state with localStorage using `$watch`:
+Anda dapat menyinkronkan **state** komponen dengan **localStorage** menggunakan `$watch`:
 
 ```blade
 <script>
-    // Load from localStorage on init
+    // Muat dari localStorage saat inisialisasi
     if (localStorage.getItem('draft')) {
         $wire.content = localStorage.getItem('draft');
     }
 
-    // Save to localStorage when it changes
+    // Simpan ke localStorage saat nilai berubah
     $wire.$watch('content', (value) => {
         localStorage.setItem('draft', value);
     });
 </script>
+
 ```
 
-### Using the `@js` directive
+### Menggunakan direktif `@js`
 
-If you need to output PHP data for use in JavaScript directly, you can use the `@js` directive.
+Jika Anda perlu mengeluarkan data PHP untuk digunakan langsung dalam JavaScript, Anda dapat menggunakan direktif `@js`.
 
 ```blade
 <script>
     let posts = @js($posts)
 
-    // "posts" will now be a JavaScript array of post data from PHP.
+    // "posts" sekarang akan menjadi array JavaScript yang berisi data post dari PHP.
 </script>
+
 ```
 
-## Best practices
+## Praktik terbaik
 
 ### Component scripts vs global scripts
 
-**Use component scripts when:**
-- The JavaScript is specific to that component's functionality
-- You need access to `$wire` or component-specific data
-- The code should run every time the component loads
+**Gunakan component scripts saat:**
 
-**Use global scripts when:**
-- Registering custom directives or hooks
-- Setting up global event listeners
-- Initializing app-wide JavaScript
+* JavaScript tersebut bersifat spesifik untuk fungsionalitas komponen tersebut.
+* Anda memerlukan akses ke `$wire` atau data spesifik komponen.
+* Kode tersebut harus dijalankan setiap kali komponen dimuat.
 
-### Avoiding memory leaks
+**Gunakan global scripts saat:**
 
-When adding event listeners in component scripts, Livewire automatically cleans them up when the component is removed. However, if you're using global interceptors or hooks, make sure to clean up when appropriate:
+* Mendaftarkan custom directives atau hooks.
+* Menyiapkan event listeners global.
+* Menginisialisasi JavaScript yang berlaku untuk seluruh aplikasi.
+
+### Menghindari kebocoran memori (Memory leaks)
+
+Saat menambahkan event listeners di dalam component scripts, Livewire secara otomatis membersihkannya ketika komponen dihapus. Namun, jika Anda menggunakan interceptors atau hooks global, pastikan untuk membersihkannya secara manual jika diperlukan:
 
 ```js
-// Component-level - automatically cleaned up ✓
+// Tingkat Komponen - dibersihkan secara otomatis ✓
 $wire.intercept(({ onSend }) => {
-    onSend(() => console.log('Sending...'));
+    onSend(() => console.log('Mengirim...'));
 });
 
-// Global-level - lives for the entire page lifecycle
+// Tingkat Global - tetap hidup selama siklus hidup halaman
 Livewire.interceptMessage(({ onSend }) => {
-    onSend(() => console.log('Sending...'));
+    onSend(() => console.log('Mengirim...'));
 });
+
 ```
 
-### Debugging tips
+### Tips debugging
 
-**Access component from browser console:**
+**Akses komponen dari konsol browser:**
+
 ```js
-// Get first component on page
+// Ambil komponen pertama di halaman
 let $wire = Livewire.first()
 
-// Inspect component state
+// Periksa state komponen
 console.log($wire.count)
 
-// Call methods
+// Panggil methods
 $wire.increment()
+
 ```
 
-**Monitor all requests:**
+**Pantau semua request:**
+
 ```js
 Livewire.interceptRequest(({ onSend }) => {
     onSend(() => {
-        console.log('Request sent:', Date.now());
+        console.log('Request terkirim:', Date.now());
     });
 });
+
 ```
 
-**View component snapshots:**
+**Lihat snapshots komponen:**
+
 ```js
 let component = Livewire.first().__instance()
 console.log(component.snapshot)
+
 ```
 
-### Performance considerations
+### Pertimbangan performa
 
-- Use `wire:ignore` on elements that shouldn't be touched by Livewire's DOM morphing
-- Debounce expensive operations using `wire:model.debounce` or JavaScript debouncing
-- Use lazy loading (`lazy` parameter) for components that aren't immediately visible
-- Consider using islands for isolated regions that update independently
+* Gunakan `wire:ignore` pada elemen yang tidak boleh disentuh oleh DOM morphing Livewire.
+* Gunakan **debounce** pada operasi yang berat menggunakan `wire:model.debounce` atau JavaScript debouncing.
+* Gunakan **lazy loading** (parameter `lazy`) untuk komponen yang tidak langsung terlihat di layar.
+* Pertimbangkan menggunakan **islands** untuk wilayah terisolasi yang diperbarui secara independen.
 
-## See also
+---
 
-- **[Styles](/docs/4.x/styles)** — Add scoped CSS to your components
-- **[Alpine](/docs/4.x/alpine)** — Use Alpine for client-side interactivity
-- **[Actions](/docs/4.x/actions)** — Create JavaScript actions in components
-- **[Properties](/docs/4.x/properties)** — Access properties from JavaScript with $wire
-- **[Events](/docs/4.x/events)** — Dispatch and listen for events in JavaScript
+## Lihat juga
 
-## Reference
+* **[Styles](https://www.google.com/search?q=/docs/4.x/styles)** — Tambahkan CSS lingkup terbatas (scoped) ke komponen Anda.
+* **[Alpine](https://www.google.com/search?q=/docs/4.x/alpine)** — Gunakan Alpine untuk interaktivitas di sisi klien.
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Buat JavaScript actions di dalam komponen.
+* **[Properties](https://www.google.com/search?q=/docs/4.x/properties)** — Akses properties dari JavaScript dengan $wire.
+* **[Events](https://www.google.com/search?q=/docs/4.x/events)** — Kirim dan dengarkan events di JavaScript.
 
-When extending Livewire's JavaScript system, it's important to understand the different objects you might encounter.
+---
 
-Here is an exhaustive reference of each of Livewire's relevant internal properties.
+## Referensi
 
-As a reminder, the average Livewire user may never interact with these. Most of these objects are available for Livewire's internal system or advanced users.
+Saat memperluas sistem JavaScript Livewire, penting untuk memahami berbagai objek yang mungkin Anda temui. Berikut adalah referensi lengkap dari properti internal Livewire yang relevan.
 
-### The `$wire` object
+Sebagai pengingat, pengguna Livewire rata-rata mungkin tidak pernah berinteraksi dengan bagian ini. Sebagian besar objek ini tersedia untuk sistem internal Livewire atau pengguna tingkat lanjut.
 
-Given the following generic `Counter` component:
+### Objek `$wire`
+
+Misalkan terdapat komponen `Counter` generik berikut:
 
 ```php
 <?php
@@ -741,251 +796,253 @@ class Counter extends Component
         return view('livewire.counter');
     }
 }
+
 ```
 
-Livewire exposes a JavaScript representation of the server-side component in the form of an object that is commonly referred to as `$wire`:
+Livewire mengekspos representasi JavaScript dari komponen sisi server dalam bentuk objek yang biasa disebut sebagai `$wire`:
 
 ```js
 let $wire = {
-    // All component public properties are directly accessible on $wire...
+    // Semua public properties komponen dapat diakses langsung di $wire...
     count: 0,
 
-    // All public methods are exposed and callable on $wire...
+    // Semua public methods diekspos dan dapat dipanggil di $wire...
     increment() { ... },
 
-    // Access the `$wire` object of the parent component if one exists...
+    // Akses objek `$wire` dari komponen induk jika ada...
     $parent,
 
-    // Access the root DOM element of the Livewire component...
+    // Akses elemen DOM root dari komponen Livewire...
     $el,
 
-    // Access the ID of the current Livewire component...
+    // Akses ID dari komponen Livewire saat ini...
     $id,
 
-    // Get the value of a property by name...
-    // Usage: $wire.$get('count')
+    // Ambil nilai properti berdasarkan nama...
+    // Penggunaan: $wire.$get('count')
     $get(name) { ... },
 
-    // Set a property on the component by name...
-    // Usage: $wire.$set('count', 5)
+    // Atur properti pada komponen berdasarkan nama...
+    // Penggunaan: $wire.$set('count', 5)
     $set(name, value, live = true) { ... },
 
-    // Toggle the value of a boolean property...
+    // Toggle nilai dari properti boolean...
     $toggle(name, live = true) { ... },
 
-    // Call the method...
-    // Usage: $wire.$call('increment')
+    // Panggil method...
+    // Penggunaan: $wire.$call('increment')
     $call(method, ...params) { ... },
 
-    // Define a JavaScript action...
-    // Usage: $wire.$js('increment', () => { ... })
-    // Usage: $wire.$js.increment = () => { ... }
+    // Definisikan JavaScript action...
+    // Penggunaan: $wire.$js('increment', () => { ... })
+    // Penggunaan: $wire.$js.increment = () => { ... }
     $js(name, callback) { ... },
 
-    // [DEPRECATED] Entangle - You probably don't need this.
-    // Use $wire directly to access properties instead.
-    // Usage: <div x-data="{ count: $wire.$entangle('count') }">
+    // [DEPRECATED] Entangle - Anda kemungkinan besar tidak membutuhkannya.
+    // Gunakan $wire secara langsung untuk mengakses properti.
+    // Penggunaan: <div x-data="{ count: $wire.$entangle('count') }">
     $entangle(name, live = false) { ... },
 
-    // Watch the value of a property for changes...
-    // Usage: Alpine.$watch('count', (value, old) => { ... })
+    // Pantau perubahan nilai properti...
+    // Penggunaan: Alpine.$watch('count', (value, old) => { ... })
     $watch(name, callback) { ... },
 
-    // Scope the next action to a named island...
-    // Returns $wire so you can chain any method call.
-    // The chained action will only re-render the named island.
-    // Usage: $wire.$island('revenue').$refresh()
-    // Usage: $wire.$island('feed', { mode: 'append' }).loadMore()
+    // Batasi cakupan action berikutnya ke island tertentu...
+    // Mengembalikan $wire sehingga Anda bisa melakukan chaining method call.
+    // Action yang dirangkai hanya akan me-render ulang island tersebut.
+    // Penggunaan: $wire.$island('revenue').$refresh()
     $island(name, options = {}) { ... },
 
-    // Refresh a component by sending a message to the server
-    // to re-render the HTML and swap it into the page...
+    // Refresh komponen dengan mengirim pesan ke server 
+    // untuk me-render ulang HTML dan menukarnya di halaman...
     $refresh() { ... },
 
-    // Identical to the above `$refresh`. Just a more technical name...
-    $commit() { ... }, // Alias for $refresh()
+    // Identik dengan `$refresh` di atas. Hanya nama yang lebih teknis...
+    $commit() { ... }, // Alias untuk $refresh()
 
-    // Listen for a an event dispatched from this component or its children...
-    // Usage: $wire.$on('post-created', () => { ... })
+    // Mendengarkan event yang dikirim dari komponen ini atau anak-anaknya...
+    // Penggunaan: $wire.$on('post-created', () => { ... })
     $on(event, callback) { ... },
 
-    // Listen for a lifecycle hook triggered from this component or the request...
-    // Usage: $wire.$hook('message.sent', () => { ... })
+    // Mendengarkan lifecycle hook yang dipicu dari komponen ini atau request...
+    // Penggunaan: $wire.$hook('message.sent', () => { ... })
     $hook(name, callback) { ... },
 
-    // Dispatch an event from this component...
-    // Usage: $wire.$dispatch('post-created', { postId: 2 })
+    // Kirim event dari komponen ini...
+    // Penggunaan: $wire.$dispatch('post-created', { postId: 2 })
     $dispatch(event, params = {}) { ... },
 
-    // Dispatch an event onto another component...
-    // Usage: $wire.$dispatchTo('dashboard', 'post-created', { postId: 2 })
+    // Kirim event ke komponen lain...
+    // Penggunaan: $wire.$dispatchTo('dashboard', 'post-created', { postId: 2 })
     $dispatchTo(otherComponentName, event, params = {}) { ... },
 
-    // Dispatch an event onto this component and no others...
+    // Kirim event ke komponen ini sendiri dan tidak ke yang lain...
     $dispatchSelf(event, params = {}) { ... },
 
-    // A JS API to upload a file directly to component
-    // rather than through `wire:model`...
+    // API JS untuk mengunggah file langsung ke komponen
+    // tanpa melalui `wire:model`...
     $upload(
-        name, // The property name
-        file, // The File JavaScript object
-        finish = () => { ... }, // Runs when the upload is finished...
-        error = () => { ... }, // Runs if an error is triggered mid-upload...
-        progress = (event) => { // Runs as the upload progresses...
-            event.detail.progress // An integer from 1-100...
+        name, // Nama properti
+        file, // Objek File JavaScript
+        finish = () => { ... }, // Berjalan saat unggahan selesai...
+        error = () => { ... }, // Berjalan jika terjadi error saat mengunggah...
+        progress = (event) => { // Berjalan saat proses unggahan berlangsung...
+            event.detail.progress // Integer dari 1-100...
         },
     ) { ... },
 
-    // API to upload multiple files at the same time...
+    // API untuk mengunggah banyak file sekaligus...
     $uploadMultiple(name, files, finish, error, progress) { },
 
-    // Remove an upload after it's been temporarily uploaded but not saved...
+    // Hapus unggahan setelah diunggah sementara tetapi belum disimpan...
     $removeUpload(name, tmpFilename, finish, error) { ... },
 
-    // Register an action interceptor for this component instance
-    // Usage: $wire.intercept(({ action, onSend, onCancel, onSuccess, onError, onFailure, onFinish }) => { ... })
-    // Or scope to specific action: $wire.intercept('save', ({ action, onSuccess }) => { ... })
+    // Daftarkan action interceptor untuk instansi komponen ini
+    // Penggunaan: $wire.intercept(({ action, onSend, onCancel, onSuccess, onError, onFailure, onFinish }) => { ... })
     intercept(actionOrCallback, callback) { ... },
 
-    // Alias for intercept
+    // Alias untuk intercept
     interceptAction(actionOrCallback, callback) { ... },
 
-    // Register a message interceptor for this component instance
-    // Usage: $wire.interceptMessage(({ message, cancel, onSend, onCancel, onSuccess, onError, onFailure, onFinish }) => { ... })
-    // Or scope to specific action: $wire.interceptMessage('save', callback)
+    // Daftarkan message interceptor untuk instansi komponen ini
     interceptMessage(actionOrCallback, callback) { ... },
 
-    // Register a request interceptor for this component instance
-    // Usage: $wire.interceptRequest(({ request, onSend, onCancel, onSuccess, onError, onFailure, onFinish }) => { ... })
-    // Or scope to specific action: $wire.interceptRequest('save', callback)
+    // Daftarkan request interceptor untuk instansi komponen ini
     interceptRequest(actionOrCallback, callback) { ... },
 
-    // Retrieve the underlying "component" object...
+    // Mengambil objek "component" yang mendasarinya (internal)...
     __instance() { ... },
 }
+
 ```
 
-You can learn more about `$wire` in [Livewire's documentation on accessing properties in JavaScript](/docs/4.x/properties#accessing-properties-from-javascript).
+Anda dapat mempelajari lebih lanjut tentang `$wire` dalam [dokumentasi Livewire tentang mengakses properti di JavaScript](https://www.google.com/search?q=/docs/4.x/properties%23accessing-properties-from-javascript).
 
-### The `snapshot` object
+### Objek `snapshot`
 
-Between each network request, Livewire serializes the PHP component into an object that can be consumed in JavaScript. This snapshot is used to unserialize the component back into a PHP object and therefore has mechanisms built in to prevent tampering:
+Di antara setiap permintaan jaringan, Livewire melakukan serialisasi komponen PHP ke dalam sebuah objek yang dapat dikonsumsi oleh JavaScript. **Snapshot** ini digunakan untuk melakukan unserialisasi kembali komponen tersebut menjadi objek PHP, sehingga memiliki mekanisme bawaan untuk mencegah manipulasi:
 
 ```js
 let snapshot = {
-    // The serialized state of the component (public properties)...
+    // State komponen yang diserialisasi (public properties)...
     data: { count: 0 },
 
-    // Long-standing information about the component...
+    // Informasi jangka panjang tentang komponen...
     memo: {
-        // The component's unique ID...
+        // ID unik komponen...
         id: '0qCY3ri9pzSSMIXPGg8F',
 
-        // The component's name. Ex. <livewire:[name] />
+        // Nama komponen. Contoh: <livewire:[name] />
         name: 'counter',
 
-        // The URI, method, and locale of the web page that the
-        // component was originally loaded on. This is used
-        // to re-apply any middleware from the original request
-        // to subsequent component update requests (messages)...
+        // URI, method, dan locale dari halaman web tempat
+        // komponen pertama kali dimuat. Ini digunakan
+        // untuk menerapkan kembali middleware dari permintaan asli
+        // ke permintaan pembaruan komponen selanjutnya (messages)...
         path: '/',
         method: 'GET',
         locale: 'en',
 
-        // A list of any nested "child" components. Keyed by
-        // internal template ID with the component ID as the values...
+        // Daftar komponen "anak" yang bersarang. Diindeks berdasarkan
+        // ID template internal dengan ID komponen sebagai nilainya...
         children: [],
 
-        // Whether or not this component was "lazy loaded"...
+        // Apakah komponen ini dimuat secara "lazy loaded" atau tidak...
         lazyLoaded: false,
 
-        // A list of any validation errors thrown during the
-        // last request...
+        // Daftar error validasi yang muncul pada
+        // permintaan terakhir...
         errors: [],
     },
 
-    // A securely encrypted hash of this snapshot. This way,
-    // if a malicious user tampers with the snapshot with
-    // the goal of accessing un-owned resources on the server,
-    // the checksum validation will fail and an error will
-    // be thrown...
+    // Hash terenkripsi yang aman dari snapshot ini. Dengan cara ini,
+    // jika pengguna jahat memanipulasi snapshot dengan
+    // tujuan mengakses sumber daya yang bukan miliknya di server,
+    // validasi checksum akan gagal dan error akan
+    // dilemparkan...
     checksum: '1bc274eea17a434e33d26bcaba4a247a4a7768bd286456a83ea6e9be2d18c1e7',
 }
+
 ```
 
-### The `component` object
+---
 
-Every component on a page has a corresponding component object behind the scenes keeping track of its state and exposing its underlying functionality. This is one layer deeper than `$wire`. It is only meant for advanced usage.
+### Objek `component`
 
-Here's an actual component object for the above `Counter` component with descriptions of relevant properties in JS comments:
+Setiap komponen pada halaman memiliki objek komponen terkait di balik layar yang melacak **state**-nya dan mengekspos fungsionalitas dasarnya. Ini adalah satu lapisan lebih dalam dari `$wire` dan hanya ditujukan untuk penggunaan tingkat lanjut.
+
+Berikut adalah objek komponen aktual untuk komponen `Counter` di atas dengan deskripsi properti yang relevan dalam komentar JS:
 
 ```js
 let component = {
-    // The root HTML element of the component...
+    // Elemen HTML root dari komponen...
     el: HTMLElement,
 
-    // The unique ID of the component...
+    // ID unik dari komponen...
     id: '0qCY3ri9pzSSMIXPGg8F',
 
-    // The component's "name" (<livewire:[name] />)...
+    // "Nama" komponen (<livewire:[name] />)...
     name: 'counter',
 
-    // The latest "effects" object. Effects are "side-effects" from server
-    // round-trips. These include redirects, file downloads, etc...
+    // Objek "effects" terbaru. Effects adalah efek samping (side-effects) dari server.
+    // Ini termasuk pengalihan (redirect), unduhan file, dll...
     effects: {},
 
-    // The component's last-known server-side state...
+    // State sisi server terakhir yang diketahui dari komponen...
     canonical: { count: 0 },
 
-    // The component's mutable data object representing its
-    // live client-side state...
+    // Objek data mutable yang mewakili state
+    // sisi klien yang aktif (live)...
     ephemeral: { count: 0 },
 
-    // A reactive version of `this.ephemeral`. Changes to
-    // this object will be picked up by AlpineJS expressions...
+    // Versi reaktif dari `this.ephemeral`. Perubahan pada
+    // objek ini akan ditangkap oleh ekspresi AlpineJS...
     reactive: Proxy,
 
-    // A Proxy object that is typically used inside Alpine
-    // expressions as `$wire`. This is meant to provide a
-    // friendly JS object interface for Livewire components...
+    // Objek Proxy yang biasanya digunakan di dalam ekspresi Alpine
+    // sebagai `$wire`. Ini dimaksudkan untuk menyediakan antarmuka
+    // objek JS yang ramah bagi komponen Livewire...
     $wire: Proxy,
 
-    // A list of any nested "child" components. Keyed by
-    // internal template ID with the component ID as the values...
+    // Daftar komponen "anak" yang bersarang...
     children: [],
 
-    // The last-known "snapshot" representation of this component.
-    // Snapshots are taken from the server-side component and used
-    // to re-create the PHP object on the backend...
+    // Representasi "snapshot" terakhir yang diketahui dari komponen ini.
+    // Snapshot diambil dari komponen sisi server dan digunakan
+    // untuk membuat ulang objek PHP di backend...
     snapshot: {...},
 
-    // The un-parsed version of the above snapshot. This is used to send back to the
-    // server on the next roundtrip because JS parsing messes with PHP encoding
-    // which often results in checksum mis-matches.
+    // Versi yang belum diparsing dari snapshot di atas. Ini digunakan untuk dikirim kembali ke
+    // server pada siklus berikutnya karena parsing JS sering mengacaukan encoding PHP
+    // yang mengakibatkan ketidakcocokan checksum (checksum mismatch).
     snapshotEncoded: '{"data":{"count":0},"memo":{"id":"0qCY3ri9pzSSMIXPGg8F","name":"counter","path":"\/","method":"GET","children":[],"lazyLoaded":true,"errors":[],"locale":"en"},"checksum":"1bc274eea17a434e33d26bcaba4a247a4a7768bd286456a83ea6e9be2d18c1e7"}',
 }
+
 ```
 
-### The `message` payload
+---
 
-When an action is performed on a Livewire component in the browser, a network request is triggered. That network request contains one or many components and various instructions for the server. Internally, these component network payloads are called "messages".
+### Payload `message`
 
-A "message" represents the data sent from the frontend to the backend when a component needs to update. A component is rendered and manipulated on the frontend until an action is performed that requires it to send a message with its state and updates to the backend.
+Ketika sebuah **action** dilakukan pada komponen Livewire di browser, permintaan jaringan akan dipicu. Permintaan tersebut berisi satu atau banyak komponen dan berbagai instruksi untuk server. Secara internal, payload jaringan komponen ini disebut sebagai "**messages**".
 
-You will recognize this schema from the payload in the network tab of your browser's DevTools, or [Livewire's JavaScript hooks](#javascript-hooks):
+Sebuah "**message**" mewakili data yang dikirim dari frontend ke backend saat komponen perlu diperbarui. Komponen di-render dan dimanipulasi di frontend hingga sebuah **action** dilakukan yang mengharuskannya mengirim pesan berisi **state** dan pembaruan ke backend.
+
+Anda dapat mengenali skema ini dari payload di tab jaringan (Network) pada DevTools browser Anda, atau melalui [JavaScript hooks Livewire](https://www.google.com/search?q=%23javascript-hooks):
 
 ```js
 let message = {
-    // Snapshot object...
+    // Objek snapshot...
     snapshot: { ... },
 
-    // A key-value pair list of properties
-    // to update on the server...
+    // Daftar pasangan kunci-nilai (key-value) dari properti
+    // yang akan diperbarui di server...
     updates: {},
 
-    // An array of methods (with parameters) to call server-side...
+    // Array metode (dengan parameter) yang akan dipanggil di sisi server...
     calls: [
         { method: 'increment', params: [] },
     ],
 }
+
 ```
