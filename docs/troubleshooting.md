@@ -1,98 +1,103 @@
-Here at Livewire HQ, we try to remove problems from your pathway before you hit them. However, sometimes, there are some problems that we can't solve without introducing new ones, and other times, there are problems we can't anticipate.
+Di Livewire HQ, kami berusaha menyingkirkan masalah dari jalur Anda sebelum Anda menemukannya. Namun, terkadang ada beberapa masalah yang tidak dapat kami selesaikan tanpa menimbulkan masalah baru, dan di lain waktu, ada masalah yang tidak dapat kami antisipasi.
 
-Here are some common errors and scenarios you may encounter in your Livewire apps.
+Berikut adalah beberapa error dan skenario umum yang mungkin Anda temui di aplikasi Livewire Anda.
 
-## Component mismatches
+## Ketidakcocokan Komponen (Component mismatches)
 
-When interacting with Livewire components on your page, you may encounter odd behavior or error messages like the following:
+Saat berinteraksi dengan komponen Livewire di halaman Anda, Anda mungkin menemui perilaku aneh atau pesan error seperti berikut:
 
 ```
 Error: Component already initialized
+
 ```
 
 ```
 Error: Snapshot missing on Livewire component with id: ...
+
 ```
 
-There are lots of reasons why you may encounter these messages, but the most common one is forgetting to add `wire:key` to elements and components inside a `@foreach` loop.
+Ada banyak alasan mengapa Anda menemui pesan ini, tetapi yang paling umum adalah lupa menambahkan `wire:key` pada elemen dan komponen di dalam loop `@foreach`.
 
-### Adding `wire:key`
+### Menambahkan `wire:key`
 
-Any time you have a loop in your Blade templates using something like `@foreach`, you need to add `wire:key` to the opening tag of the first element within the loop:
+Setiap kali Anda memiliki loop di dalam template Blade menggunakan sesuatu seperti `@foreach`, Anda perlu menambahkan `wire:key` pada tag pembuka elemen pertama di dalam loop tersebut:
 
 ```blade
 @foreach($posts as $post)
-    <div wire:key="{{ $post->id }}"> <!-- [tl! highlight] -->
-        ...
+    <div wire:key="{{ $post->id }}"> ...
     </div>
 @endforeach
+
 ```
 
-This ensures that Livewire can keep track of different elements in the loop when the loop changes.
+Ini memastikan bahwa Livewire dapat melacak elemen yang berbeda dalam loop ketika isi loop tersebut berubah.
 
-The same applies to Livewire components within a loop:
+Hal yang sama berlaku untuk komponen Livewire di dalam loop:
 
 ```blade
 @foreach($posts as $post)
-    <livewire:show-post :$post :wire:key="$post->id" /> <!-- [tl! highlight] -->
-@endforeach
+    <livewire:show-post :$post :wire:key="$post->id" /> @endforeach
+
 ```
 
-However, here's a tricky scenario you might not have assumed:
+Namun, ada skenario jebakan yang mungkin tidak Anda duga:
 
-When you have a Livewire component deeply nested inside a `@foreach` loop, you STILL need to add a key to it. For example:
+Ketika Anda memiliki komponen Livewire yang tertanam jauh di dalam loop `@foreach`, Anda **TETAP** perlu menambahkan key padanya. Contohnya:
 
 ```blade
 @foreach($posts as $post)
     <div wire:key="{{ $post->id }}">
         ...
-        <livewire:show-post :$post :wire:key="$post->id" /> <!-- [tl! highlight] -->
-        ...
+        <livewire:show-post :$post :wire:key="$post->id" /> ...
     </div>
 @endforeach
+
 ```
 
-Without the key on the nested Livewire component, Livewire will be unable to match the looped components up between network requests.
+Tanpa key pada komponen Livewire yang bersarang tersebut, Livewire tidak akan bisa mencocokkan komponen di dalam loop tersebut di antara permintaan jaringan (*network requests*).
 
-#### Prefixing keys
+#### Memberikan awalan pada key (Prefixing keys)
 
-Another tricky scenario you may run into is having duplicate keys within the same component. This often results from using model IDs as keys, which can sometimes collide.
+Skenario rumit lainnya yang mungkin Anda hadapi adalah memiliki key yang duplikat di dalam komponen yang sama. Hal ini sering terjadi jika menggunakan ID model sebagai key, yang terkadang bisa bertabrakan.
 
-Here's an example where we need to add a `post-` and an `author-` prefix to designate each set of keys as unique. Otherwise, if you have a `$post` and `$author` model with the same ID, you would have an ID collision:
+Berikut adalah contoh di mana kita perlu menambahkan awalan `post-` dan `author-` untuk menandai setiap set key sebagai unik. Jika tidak, jika Anda memiliki model `$post` dan `$author` dengan ID yang sama, Anda akan mengalami tabrakan ID:
 
 ```blade
 <div>
     @foreach($posts as $post)
-        <div wire:key="post-{{ $post->id }}">...</div> <!-- [tl! highlight] -->
-    @endforeach
+        <div wire:key="post-{{ $post->id }}">...</div> @endforeach
 
     @foreach($authors as $author)
-        <div wire:key="author-{{ $author->id }}">...</div> <!-- [tl! highlight] -->
-    @endforeach
+        <div wire:key="author-{{ $author->id }}">...</div> @endforeach
 </div>
+
 ```
 
-## Multiple instances of Alpine
+---
 
-When installing Livewire, you may run into error messages like the following:
+## Beberapa Instansi Alpine (Multiple instances of Alpine)
+
+Saat menginstal Livewire, Anda mungkin menemui pesan error seperti berikut:
 
 ```
 Error: Detected multiple instances of Alpine running
+
 ```
 
 ```
 Alpine Expression Error: $wire is not defined
+
 ```
 
-If this is the case, you likely have two versions of Alpine running on the same page. Livewire includes its own bundle of Alpine under the hood, so you must remove any other versions of Alpine on Livewire pages in your application.
+Jika ini terjadi, kemungkinan besar Anda menjalankan dua versi Alpine pada halaman yang sama. Livewire sudah menyertakan bundel Alpine-nya sendiri di balik layar, jadi Anda harus menghapus versi Alpine lainnya pada halaman Livewire di aplikasi Anda.
 
-One common scenario in which this happens is adding Livewire to an existing application that already includes Alpine. For example, if you installed the Laravel Breeze starter kit and then added Livewire later, you would run into this.
+Satu skenario umum di mana hal ini terjadi adalah menambahkan Livewire ke aplikasi yang sudah menyertakan Alpine. Misalnya, jika Anda menginstal *starter kit* Laravel Breeze dan kemudian menambahkan Livewire setelahnya, Anda akan menemui masalah ini.
 
-The fix for this is simple: remove the extra Alpine instance.
+Solusinya sederhana: hapus instansi Alpine tambahan tersebut.
 
-### Removing Laravel Breeze's Alpine
+### Menghapus Alpine bawaan Laravel Breeze
 
-If you are installing Livewire inside an existing Laravel Breeze (Blade + Alpine version), you need to remove the following lines from `resources/js/app.js`:
+Jika Anda menginstal Livewire di dalam Laravel Breeze yang sudah ada (versi Blade + Alpine), Anda perlu menghapus baris berikut dari `resources/js/app.js`:
 
 ```js
 import './bootstrap';
@@ -102,34 +107,38 @@ import Alpine from 'alpinejs'; // [tl! remove:4]
 window.Alpine = Alpine;
 
 Alpine.start();
+
 ```
 
-### Removing a CDN version of Alpine
+### Menghapus Alpine versi CDN
 
-Because Livewire version 2 and below didn't include Alpine by default, you may have included an Alpine CDN as a script tag in the head of your layout. In Livewire v3, you can remove this CDN altogether, and Livewire will automatically provide Alpine for you:
+Karena Livewire versi 2 ke bawah tidak menyertakan Alpine secara default, Anda mungkin menyertakan CDN Alpine sebagai tag script di bagian *head* layout Anda. Di Livewire v3, Anda dapat menghapus CDN ini sepenuhnya, dan Livewire akan menyediakan Alpine secara otomatis untuk Anda:
 
 ```html
     ...
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> <!-- [tl! remove] -->
-</head>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> </head>
+
 ```
 
-Note: you can also remove any additional Alpine plugins, as Livewire includes all Alpine plugins except `@alpinejs/ui`.
+Catatan: Anda juga dapat menghapus plugin Alpine tambahan apa pun, karena Livewire menyertakan semua plugin Alpine kecuali `@alpinejs/ui`.
 
-## Missing `@alpinejs/ui`
+---
 
-Livewire's bundled version of Alpine includes all Alpine plugins EXCEPT `@alpinejs/ui`. If you are using headless components from [Alpine Components](https://alpinejs.dev/components), which relies on this plugin, you may encounter errors like the following:
+## `@alpinejs/ui` Tidak Ditemukan
+
+Versi Alpine yang dibundel dengan Livewire mencakup semua plugin Alpine KECUALI `@alpinejs/ui`. Jika Anda menggunakan komponen *headless* dari [Alpine Components](https://alpinejs.dev/components), yang bergantung pada plugin ini, Anda mungkin menemui error seperti berikut:
 
 ```
 Uncaught Alpine: no element provided to x-anchor
+
 ```
 
-To fix this, you can simply include the `@alpinejs/ui` plugin as a CDN in your layout file like so:
+Untuk memperbaikinya, Anda cukup menyertakan plugin `@alpinejs/ui` sebagai CDN di file layout Anda seperti ini:
 
 ```html
     ...
-    <script defer src="https://unpkg.com/@alpinejs/ui@3.13.7-beta.0/dist/cdn.min.js"></script> <!-- [tl! add] -->
-</head>
+    <script defer src="https://unpkg.com/@alpinejs/ui@3.13.7-beta.0/dist/cdn.min.js"></script> </head>
+
 ```
 
-Note: be sure to include the latest version of this plugin, which you can find on [any component's documentation page](https://alpinejs.dev/component/headless-dialog/docs).
+Catatan: pastikan untuk menyertakan versi terbaru dari plugin ini, yang dapat Anda temukan di [halaman dokumentasi komponen apa pun](https://alpinejs.dev/component/headless-dialog/docs).
