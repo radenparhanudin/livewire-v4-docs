@@ -1,8 +1,8 @@
-The `#[Title]` attribute sets the page title for full-page Livewire components.
+Atribut `#[Title]` mengatur judul halaman (*page title*) untuk **full-page Livewire components**.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Title]` attribute to a full-page component to set its title:
+Terapkan atribut `#[Title]` pada **full-page component** untuk mengatur judulnya:
 
 ```php
 <?php // resources/views/pages/posts/⚡create.blade.php
@@ -16,7 +16,7 @@ new #[Title('Create Post')] class extends Component { // [tl! highlight]
 
     public function save()
     {
-        // Save post...
+        // Simpan postingan...
     }
 };
 ?>
@@ -29,33 +29,36 @@ new #[Title('Create Post')] class extends Component { // [tl! highlight]
 
     <button wire:click="save">Save Post</button>
 </div>
+
 ```
 
-The browser tab will display "Create Post" as the page title.
+Tab browser akan menampilkan "Create Post" sebagai judul halaman.
 
-## Layout configuration
+---
 
-For the `#[Title]` attribute to work, your layout file must include a `$title` variable:
+## Konfigurasi layout
+
+Agar atribut `#[Title]` dapat berfungsi, file **layout** Anda harus menyertakan variabel `$title`:
 
 ```blade
-<!-- resources/views/components/layouts/app.blade.php -->
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ $title ?? 'My App' }}</title> <!-- [tl! highlight] -->
-</head>
+    <title>{{ $title ?? 'My App' }}</title> </head>
 <body>
     {{ $slot }}
 </body>
 </html>
+
 ```
 
-The `?? 'My App'` provides a fallback title if none is specified.
+Penggunaan `?? 'My App'` menyediakan judul cadangan (*fallback*) jika tidak ada judul yang ditentukan.
 
-## Dynamic titles
+---
 
-For dynamic titles using component properties, use the `title()` method in the `render()` method:
+## Judul dinamis (Dynamic titles)
+
+Untuk judul dinamis yang menggunakan properti **component**, gunakan metode `title()` di dalam metode `render()`:
 
 ```php
 <?php // resources/views/pages/posts/⚡edit.blade.php
@@ -81,15 +84,17 @@ new class extends Component {
 
 <div>
     <h1>Edit Post</h1>
-    <!-- ... -->
-</div>
+    </div>
+
 ```
 
-The title will dynamically include the post's title.
+Judul tersebut akan menyertakan judul postingan secara dinamis.
 
-## Combining with layouts
+---
 
-You can use both `#[Title]` and `#[Layout]` together:
+## Menggabungkan dengan layouts
+
+Anda dapat menggunakan atribut `#[Title]` dan `#[Layout]` secara bersamaan:
 
 ```php
 <?php // resources/views/pages/posts/⚡create.blade.php
@@ -104,107 +109,57 @@ new
 class extends Component {
     // ...
 };
+
 ```
 
-This component will use the admin layout with "Create Post" as the title.
+Komponen ini akan menggunakan **layout** admin dengan "Create Post" sebagai judulnya.
 
-## When to use
+---
 
-Use `#[Title]` when:
+## Kapan harus menggunakan
 
-* Building full-page components
-* You want clean, declarative title definitions
-* The title is static or rarely changes
-* You're following SEO best practices
+Gunakan **atribut `#[Title]**` ketika:
 
-Use `title()` method when:
+* Membangun **full-page components**.
+* Anda menginginkan definisi judul yang bersih dan deklaratif.
+* Judul bersifat statis atau jarang berubah.
+* Anda mengikuti praktik terbaik SEO.
 
-* The title depends on component properties
-* You need to compute the title dynamically
-* The title changes based on component state
+Gunakan **metode `title()**` ketika:
 
-## Example: CRUD pages
+* Judul bergantung pada properti **component**.
+* Anda perlu menghitung judul secara dinamis.
+* Judul berubah berdasarkan *state* **component**.
 
-Here's a complete example showing titles across CRUD operations:
+---
 
-```php
-<?php // resources/views/pages/posts/⚡index.blade.php
+## Pertimbangan SEO
 
-use Livewire\Attributes\Title;
-use Livewire\Component;
+Judul halaman yang baik sangat krusial untuk SEO:
 
-new #[Title('All Posts')] class extends Component { };
-```
+* **Deskriptif** – "Edit Post: Dasar-dasar Laravel" lebih baik daripada sekadar "Edit".
+* **Singkat dan Jelas** – Targetkan 50-60 karakter untuk menghindari pemotongan di hasil pencarian.
+* **Sertakan Kata Kunci** – Membantu mesin pencari memahami konten halaman Anda.
+* **Unik** – Setiap halaman harus memiliki judul yang berbeda.
 
-```php
-<?php // resources/views/pages/posts/⚡create.blade.php
+---
 
-use Livewire\Attributes\Title;
-use Livewire\Component;
+## Hanya untuk full-page components
 
-new #[Title('Create Post')] class extends Component { };
-```
+> [!info] Khusus Full-page Components
+> Atribut `#[Title]` hanya berfungsi untuk **full-page components** yang diakses melalui *routing*. Komponen biasa yang di-*render* di dalam *view* lain tidak menggunakan judul ini—mereka mewarisi judul dari halaman induknya (*parent page*).
 
-```php
-<?php // resources/views/pages/posts/⚡edit.blade.php
+---
 
-use Livewire\Component;
-use App\Models\Post;
-
-new class extends Component {
-    public Post $post;
-
-    public function render()
-    {
-        return $this->view()->title("Edit: {$this->post->title}");
-    }
-};
-```
-
-```php
-<?php // resources/views/pages/posts/⚡show.blade.php
-
-use Livewire\Component;
-use App\Models\Post;
-
-new class extends Component {
-    public Post $post;
-
-    public function render()
-    {
-        return $this->view()->title($this->post->title);
-    }
-};
-```
-
-Each page has a contextually appropriate title that improves user experience and SEO.
-
-## SEO considerations
-
-Good page titles are crucial for SEO:
-
-* **Be descriptive** - "Edit Post: Getting Started with Laravel" is better than "Edit"
-* **Keep it concise** - Aim for 50-60 characters to avoid truncation in search results
-* **Include keywords** - Help search engines understand your page content
-* **Be unique** - Each page should have a distinct title
-
-## Only for full-page components
-
-> [!info] Full-page components only
-> The `#[Title]` attribute only works for full-page components accessed via routes. Regular components rendered within other views don't use titles—they inherit the parent page's title.
-
-## Learn more
-
-For more information about full-page components, layouts, and routing, see the [Pages documentation](/docs/4.x/pages#setting-a-page-title).
-
-## Reference
+## Referensi
 
 ```php
 #[Title(
     string $content,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$content` | `string` | *required* | The text to display in the browser's title bar |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$content` | `string` | *required* | Teks yang akan ditampilkan di bilah judul browser. |
