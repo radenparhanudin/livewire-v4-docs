@@ -1,8 +1,8 @@
-The `#[Json]` attribute marks an action as a JSON endpoint, returning data directly to JavaScript. Validation errors trigger a promise rejection with structured error data. This is ideal for actions consumed by JavaScript rather than rendered in Blade.
+Atribut `#[Json]` menandai sebuah **action** sebagai endpoint JSON, yang mengembalikan data secara langsung ke JavaScript. Kesalahan validasi (*validation errors*) akan memicu penolakan *promise* (*promise rejection*) dengan data kesalahan yang terstruktur. Ini sangat ideal untuk **actions** yang dikonsumsi oleh JavaScript alih-alih di-*render* di Blade.
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[Json]` attribute to any action method that returns data for JavaScript consumption:
+Terapkan atribut `#[Json]` pada metode **action** apa pun yang mengembalikan data untuk dikonsumsi JavaScript:
 
 ```php
 <?php // resources/views/components/⚡search.blade.php
@@ -20,6 +20,7 @@ new class extends Component {
             ->get();
     }
 };
+
 ```
 
 ```blade
@@ -36,21 +37,27 @@ new class extends Component {
         </template>
     </ul>
 </div>
+
 ```
 
-The `search()` method returns posts directly to Alpine, where they're stored in the `posts` array and rendered client-side.
+Metode `search()` mengembalikan postingan langsung ke Alpine, di mana data tersebut disimpan dalam array `posts` dan di-*render* di sisi klien (*client-side*).
 
-## Handling responses
+---
 
-JSON methods resolve with the return value on success, and reject on validation failure:
+## Menangani respons (Handling responses)
 
-**On success:**
+Metode JSON akan melakukan *resolve* dengan nilai balik jika berhasil, dan melakukan *reject* jika terjadi kegagalan validasi:
+
+**Saat berhasil:**
+
 ```js
 let data = await $wire.search('query')
 // data = [ { id: 1, title: '...' }, ...]
+
 ```
 
-**On validation failure:**
+**Saat gagal validasi:**
+
 ```js
 try {
     let data = await $wire.save()
@@ -58,37 +65,43 @@ try {
     // e.status = 422
     // e.errors = { name: ['The name field is required.'] }
 }
+
 ```
 
-Or using `.catch()`:
+Atau menggunakan `.catch()`:
+
 ```js
 $wire.save()
     .then(data => {
-        // Handle success
+        // Tangani keberhasilan
         console.log(data)
     })
     .catch(e => {
         if (e.status === 422) {
-            // Handle validation errors
+            // Tangani kesalahan validasi
             console.log(e.errors)
         }
     })
+
 ```
 
-## Error rejection shape
+---
 
-When a promise is rejected, the error object has this structure:
+## Struktur Error Rejection
+
+Ketika sebuah *promise* ditolak (*rejected*), objek *error* memiliki struktur sebagai berikut:
 
 ```js
 {
-    status: 422,    // HTTP status code (422 for validation errors)
-    body: null,     // Raw response body (null for validation errors)
-    json: null,     // Parsed JSON (null for validation errors)
-    errors: {...}   // Validation errors object
+    status: 422,    // Kode status HTTP (422 untuk kesalahan validasi)
+    body: null,     // Body respons mentah (null untuk kesalahan validasi)
+    json: null,     // JSON yang di-parse (null untuk kesalahan validasi)
+    errors: {...}   // Objek kesalahan validasi
 }
+
 ```
 
-For HTTP errors (500, etc.), the shape is the same but with the actual response data:
+Untuk kesalahan HTTP (500, dll.), strukturnya sama tetapi dengan data respons yang sebenarnya:
 
 ```js
 {
@@ -97,32 +110,39 @@ For HTTP errors (500, etc.), the shape is the same but with the actual response 
     json: null,
     errors: null
 }
+
 ```
 
-## Behavior
+---
 
-The `#[Json]` attribute automatically applies two behaviors:
+## Perilaku (Behavior)
 
-1. **Skips rendering** - The component doesn't re-render after the action completes, since the response is consumed by JavaScript
-2. **Runs asynchronously** - The action executes in parallel without blocking other requests
+Atribut `#[Json]` secara otomatis menerapkan dua perilaku:
 
-These behaviors match what you'd expect from an API-style endpoint.
+1. **Melewatkan proses render** — **Component** tidak akan melakukan *re-render* setelah **action** selesai, karena respons dikonsumsi oleh JavaScript.
+2. **Berjalan secara asinkron** — **Action** dieksekusi secara paralel tanpa memblokir *requests* lainnya.
 
-## When to use
+Perilaku ini sesuai dengan apa yang Anda harapkan dari endpoint bergaya API.
 
-Use `#[Json]` when:
+---
 
-* **Building dynamic search/autocomplete** - Fetching results for a dropdown or suggestion list
-* **Loading data into JavaScript** - Populating charts, maps, or other JS-driven UI
-* **Submitting forms with JS handling** - When you want to handle success/error states in JavaScript
-* **Integrating with third-party libraries** - Providing data to libraries that manage their own rendering
+## Kapan harus menggunakan
 
-> [!warning] Validation errors are isolated
-> Validation errors from JSON methods are only returned via promise rejection. They don't appear in `$wire.$errors` or the component's error bag. This is intentional—JSON methods are self-contained and don't affect the component's rendered state.
+Gunakan `#[Json]` saat:
 
-## See also
+* **Membangun pencarian dinamis/autocomplete** — Mengambil hasil untuk daftar *dropdown* atau saran.
+* **Memuat data ke dalam JavaScript** — Mengisi grafik (*charts*), peta, atau UI lain yang dikendalikan JS.
+* **Mengirim formulir dengan penanganan JS** — Ketika Anda ingin menangani status sukses/error di dalam JavaScript.
+* **Integrasi dengan library pihak ketiga** — Menyediakan data ke pustaka yang mengelola *rendering*-nya sendiri.
 
-- **[Actions](/docs/4.x/actions)** — Learn about invoking methods and receiving return values
-- **[Validation](/docs/4.x/validation)** — Server-side validation for Livewire components
-- **[Async Attribute](/docs/4.x/attribute-async)** — Run actions in parallel without blocking
-- **[Renderless Attribute](/docs/4.x/attribute-renderless)** — Skip re-rendering after an action
+> [!warning] Kesalahan validasi terisolasi
+> Kesalahan validasi dari metode JSON hanya dikembalikan melalui *promise rejection*. Mereka tidak akan muncul di `$wire.$errors` atau tas kesalahan (*error bag*) milik **component**. Ini disengaja—metode JSON bersifat mandiri dan tidak memengaruhi status tampilan **component**.
+
+---
+
+## Lihat juga
+
+* **[Actions](https://www.google.com/search?q=/docs/4.x/actions)** — Pelajari tentang memanggil metode dan menerima nilai balik.
+* **[Validation](https://www.google.com/search?q=/docs/4.x/validation)** — Validasi sisi server untuk Livewire components.
+* **[Async Attribute](https://www.google.com/search?q=/docs/4.x/attribute-async)** — Menjalankan actions secara paralel tanpa memblokir.
+* **[Renderless Attribute](https://www.google.com/search?q=/docs/4.x/attribute-renderless)** — Melewatkan re-rendering setelah sebuah action.
