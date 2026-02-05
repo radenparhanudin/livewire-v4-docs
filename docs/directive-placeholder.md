@@ -1,8 +1,8 @@
-The `@placeholder` directive displays custom content while lazy or deferred components and islands are loading.
+Direktif `@placeholder` menampilkan konten kustom sementara komponen atau **islands** yang bersifat *lazy* atau *deferred* sedang dimuat.
 
-## Basic usage with lazy components
+## Penggunaan dasar dengan lazy components
 
-For single-file and multi-file components, use `@placeholder` to specify what displays during loading:
+Untuk *single-file* dan *multi-file components*, gunakan `@placeholder` untuk menentukan apa yang ditampilkan selama proses pemuatan:
 
 ```php
 <?php // resources/views/components/⚡revenue.blade.php
@@ -15,7 +15,7 @@ new class extends Component {
 
     public function mount()
     {
-        // Slow database query...
+        // Query database yang lambat...
         $this->amount = Transaction::monthToDate()->sum('amount');
     }
 };
@@ -23,7 +23,6 @@ new class extends Component {
 
 @placeholder
     <div>
-        <!-- Loading spinner -->
         <svg class="animate-spin h-5 w-5">...</svg>
     </div>
 @endplaceholder
@@ -31,19 +30,22 @@ new class extends Component {
 <div>
     Revenue this month: {{ $amount }}
 </div>
+
 ```
 
-When rendered with `<livewire:revenue lazy />`, the placeholder displays until the component loads.
+Ketika di-*render* dengan `<livewire:revenue lazy />`, **placeholder** akan muncul sampai komponen selesai dimuat.
 
-> [!tip] View-based components only
-> The `@@placeholder` directive works for single-file and multi-file components. For class-based components, use the `placeholder()` method instead.
+> [!tip] Khusus komponen berbasis view
+> Direktif `@placeholder` berfungsi untuk *single-file* dan *multi-file components*. Untuk komponen berbasis kelas (*class-based components*), gunakan metode `placeholder()` sebagai gantinya.
 
-> [!warning] Matching root element types
-> The placeholder and component must share the same root element type. If your placeholder uses `<div>`, your component must also use `<div>`.
+> [!warning] Kesesuaian tipe elemen root
+> **Placeholder** dan komponen harus memiliki tipe elemen *root* yang sama. Jika **placeholder** Anda menggunakan `<div>`, maka komponen Anda juga harus menggunakan `<div>`.
 
-## Usage with islands
+---
 
-Use `@placeholder` inside lazy islands to customize loading states:
+## Penggunaan dengan islands
+
+Gunakan `@placeholder` di dalam **lazy islands** untuk menyesuaikan status pemuatan (*loading states*):
 
 ```blade
 @island(lazy: true)
@@ -59,13 +61,16 @@ Use `@placeholder` inside lazy islands to customize loading states:
         <button type="button" wire:click="$refresh">Refresh</button>
     </div>
 @endisland
+
 ```
 
-The placeholder appears while the island is loading, then gets replaced with the actual content.
+**Placeholder** muncul saat **island** sedang dimuat, lalu digantikan dengan konten yang sebenarnya.
+
+---
 
 ## Skeleton placeholders
 
-Placeholders are ideal for skeleton loaders that match your content's layout:
+**Placeholders** sangat ideal untuk membuat *skeleton loaders* yang sesuai dengan tata letak konten Anda:
 
 ```blade
 @placeholder
@@ -77,14 +82,16 @@ Placeholders are ideal for skeleton loaders that match your content's layout:
 @endplaceholder
 
 <div>
-    <!-- Actual content -->
     <h2>{{ $post->title }}</h2>
     <p>{{ $post->content }}</p>
 </div>
+
 ```
 
-## Learn more
+---
 
-For lazy component loading, see the [Lazy Loading documentation](/docs/4.x/lazy).
+## Pelajari lebih lanjut
 
-For island loading states, see the [Islands documentation](/docs/4.x/islands).
+Untuk pemuatan komponen secara *lazy*, lihat [dokumentasi Lazy Loading](https://www.google.com/search?q=/docs/4.x/lazy).
+
+Untuk status pemuatan pada **island**, lihat [dokumentasi Islands](https://www.google.com/search?q=/docs/4.x/islands).
