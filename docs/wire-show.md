@@ -1,11 +1,10 @@
+Direktif `wire:show` milik Livewire memudahkan Anda untuk menampilkan dan menyembunyikan elemen berdasarkan hasil dari sebuah ekspresi.
 
-Livewire's `wire:show` directive makes it easy to show and hide elements based on the result of an expression.
+Direktif `wire:show` berbeda dengan penggunaan `@if` di Blade karena ia beralih visibilitas elemen menggunakan CSS (`display: none`) alih-alih menghapus elemen dari DOM sepenuhnya. Ini berarti elemen tetap ada di halaman tetapi tersembunyi, memungkinkan transisi yang lebih mulus tanpa memerlukan *server round-trip*.
 
-The `wire:show` directive is different than using `@if` in Blade in that it toggles an element's visibility using CSS (`display: none`) rather than removing the element from the DOM entirely. This means the element remains in the page but is hidden, allowing for smoother transitions without requiring a server round-trip.
+## Penggunaan dasar
 
-## Basic usage
-
-Here's a practical example of using `wire:show` to toggle a "Create Post" modal:
+Berikut adalah contoh praktis penggunaan `wire:show` untuk beralih modal "Create Post":
 
 ```php
 use Livewire\Component;
@@ -26,6 +25,7 @@ class CreatePost extends Component
         $this->showModal = false;
     }
 }
+
 ```
 
 ```blade
@@ -40,13 +40,14 @@ class CreatePost extends Component
         </form>
     </div>
 </div>
+
 ```
 
-When the "Create New Post" button is clicked, the modal appears without a server roundtrip. After successfully saving the post, the modal is hidden and the form is reset.
+Ketika tombol "New Post" diklik, modal akan muncul tanpa *server round-trip*. Setelah berhasil menyimpan postingan, modal akan disembunyikan dan formulir disetel ulang (*reset*).
 
-## Using transitions
+## Menggunakan transisi
 
-You can combine `wire:show` with Alpine.js transitions to create smooth show/hide animations. Since `wire:show` only toggles the CSS `display` property, Alpine's `x-transition` directives work perfectly with it:
+Anda dapat menggabungkan `wire:show` dengan transisi Alpine.js untuk membuat animasi tampil/sembunyi yang mulus. Karena `wire:show` hanya beralih properti CSS `display`, direktif `x-transition` milik Alpine bekerja dengan sempurna bersamanya:
 
 ```blade
 <div>
@@ -59,16 +60,20 @@ You can combine `wire:show` with Alpine.js transitions to create smooth show/hid
         </form>
     </div>
 </div>
+
 ```
 
-The Alpine.js transition classes above will create a fade and scale effect when the modal shows and hides.
+Class transisi Alpine.js di atas akan membuat efek *fade* dan *scale* saat modal ditampilkan dan disembunyikan.
 
-[View the full x-transition documentation →](https://alpinejs.dev/directives/transition)
+[Lihat dokumentasi lengkap x-transition →](https://alpinejs.dev/directives/transition)
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:show="expression"
+
 ```
 
-This directive has no modifiers.
+Direktif ini tidak memiliki **modifiers**.
