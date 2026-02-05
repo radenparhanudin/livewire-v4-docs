@@ -1,8 +1,8 @@
-To include Livewire components in a Laravel package, you'll need to register them in your package's service provider.
+Untuk menyertakan komponen Livewire dalam sebuah Laravel **package**, Anda perlu mendaftarkannya di dalam **service provider** milik **package** Anda.
 
-## Single-file and multi-file components
+## Single-file dan multi-file components
 
-For single-file (SFC) and multi-file (MFC) components, use `addNamespace` in your service provider's `boot()` method:
+Untuk **single-file components** (SFC) dan **multi-file components** (MFC), gunakan metode `addNamespace` di dalam metode `boot()` pada **service provider** Anda:
 
 ```php
 use Livewire\Livewire;
@@ -14,20 +14,24 @@ public function boot(): void
         viewPath: __DIR__ . '/../resources/views/livewire',
     );
 }
+
 ```
 
-This registers all SFC and MFC components in your package's `resources/views/livewire` directory under the `mypackage` namespace.
+Ini akan mendaftarkan semua komponen SFC dan MFC di direktori `resources/views/livewire` milik **package** Anda di bawah **namespace** `mypackage`.
 
-**Usage:**
+**Penggunaan:**
 
 ```blade
 <livewire:mypackage::counter />
 <livewire:mypackage::users.table />
+
 ```
+
+---
 
 ## Class-based components
 
-For class-based components, you'll need to provide additional parameters and register your views with Laravel:
+Untuk **class-based components**, Anda perlu memberikan parameter tambahan dan mendaftarkan **views** Anda ke Laravel:
 
 ```php
 use Livewire\Livewire;
@@ -43,23 +47,28 @@ public function boot(): void
 
     $this->loadViewsFrom(__DIR__ . '/../resources/views', 'my-package');
 }
+
 ```
 
-Your component's `render()` method should reference the view using Laravel's package namespace syntax:
+Metode `render()` pada komponen Anda harus merujuk ke **view** menggunakan sintaks **package namespace** Laravel:
 
 ```php
 public function render()
 {
     return view('my-package::livewire.counter');
 }
+
 ```
 
-**Usage:**
+**Penggunaan:**
 
 ```blade
 <livewire:mypackage::counter />
+
 ```
 
-## File naming
+---
 
-The ⚡ emoji prefix used in Livewire component filenames can cause issues with Composer when publishing packages. For package development, avoid using the bolt emoji in your component filenames—use `counter.blade.php` instead of `⚡counter.blade.php`.
+## Penamaan File (File naming)
+
+Awalan emoji ⚡ yang digunakan pada nama file komponen Livewire dapat menyebabkan masalah dengan **Composer** saat mempublikasikan **package**. Untuk pengembangan **package**, hindari penggunaan emoji petir tersebut pada nama file komponen Anda—gunakan `counter.blade.php` alih-alih `⚡counter.blade.php`.
