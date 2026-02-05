@@ -1,8 +1,8 @@
-The `#[On]` attribute allows a component to listen for events and execute a method when those events are dispatched.
+Atribut `#[On]` memungkinkan sebuah **component** untuk mendengarkan *events* dan mengeksekusi sebuah metode ketika *events* tersebut dikirimkan (*dispatched*).
 
-## Basic usage
+## Penggunaan dasar
 
-Apply the `#[On]` attribute to any method that should be called when an event is dispatched:
+Terapkan atribut `#[On]` pada metode apa pun yang harus dipanggil saat sebuah *event* dikirimkan:
 
 ```php
 <?php // resources/views/components/⚡dashboard.blade.php
@@ -17,13 +17,16 @@ new class extends Component {
         session()->flash('status', "New post created: {$title}");
     }
 };
+
 ```
 
-When another component dispatches the `post-created` event, the `updatePostList()` method will be called automatically.
+Ketika **component** lain mengirimkan *event* `post-created`, metode `updatePostList()` akan dipanggil secara otomatis.
 
-## Dispatching events
+---
 
-To dispatch an event that triggers listeners, use the `dispatch()` method:
+## Mengirimkan events (Dispatching events)
+
+Untuk mengirimkan *event* yang memicu pendengar (*listeners*), gunakan metode `dispatch()`:
 
 ```php
 <?php // resources/views/components/post/⚡create.blade.php
@@ -43,31 +46,38 @@ new class extends Component {
         return redirect('/posts');
     }
 };
+
 ```
 
-The `post-created` event will trigger any methods decorated with `#[On('post-created')]`.
+*Event* `post-created` akan memicu metode apa pun yang didekorasi dengan `#[On('post-created')]`.
 
-## Passing data to listeners
+---
 
-Events can pass data as named parameters:
+## Mengirim data ke listeners
+
+*Events* dapat mengirimkan data sebagai parameter bernama (*named parameters*):
 
 ```php
-// Dispatching with multiple parameters
+// Mengirim dengan beberapa parameter
 $this->dispatch('post-updated', id: $post->id, title: $post->title);
+
 ```
 
 ```php
-// Listening and receiving parameters
+// Mendengarkan dan menerima parameter
 #[On('post-updated')]
 public function handlePostUpdate($id, $title)
 {
-    // Use $id and $title...
+    // Gunakan $id dan $title...
 }
+
 ```
 
-## Dynamic event names
+---
 
-You can use component properties in event names for scoped listening:
+## Nama event dinamis
+
+Anda dapat menggunakan properti **component** dalam nama *event* untuk pendengaran yang bersifat spesifik (*scoped*):
 
 ```php
 <?php // resources/views/components/post/⚡show.blade.php
@@ -85,13 +95,16 @@ new class extends Component {
         $this->post->refresh();
     }
 };
+
 ```
 
-If `$post->id` is `3`, this will only listen for `post-updated.3` events, ignoring updates to other posts.
+Jika `$post->id` bernilai `3`, ini hanya akan mendengarkan *event* `post-updated.3`, dan mengabaikan pembaruan pada postingan lainnya.
 
-## Multiple event listeners
+---
 
-A single method can listen for multiple events:
+## Beberapa event listeners
+
+Satu metode dapat mendengarkan beberapa *event* sekaligus:
 
 ```php
 #[On('post-created')]
@@ -99,56 +112,69 @@ A single method can listen for multiple events:
 #[On('post-deleted')]
 public function refreshStats()
 {
-    // Refresh statistics when any post changes
+    // Perbarui statistik ketika ada postingan yang berubah
 }
+
 ```
 
-## Listening to browser events
+---
 
-You can also listen for browser events dispatched from JavaScript:
+## Mendengarkan event browser
+
+Anda juga dapat mendengarkan *event* browser yang dikirimkan dari JavaScript:
 
 ```php
 #[On('user-logged-in')]
 public function handleUserLogin()
 {
-    // Handle login...
+    // Tangani login...
 }
+
 ```
 
 ```javascript
-// From JavaScript
+// Dari JavaScript
 window.dispatchEvent(new CustomEvent('user-logged-in'));
+
 ```
 
-## Alternative: Listening in the template
+---
 
-Instead of using the attribute, you can listen for events directly on child components in your Blade template:
+## Alternatif: Mendengarkan di dalam template
+
+Alih-alih menggunakan atribut, Anda dapat mendengarkan *events* langsung pada **child components** di dalam template Blade Anda:
 
 ```blade
 <livewire:post.edit @saved="$refresh" />
+
 ```
 
-This listens for the `saved` event from the `post.edit` child component and refreshes the parent when it's dispatched.
+Ini akan mendengarkan *event* `saved` dari **child component** `post.edit` dan me-*refresh* **parent** saat *event* tersebut dikirimkan.
 
-You can also call specific methods:
+Anda juga dapat memanggil metode tertentu:
 
 ```blade
 <livewire:post.edit @saved="handleSave($event.id)" />
+
 ```
 
-## When to use
+---
 
-Use `#[On]` when:
+## Kapan harus menggunakan
 
-* One component needs to react to actions in another component
-* Implementing real-time notifications or updates
-* Building loosely coupled components that communicate via events
-* Listening for browser or Laravel Echo events
-* Refreshing data when external changes occur
+Gunakan `#[On]` ketika:
 
-## Example: Real-time notifications
+* Satu **component** perlu bereaksi terhadap tindakan di **component** lain.
+* Mengimplementasikan notifikasi atau pembaruan waktu nyata (*real-time*).
+* Membangun komponen yang tidak saling bergantung (*loosely coupled*) namun berkomunikasi via *events*.
+* Mendengarkan *event* browser atau Laravel Echo.
+* Memperbarui data ketika terjadi perubahan eksternal.
 
-Here's a practical example of a notification bell that listens for new notifications:
+---
+
+## Contoh: Notifikasi real-time
+
+Berikut adalah contoh praktis dari ikon lonceng notifikasi yang mendengarkan notifikasi baru:
 
 ```php
 <?php // resources/views/components/⚡notification-bell.blade.php
@@ -179,34 +205,27 @@ new class extends Component {
 ?>
 
 <button class="relative">
-    <svg><!-- Bell icon --></svg>
+    <svg></svg>
     @if($unreadCount > 0)
         <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
             {{ $unreadCount }}
         </span>
     @endif
 </button>
+
 ```
 
-Other components can dispatch events to update the notification count:
+---
 
-```php
-// From anywhere in your app
-$this->dispatch('notification-sent');
-```
-
-## Learn more
-
-For more information about events, dispatching to specific components, and Laravel Echo integration, see the [Events documentation](/docs/4.x/events).
-
-## Reference
+## Referensi
 
 ```php
 #[On(
     string $event,
 )]
+
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `$event` | `string` | *required* | The name of the event to listen for |
+| Parameter | Tipe | Default | Deskripsi |
+| --- | --- | --- | --- |
+| `$event` | `string` | *required* | Nama *event* yang ingin didengarkan |
