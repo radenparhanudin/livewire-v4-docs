@@ -1,49 +1,60 @@
-In real-time applications, it can be helpful to provide a visual indication that the user's device is no longer connected to the internet.
+Dalam aplikasi *real-time*, memberikan indikasi visual bahwa perangkat pengguna tidak lagi terhubung ke internet sangatlah membantu.
 
-For example, if you have built a blogging platform on Livewire, you may want to notify your users if they are offline so that they don't draft an entire blog post without the ability for Livewire to save it to the database.
+Sebagai contoh, jika Anda membangun platform blogging dengan Livewire, Anda mungkin ingin memberi tahu pengguna jika mereka sedang *offline* agar mereka tidak menulis draf seluruh postingan blog tanpa kemampuan Livewire untuk menyimpannya ke database.
 
-Livewire provides the `wire:offline` directive for such cases. By adding `wire:offline` to an element inside a Livewire component, it will be hidden by default and become visible when the user loses connection:
+Livewire menyediakan direktif `wire:offline` untuk kasus-kasus seperti ini. Dengan menambahkan `wire:offline` ke sebuah elemen di dalam **Livewire component**, elemen tersebut akan disembunyikan secara default dan menjadi terlihat saat pengguna kehilangan koneksi:
 
 ```blade
 <div wire:offline>
     This device is currently offline.
 </div>
+
 ```
 
-The element will disappear again when the network connection is restored.
+Elemen tersebut akan menghilang kembali ketika koneksi jaringan telah dipulihkan.
 
-## Toggling classes
+---
 
-Adding the `class` modifier allows you to add a class to an element when the user loses their connection. The class will be removed again, once the user is back online:
+## Beralih class (Toggling classes)
+
+Menambahkan **modifier** `class` memungkinkan Anda untuk menambahkan sebuah class ke elemen saat pengguna kehilangan koneksi mereka. Class tersebut akan dihapus kembali setelah pengguna kembali *online*:
 
 ```blade
 <div wire:offline.class="bg-red-300">
+
 ```
 
-Or, using the `.remove` modifier, you can remove a class when a user loses their connection. In this example, the `bg-green-300` class will be removed from the `<div>` while the user has lost their connection:
+Atau, menggunakan **modifier** `.remove`, Anda dapat menghapus sebuah class saat pengguna kehilangan koneksi. Dalam contoh ini, class `bg-green-300` akan dihapus dari `<div>` selama pengguna kehilangan koneksi:
 
 ```blade
 <div class="bg-green-300" wire:offline.class.remove="bg-green-300">
+
 ```
 
-## Toggling attributes
+---
 
-The `.attr` modifier allows you to add an attribute to an element when the user loses their connection. In this example, the "Save" button will be disabled while the user has lost their connection:
+## Beralih atribut (Toggling attributes)
+
+**Modifier** `.attr` memungkinkan Anda menambahkan atribut ke sebuah elemen saat pengguna kehilangan koneksi. Dalam contoh ini, tombol "Save" akan menjadi nonaktif (*disabled*) selama pengguna kehilangan koneksi:
 
 ```blade
 <button wire:offline.attr="disabled">Save</button>
+
 ```
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:offline
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.class="class-name"` | Add a CSS class when offline |
-| `.class.remove="class-name"` | Remove a CSS class when offline |
-| `.attr="attribute"` | Add an HTML attribute when offline |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.class="class-name"` | Menambahkan class CSS saat *offline* |
+| `.class.remove="class-name"` | Menghapus class CSS saat *offline* |
+| `.attr="attribute"` | Menambahkan atribut HTML saat *offline* |
