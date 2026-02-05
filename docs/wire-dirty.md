@@ -1,135 +1,147 @@
+Pada halaman HTML tradisional yang berisi formulir, formulir tersebut hanya akan dikirimkan ketika pengguna menekan tombol "Submit".
 
-In a traditional HTML page containing a form, the form is only ever submitted when the user presses the "Submit" button.
+Namun, Livewire mampu melakukan lebih dari sekadar pengiriman formulir tradisional. Anda dapat melakukan validasi input formulir secara *real-time* atau bahkan menyimpan formulir saat pengguna mengetik.
 
-However, Livewire is capable of much more than traditional form submissions. You can validate form inputs in real-time or even save the form as a user types.
+Dalam skenario pembaruan "*real-time*" ini, sangat berguna untuk memberi sinyal kepada pengguna ketika formulir atau sebagian dari formulir telah diubah, tetapi belum disimpan ke database.
 
-In these "real-time" update scenarios, it can be helpful to signal to your users when a form or subset of a form has been changed, but hasn't been saved to the database.
+Ketika sebuah formulir berisi input yang belum disimpan, formulir tersebut dianggap "**dirty**" (kotor). Formulir tersebut hanya akan menjadi "**clean**" (bersih) ketika sebuah *network request* telah dipicu untuk menyinkronkan *state* server dengan *state* di sisi klien.
 
-When a form contains un-saved input, that form is considered "dirty". It only becomes "clean" when a network request has been triggered to synchronize the server state with the client-side state.
+## Penggunaan dasar
 
-## Basic usage
+Livewire memungkinkan Anda untuk beralih elemen visual pada halaman dengan mudah menggunakan direktif `wire:dirty`.
 
-Livewire allows you to easily toggle visual elements on the page using the `wire:dirty` directive.
+Dengan menambahkan `wire:dirty` ke sebuah elemen, Anda menginstruksikan Livewire untuk hanya menampilkan elemen tersebut ketika *state* di sisi klien berbeda dengan *state* di sisi server.
 
-By adding `wire:dirty` to an element, you are instructing Livewire to only show the element when the client-side state diverges from the server-side state.
-
-To demonstrate, here is an example of an `UpdatePost` form containing a visual "Unsaved changes..." indication that signals to the user that the form contains input that has not been saved:
+Sebagai demonstrasi, berikut adalah contoh formulir `UpdatePost` yang berisi indikasi visual "Unsaved changes..." untuk memberi tahu pengguna bahwa formulir berisi input yang belum disimpan:
 
 ```blade
 <form wire:submit="update">
     <input type="text" wire:model="title">
 
-    <!-- ... -->
-
     <button type="submit">Update</button>
 
-    <div wire:dirty>Unsaved changes...</div> <!-- [tl! highlight] -->
-</form>
+    <div wire:dirty>Unsaved changes...</div> </form>
+
 ```
 
-Because `wire:dirty` has been added to the "Unsaved changes..." message, the message will be hidden by default. Livewire will automatically display the message when the user starts modifying the form inputs.
+Karena `wire:dirty` telah ditambahkan ke pesan "Unsaved changes...", pesan tersebut akan disembunyikan secara default. Livewire akan secara otomatis menampilkan pesan tersebut saat pengguna mulai mengubah input formulir.
 
-When the user submits the form, the message will disappear again, since the server / client data is back in sync.
+Ketika pengguna mengirimkan formulir, pesan tersebut akan menghilang kembali karena data server / klien sudah sinkron kembali.
 
-### Removing elements
+### Menghapus elemen
 
-By adding the `.remove` modifier to `wire:dirty`, you can instead show an element by default and only hide it when the component has "dirty" state:
+Dengan menambahkan **modifier** `.remove` ke `wire:dirty`, Anda justru dapat menampilkan elemen secara default dan hanya menyembunyikannya ketika **component** berada dalam *state* "**dirty**":
 
 ```blade
 <div wire:dirty.remove>The data is in-sync...</div>
+
 ```
 
-## Targeting property updates
+---
 
-Imagine you are using `wire:model.live.blur` to update a property on the server immediately after a user leaves an input field. In this scenario, you can provide a "dirty" indication for only that property by adding `wire:target` to the element that contains the `wire:dirty` directive.
+## Menargetkan pembaruan properti
 
-Here is an example of only showing a dirty indication when the title property has been changed:
+Bayangkan Anda menggunakan `wire:model.live.blur` untuk memperbarui properti di server segera setelah pengguna meninggalkan kolom input. Dalam skenario ini, Anda dapat memberikan indikasi "**dirty**" hanya untuk properti tersebut dengan menambahkan `wire:target` ke elemen yang berisi direktif `wire:dirty`.
+
+Berikut adalah contoh untuk hanya menampilkan indikasi *dirty* ketika properti `title` telah diubah:
 
 ```blade
 <form wire:submit="update">
     <input wire:model.live.blur="title">
 
-    <div wire:dirty wire:target="title">Unsaved title...</div> <!-- [tl! highlight] -->
-
-    <button type="submit">Update</button>
+    <div wire:dirty wire:target="title">Unsaved title...</div> <button type="submit">Update</button>
 </form>
+
 ```
 
-## Toggling classes
+---
 
-Often, instead of toggling entire elements, you may want to toggle individual CSS classes on an input when its state is "dirty".
+## Beralih class (Toggling classes)
 
-Below is an example where a user types into an input field and the border becomes yellow, indicating an "unsaved" state. Then, when the user tabs away from the field, the border is removed, indicating that the state has been saved on the server:
+Seringkali, alih-alih beralih elemen secara keseluruhan, Anda mungkin ingin beralih class CSS individu pada sebuah input ketika *state*-nya "**dirty**".
+
+Di bawah ini adalah contoh di mana pengguna mengetik ke dalam kolom input dan *border* menjadi kuning, menunjukkan *state* "belum disimpan". Kemudian, ketika pengguna berpindah dari kolom tersebut (*tab away*), *border* dihapus, menunjukkan bahwa *state* telah disimpan di server:
 
 ```blade
 <input wire:model.live.blur="title" wire:dirty.class="border-yellow-500">
+
 ```
 
-## Using the `$dirty` expression
+---
 
-In addition to the `wire:dirty` directive, you can check dirty state programmatically using the `$dirty` expression in Livewire directives or `$wire.$dirty()` in Alpine.
+## Menggunakan ekspresi `$dirty`
 
-### Check if entire component is dirty
+Selain direktif `wire:dirty`, Anda dapat memeriksa *dirty state* secara terprogram menggunakan ekspresi `$dirty` di dalam direktif Livewire atau `$wire.$dirty()` di Alpine.
 
-To check if any property on the component has unsaved changes:
+### Memeriksa apakah seluruh component kotor
+
+Untuk memeriksa apakah ada properti pada **component** yang memiliki perubahan yang belum disimpan:
 
 ```blade
 <div wire:show="$dirty">You have unsaved changes</div>
+
 ```
 
-### Check if a specific property is dirty
+### Memeriksa apakah properti tertentu kotor
 
-To check if a specific property has been modified:
+Untuk memeriksa apakah properti tertentu telah dimodifikasi:
 
 ```blade
 <div wire:show="$dirty('title')">Title has been modified</div>
+
 ```
 
-You can also check nested properties:
+Anda juga dapat memeriksa properti yang bersarang (*nested properties*):
 
 ```blade
 <div wire:show="$dirty('user.name')">Name has been modified</div>
+
 ```
 
-### Conditional logic based on dirty state
+### Logika kondisional berdasarkan dirty state
 
-You can use `$wire.$dirty()` in Alpine to conditionally run logic:
+Anda dapat menggunakan `$wire.$dirty()` di Alpine untuk menjalankan logika secara kondisional:
 
 ```blade
 <button x-on:click="$wire.$dirty('title') && $wire.save()">
     Save Title
 </button>
+
 ```
 
-Or apply conditional classes with Alpine:
+Atau menerapkan class kondisional dengan Alpine:
 
 ```blade
 <input
     wire:model="email"
     :class="$wire.$dirty('email') && 'border-yellow-500'"
 >
+
 ```
 
-## Reference
+---
+
+## Referensi
 
 ```blade
 wire:dirty
 wire:target="property"
+
 ```
 
 ### Modifiers
 
-| Modifier | Description |
-|----------|-------------|
-| `.remove` | Show element by default, hide when dirty |
-| `.class="class-name"` | Add a CSS class when dirty |
+| Modifier | Deskripsi |
+| --- | --- |
+| `.remove` | Tampilkan elemen secara default, sembunyikan saat *dirty* |
+| `.class="class-name"` | Tambahkan class CSS saat *dirty* |
 
-### `$dirty` expression
+### Ekspresi `$dirty`
 
-| Expression | Description |
-|------------|-------------|
-| `$dirty` | Returns `true` if any property has unsaved changes |
-| `$dirty('property')` | Returns `true` if the specified property has unsaved changes |
-| `$dirty(['title', 'description'])` | Returns `true` if any of the specified properties have unsaved changes |
+| Ekspresi | Deskripsi |
+| --- | --- |
+| `$dirty` | Mengembalikan `true` jika ada properti yang memiliki perubahan belum disimpan |
+| `$dirty('property')` | Mengembalikan `true` jika properti yang ditentukan memiliki perubahan belum disimpan |
+| `$dirty(['title', 'description'])` | Mengembalikan `true` jika salah satu properti yang ditentukan memiliki perubahan belum disimpan |
 
-Can be used in Livewire directives like `wire:show="$dirty"` or in Alpine as `$wire.$dirty()`.
+Dapat digunakan dalam direktif Livewire seperti `wire:show="$dirty"` atau di Alpine sebagai `$wire.$dirty()`.
